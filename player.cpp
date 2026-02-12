@@ -3,21 +3,21 @@
 #include "map.h"
 #include "map_renderer.h"
 #include "polygon.h"
-#include "network_manager.h"
+#include "NetWork/network_manager.h"
 #include "keyboard.h"
-#include "camera.h" // ƒJƒƒ‰“¯Šú‚Ì‚½‚ß‚É’Ç‰Á
+#include "camera.h" // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ß‚É’Ç‰ï¿½
 #include <cmath>
 #include <algorithm>
-#include "game_controller.h" // ƒRƒ“ƒgƒ[ƒ‰“ü—Í
+#include "game_controller.h" // ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 #include "bullet.h"
 #include <memory>
 #include <vector>
 static std::vector<std::unique_ptr<Bullet>> g_bullets;
-extern ID3D11ShaderResourceView* GetPolygonTexture(); // ’e—pƒeƒNƒXƒ`ƒƒæ“¾ŠÖ”
+extern ID3D11ShaderResourceView* GetPolygonTexture(); // ï¿½eï¿½pï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½æ“¾ï¿½Öï¿½
 
 
-// min‚Ì‘ã‚í‚è‚Ég‚¤ƒwƒ‹ƒp[ŠÖ”
+// minï¿½Ì‘ï¿½ï¿½ï¿½Égï¿½ï¿½ï¿½wï¿½ï¿½ï¿½pï¿½[ï¿½Öï¿½
 static inline float Min(float a, float b) {
     return (a < b) ? a : b;
 }
@@ -48,12 +48,12 @@ void Player::Initialize(Map* map, ID3D11ShaderResourceView* texture, int id, Vie
     playerId = id;
     viewMode = mode;
 
-    // ƒvƒŒƒCƒ„[2‚Í­‚µ—£‚ê‚½ˆÊ’u‚É”z’u
+    // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[2ï¿½Íï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½Ê’uï¿½É”zï¿½u
     if (playerId == 2) {
         position = XMFLOAT3(3.0f, 3.0f, 0.0f);
     }
 
-    // ƒrƒWƒ…ƒAƒ‹ƒIƒuƒWƒFƒNƒg‚Ìİ’è
+    // ï¿½rï¿½Wï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½Ìİ’ï¿½
     visualObject.position = position;
     visualObject.scale = scale;
     visualObject.rotation = rotation;
@@ -69,7 +69,7 @@ void Player::SetPosition(const XMFLOAT3& pos) {
 
 void Player::UpdateCollider() {
     collider = BoxCollider::fromCenterAndSize(position, scale);
-    // GameObject‚ÌBoxCollider‚à’Ç]‚³‚¹‚é
+    // GameObjectï¿½ï¿½BoxColliderï¿½ï¿½ï¿½Ç]ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     visualObject.position = position;
     visualObject.scale = scale;
     visualObject.setBoxCollider(scale);
@@ -78,23 +78,23 @@ void Player::UpdateCollider() {
 
 void Player::Update(float deltaTime) {
    
-    // *** ’Ç‰Á ***
+    // *** ï¿½Ç‰ï¿½ ***
     if (!isAlive) return;
-    // *** ’Ç‰Á‚±‚±‚Ü‚Å ***
-    // ‘O‰ñ‚ÌˆÊ’u‚ğ‹L˜^
+    // *** ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ ***
+    // ï¿½Oï¿½ï¿½ÌˆÊ’uï¿½ï¿½ï¿½Lï¿½^
     XMFLOAT3 previousPosition = position;
 
-    // d—Í“K—p
+    // ï¿½dï¿½Í“Kï¿½p
     if (!isGrounded) {
         velocity.y += GRAVITY * deltaTime;
     }
 
-    // ‘¬“x‚ğˆÊ’u‚É“K—p
+    // ï¿½ï¿½ï¿½xï¿½ï¿½ï¿½Ê’uï¿½É“Kï¿½p
     position.x += velocity.x * deltaTime;
     position.y += velocity.y * deltaTime;
     position.z += velocity.z * deltaTime;
 
-    // ˆÊ’u‚ª•Ï‚í‚Á‚½ê‡‚Ì‚İƒRƒ‰ƒCƒ_[XV
+    // ï¿½Ê’uï¿½ï¿½ï¿½Ï‚ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚İƒRï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½Xï¿½V
     bool positionChanged = (fabsf(position.x - previousPosition.x) > 0.001f ||
         fabsf(position.y - previousPosition.y) > 0.001f ||
         fabsf(position.z - previousPosition.z) > 0.001f);
@@ -103,19 +103,19 @@ void Player::Update(float deltaTime) {
         UpdateCollider();
     }
 
-    // ƒ}ƒbƒv‚Æ‚ÌÕ“Ë”»’è
+    // ï¿½}ï¿½bï¿½vï¿½Æ‚ÌÕ“Ë”ï¿½ï¿½ï¿½
     isGrounded = false;
     CheckMapCollision();
 
-    // –€C
+    // ï¿½ï¿½ï¿½C
     velocity.x *= FRICTION;
     velocity.z *= FRICTION;
 
-    // ‹É¬‚Ì‘¬“x‚ğ0‚É‚·‚é
+    // ï¿½Éï¿½ï¿½Ì‘ï¿½ï¿½xï¿½ï¿½0ï¿½É‚ï¿½ï¿½ï¿½
     if (fabsf(velocity.x) < 0.01f) velocity.x = 0.0f;
     if (fabsf(velocity.z) < 0.01f) velocity.z = 0.0f;
 
-    // ƒrƒWƒ…ƒAƒ‹ƒIƒuƒWƒFƒNƒgXViˆÊ’u‚ª•Ï‚í‚Á‚½ê‡‚Ì‚İj
+    // ï¿½rï¿½Wï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½Xï¿½Vï¿½iï¿½Ê’uï¿½ï¿½ï¿½Ï‚ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚İj
     if (positionChanged) {
         visualObject.position = position;
         visualObject.rotation = rotation;
@@ -139,21 +139,21 @@ void Player::CheckMapCollision() {
     if (!mapRef) return;
     isGrounded = false;
 
-    // ƒvƒŒƒCƒ„[‚Ì‹ß‚­‚ÌƒuƒƒbƒN‚Ì‚İƒ`ƒFƒbƒNi‘e‚¢Å“K‰»j
+    // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ì‹ß‚ï¿½ï¿½Ìƒuï¿½ï¿½ï¿½bï¿½Nï¿½Ì‚İƒ`ï¿½Fï¿½bï¿½Nï¿½iï¿½eï¿½ï¿½ï¿½Å“Kï¿½ï¿½ï¿½j
     const auto& blocks = mapRef->GetBlockObjects();
-    const float checkRadius = 5.0f; // ƒvƒŒƒCƒ„[‚©‚ç5ƒ†ƒjƒbƒgˆÈ“à‚ÌƒuƒƒbƒN‚Ì‚İƒ`ƒFƒbƒN
+    const float checkRadius = 5.0f; // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½5ï¿½ï¿½ï¿½jï¿½bï¿½gï¿½È“ï¿½ï¿½Ìƒuï¿½ï¿½ï¿½bï¿½Nï¿½Ì‚İƒ`ï¿½Fï¿½bï¿½N
 
     for (const auto& blockPtr : blocks) {
         const auto& block = *blockPtr;
 
-        // ‹——£ƒ`ƒFƒbƒN‚É‚æ‚é‘ŠúƒJƒbƒg
+        // ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½Fï¿½bï¿½Nï¿½É‚ï¿½é‘ï¿½ï¿½ï¿½Jï¿½bï¿½g
         XMFLOAT3 blockPos = block.getPosition();
         float distanceSquared = (position.x - blockPos.x) * (position.x - blockPos.x) +
             (position.y - blockPos.y) * (position.y - blockPos.y) +
             (position.z - blockPos.z) * (position.z - blockPos.z);
 
         if (distanceSquared > checkRadius * checkRadius) {
-            continue; // ‰“‚·‚¬‚éƒuƒƒbƒN‚ÍƒXƒLƒbƒv
+            continue; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½ÍƒXï¿½Lï¿½bï¿½v
         }
 
         if (block.colliderType == ColliderType::Box && block.boxCollider) {
@@ -172,26 +172,26 @@ bool Player::CheckCollisionWithBox(const BoxCollider& box, XMFLOAT3& penetration
         return false;
     }
 
-    // Še²‚Å‚Ìd‚È‚è—Ê‚ğŒvZistd::min‚Ì‘ã‚í‚è‚ÉMinŠÖ”‚ğg—pj
+    // ï¿½eï¿½ï¿½ï¿½Å‚Ìdï¿½È‚ï¿½Ê‚ï¿½ï¿½vï¿½Zï¿½istd::minï¿½Ì‘ï¿½ï¿½ï¿½ï¿½Minï¿½Öï¿½ï¿½ï¿½ï¿½gï¿½pï¿½j
     float overlapX = Min(collider.max.x - box.min.x, box.max.x - collider.min.x);
     float overlapY = Min(collider.max.y - box.min.y, box.max.y - collider.min.y);
     float overlapZ = Min(collider.max.z - box.min.z, box.max.z - collider.min.z);
 
-    // Å¬‚Ìd‚È‚è²‚ğŒ©‚Â‚¯‚é
+    // ï¿½Åï¿½ï¿½Ìdï¿½È‚è²ï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½
     if (overlapX < overlapY && overlapX < overlapZ) {
-        // X²‚Å‰Ÿ‚µ–ß‚µ
+        // Xï¿½ï¿½ï¿½Å‰ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
         float boxCenterX = box.min.x + (box.max.x - box.min.x) * 0.5f;
         penetration.x = (position.x < boxCenterX) ? -overlapX : overlapX;
         penetration.y = 0.0f;
         penetration.z = 0.0f;
     } else if (overlapY < overlapZ) {
-        // Y²‚Å‰Ÿ‚µ–ß‚µ
+        // Yï¿½ï¿½ï¿½Å‰ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
         float boxCenterY = box.min.y + (box.max.y - box.min.y) * 0.5f;
         penetration.x = 0.0f;
         penetration.y = (position.y < boxCenterY) ? -overlapY : overlapY;
         penetration.z = 0.0f;
     } else {
-        // Z²‚Å‰Ÿ‚µ–ß‚µ
+        // Zï¿½ï¿½ï¿½Å‰ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
         float boxCenterZ = box.min.z + (box.max.z - box.min.z) * 0.5f;
         penetration.x = 0.0f;
         penetration.y = 0.0f;
@@ -202,18 +202,18 @@ bool Player::CheckCollisionWithBox(const BoxCollider& box, XMFLOAT3& penetration
 }
 
 void Player::ResolveCollision(const XMFLOAT3& penetration) {
-    // ˆÊ’u‚ğ•â³
+    // ï¿½Ê’uï¿½ï¿½â³
     position.x += penetration.x;
     position.y += penetration.y;
     position.z += penetration.z;
 
-    // ‘¬“x‚ğ•â³
+    // ï¿½ï¿½ï¿½xï¿½ï¿½â³
     if (penetration.x != 0.0f) {
         velocity.x = 0.0f;
     }
     if (penetration.y != 0.0f) {
         velocity.y = 0.0f;
-        // ã‚©‚ç‰Ÿ‚µ–ß‚³‚ê‚½ = ’n–Ê‚ÉÚ’n
+        // ï¿½ã‚©ï¿½ç‰Ÿï¿½ï¿½ï¿½ß‚ï¿½ï¿½ê‚½ = ï¿½nï¿½Ê‚ÉÚ’n
         if (penetration.y > 0.0f) {
             isGrounded = true;
         }
@@ -222,14 +222,14 @@ void Player::ResolveCollision(const XMFLOAT3& penetration) {
         velocity.z = 0.0f;
     }
 
-    // ƒRƒ‰ƒCƒ_[XV
+    // ï¿½Rï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½Xï¿½V
     UpdateCollider();
 }
 
 void Player::Draw() {
-    // *** ’Ç‰Á ***
+    // *** ï¿½Ç‰ï¿½ ***
     if (!isAlive) return;
-    // *** ’Ç‰Á‚±‚±‚Ü‚Å ***
+    // *** ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ ***
     visualObject.draw();
 }
 
@@ -237,14 +237,14 @@ GameObject* Player::GetGameObject() {
     return &visualObject;
 }
 
-// ƒlƒbƒgƒ[ƒN—pFƒvƒŒƒCƒ„[‹­§ˆÚ“®i’n–Ê’²®•t‚«j
+// ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½pï¿½Fï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Ú“ï¿½ï¿½iï¿½nï¿½Ê’ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½j
 void Player::ForceSetPosition(const XMFLOAT3& pos) {
     position = pos;
 
-    // ’n–Ê‚Ì‚‚³‚ğŠm”F‚µ‚Ä’²®
+    // ï¿½nï¿½Ê‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mï¿½Fï¿½ï¿½ï¿½Ä’ï¿½ï¿½ï¿½
     if (mapRef) {
         float groundY = mapRef->GetGroundHeight(position.x, position.z);
-        // YÀ•W‚ª’n–Ê‚æ‚è’á‚¢ê‡‚Í’n–Ê‚É’²®
+        // Yï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½nï¿½Ê‚ï¿½ï¿½á‚¢ï¿½ê‡ï¿½Í’nï¿½Ê‚É’ï¿½ï¿½ï¿½
         if (position.y < groundY + scale.y * 0.5f) {
             position.y = groundY + scale.y * 0.5f;
         }
@@ -259,7 +259,7 @@ void Player::ForceSetRotation(const XMFLOAT3& rot) {
     visualObject.markBufferForUpdate();
 }
 
-// ƒJƒƒ‰Šp“xŠÖ˜A‚Ìİ’è
+// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½pï¿½xï¿½Ö˜Aï¿½Ìİ’ï¿½
 void Player::SetCameraAngles(float yaw, float pitch) {
     cameraYaw = yaw;
     cameraPitch = pitch;
@@ -273,18 +273,18 @@ float Player::GetCameraPitch() const {
     return cameraPitch;
 }
 
-// NPC —pFÕ“Ë—Ê‚ğŒvZ‚·‚éiŠO•”‚©‚çˆÀ‘S‚ÉŒÄ‚×‚éj
+// NPC ï¿½pï¿½Fï¿½Õ“Ë—Ê‚ï¿½ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½iï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Sï¿½ÉŒÄ‚×‚ï¿½j
 bool Player::ComputePenetrationWithBox(const BoxCollider& box, XMFLOAT3& penetration) {
-    //‚±‚±‚Å‚ÍƒvƒŒƒCƒ„[‚ÌƒRƒ‰ƒCƒ_[‚Æw’è box ‚Ìd‚È‚è‚ğ”»’è‚µ penetration ‚ğ•Ô‚·
+    //ï¿½ï¿½ï¿½ï¿½ï¿½Å‚Íƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÌƒRï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½Æwï¿½ï¿½ box ï¿½Ìdï¿½È‚ï¿½ğ”»’è‚µ penetration ï¿½ï¿½Ô‚ï¿½
     return CheckCollisionWithBox(box, penetration);
 }
 
 void Player::ApplyPenetration(const XMFLOAT3& penetration) {
-    //Šù‘¶‚ÌResolveCollision ‚ğ—˜—p‚µ‚ÄˆÊ’u‚Æ‘¬“x‚ğXV
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ResolveCollision ï¿½ğ—˜—pï¿½ï¿½ï¿½ÄˆÊ’uï¿½Æ‘ï¿½ï¿½xï¿½ï¿½ï¿½Xï¿½V
     ResolveCollision(penetration);
 }
 
-// PlayerManagerÀ‘•
+// PlayerManagerï¿½ï¿½ï¿½ï¿½
 PlayerManager* PlayerManager::instance = nullptr;
 
 PlayerManager::PlayerManager()
@@ -342,11 +342,11 @@ void PlayerManager::Initialize(Map* map, ID3D11ShaderResourceView* texture) {
         player2Initialized = true;
     }
 
-    activePlayerId =1; // ƒfƒtƒHƒ‹ƒg‚ÅƒvƒŒƒCƒ„[1
+    activePlayerId =1; // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Åƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[1
 }
 
 void PlayerManager::Update(float deltaTime) {
-    // “ü—Íˆ—
+    // ï¿½ï¿½ï¿½Íï¿½ï¿½ï¿½
     HandleInput(deltaTime);
 
     // If initial player locked, update only active player; otherwise update both
@@ -356,7 +356,7 @@ void PlayerManager::Update(float deltaTime) {
         return;
     }
 
-    // —¼•û‚ÌƒvƒŒƒCƒ„[‚ğ•¨—‰‰Z‚ÅXVid—ÍAÕ“Ë”»’è‚È‚Çj
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ğ•¨—ï¿½ï¿½ï¿½ï¿½Zï¿½ÅXï¿½Vï¿½iï¿½dï¿½ÍAï¿½Õ“Ë”ï¿½ï¿½ï¿½È‚Çj
     if (player1Initialized) {
         player1.Update(deltaTime);
     }
@@ -364,26 +364,26 @@ void PlayerManager::Update(float deltaTime) {
         player2.Update(deltaTime);
     }
 
-    // *** ’Ç‰Á ***
-    // --- ’e‚ÌXV ---
+    // *** ï¿½Ç‰ï¿½ ***
+    // --- ï¿½eï¿½ÌXï¿½V ---
     for (auto& b : g_bullets) {
         b->Update(deltaTime);
 
-        // --- ’e‚ªPlayer1‚É“–‚½‚Á‚½ê‡ ---
+        // --- ï¿½eï¿½ï¿½Player1ï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ ---
         Player* player1Ptr = GetPlayer(1);
         if (player1Ptr && player1Ptr->IsAlive() && b->CheckHit(player1Ptr->GetCollider())) {
             b->Deactivate();
-            player1Ptr->TakeDamage(50); // ƒ_ƒ[ƒW—Ê’²®‰Â
+            player1Ptr->TakeDamage(50); // ï¿½_ï¿½ï¿½ï¿½[ï¿½Wï¿½Ê’ï¿½ï¿½ï¿½ï¿½ï¿½
         }
     }
 
-    // –³Œø‰»‚³‚ê‚½’e‚ğíœ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½eï¿½ï¿½ï¿½íœ
     g_bullets.erase(
         std::remove_if(g_bullets.begin(), g_bullets.end(),
             [](const std::unique_ptr<Bullet>& b) { return !b->active; }),
         g_bullets.end());
 
-    // *** ’Ç‰Á‚±‚±‚Ü‚Å ***
+    // *** ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ ***
 }
 
 void PlayerManager::Draw() {
@@ -393,7 +393,7 @@ void PlayerManager::Draw() {
         return;
     }
 
-    // —¼•û‚ÌƒvƒŒƒCƒ„[‚ğ•`‰æiƒAƒNƒeƒBƒu‚Å‚È‚¢•û‚àŒ©‚¦‚é‚æ‚¤‚Éj
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½`ï¿½ï¿½iï¿½Aï¿½Nï¿½eï¿½Bï¿½uï¿½Å‚È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ‚¤ï¿½Éj
     if (player1Initialized) {
         player1.Draw();
     }
@@ -401,34 +401,34 @@ void PlayerManager::Draw() {
         player2.Draw();
     }
 
-    // *** ’Ç‰Á ***
-    // ’e‚Ì•`‰æ
+    // *** ï¿½Ç‰ï¿½ ***
+    // ï¿½eï¿½Ì•`ï¿½ï¿½
     for (auto& b : g_bullets) {
         b->Draw();
     }
-    // *** ’Ç‰Á‚±‚±‚Ü‚Å ***
+    // *** ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ ***
 }
 
 void PlayerManager::SetActivePlayer(int playerId) {
     if (initialPlayerLocked) return; // switching disabled when locked
 
     if (playerId ==1 || playerId ==2) {
-        // Œ»İ‚ÌƒAƒNƒeƒBƒuƒvƒŒƒCƒ„[‚ÌƒJƒƒ‰Šp“x‚ğ•Û‘¶
+        // ï¿½ï¿½ï¿½İ‚ÌƒAï¿½Nï¿½eï¿½Bï¿½uï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÌƒJï¿½ï¿½ï¿½ï¿½ï¿½pï¿½xï¿½ï¿½Û‘ï¿½
         Player* current = GetActivePlayer();
         CameraManager& camMgr = CameraManager::GetInstance();
         if (current) {
             current->SetCameraAngles(camMgr.GetRotation(), camMgr.GetPitch());
         }
 
-        // ƒAƒNƒeƒBƒuƒvƒŒƒCƒ„[‚ğØ‚è‘Ö‚¦
+        // ï¿½Aï¿½Nï¿½eï¿½Bï¿½uï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½Ø‚ï¿½Ö‚ï¿½
         activePlayerId = playerId;
 
-        // Ø‚è‘Ö‚¦æƒvƒŒƒCƒ„[‚ÌƒJƒƒ‰Šp“x‚ğ•œŒ³
+        // ï¿½Ø‚ï¿½Ö‚ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÌƒJï¿½ï¿½ï¿½ï¿½ï¿½pï¿½xï¿½ğ•œŒï¿½
         Player* next = GetActivePlayer();
         if (next) {
             camMgr.SetRotation(next->GetCameraYaw());
             camMgr.SetPitch(next->GetCameraPitch());
-            // ƒJƒƒ‰ˆÊ’u‚Æ’‹“_‚ğ‘¦À‚ÉXV
+            // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ê’uï¿½Æ’ï¿½ï¿½ï¿½ï¿½_ï¿½ğ‘¦ï¿½ï¿½ÉXï¿½V
             camMgr.UpdateCameraForPlayer(activePlayerId);
         }
     }
@@ -451,13 +451,13 @@ void PlayerManager::HandleInput(float deltaTime) {
     was1Down = Keyboard_IsKeyDown(KK_D1);
     was2Down = Keyboard_IsKeyDown(KK_D2);
 
-    // ƒAƒNƒeƒBƒuƒvƒŒƒCƒ„[‚Ì‚İ‚ª“ü—Í‚ğó‚¯•t‚¯‚é
+    // ï¿½Aï¿½Nï¿½eï¿½Bï¿½uï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ì‚İ‚ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½ó‚¯•tï¿½ï¿½ï¿½ï¿½
     Player* activePlayer = GetActivePlayer();
     if (!activePlayer) return;
 
     XMFLOAT3 moveDirection = {0.0f,0.0f,0.0f };
 
-    // ƒJƒƒ‰‚ÌŒü‚«‚ğl—¶‚µ‚½ˆÚ“®ŒvZ
+    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ÌŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú“ï¿½ï¿½vï¿½Z
     float yawRad = XMConvertToRadians(activePlayer->GetRotation().y);
     XMFLOAT3 forward = { sinf(yawRad),0.0f, cosf(yawRad) };
     XMFLOAT3 right = { cosf(yawRad),0.0f, -sinf(yawRad) };
@@ -479,38 +479,38 @@ void PlayerManager::HandleInput(float deltaTime) {
         moveDirection.z += right.z;
     }
 
-    // ƒRƒ“ƒgƒ[ƒ‰‚Ì¶ƒXƒeƒBƒbƒN‚ğ“‡
+    // ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Ìï¿½ï¿½Xï¿½eï¿½Bï¿½bï¿½Nï¿½ğ“ï¿½
     GamepadState padState;
     if (GameController::GetState(padState)) {
-        // ¶ƒXƒeƒBƒbƒN‚Ì’l‚ğæ“¾
-        float lx = padState.leftStickX; // ¶‚ª-1A‰E‚ª+1 ‚Ì‘z’è
-        float ly = padState.leftStickY; // ‘O‚ª+1AŒã‚ª-1 ‚Ì‘z’è
+        // ï¿½ï¿½ï¿½Xï¿½eï¿½Bï¿½bï¿½Nï¿½Ì’lï¿½ï¿½ï¿½æ“¾
+        float lx = padState.leftStickX; // ï¿½ï¿½ï¿½ï¿½-1ï¿½Aï¿½Eï¿½ï¿½+1 ï¿½Ì‘zï¿½ï¿½
+        float ly = padState.leftStickY; // ï¿½Oï¿½ï¿½+1ï¿½Aï¿½ã‚ª-1 ï¿½Ì‘zï¿½ï¿½
         const float deadzone =0.2f;
         if (fabsf(lx) > deadzone || fabsf(ly) > deadzone) {
-            // WASD ‚Æ“¯‚¶•ûŒü‚É‚È‚é‚æ‚¤‚Éƒ}ƒbƒsƒ“ƒO
+            // WASD ï¿½Æ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‚È‚ï¿½æ‚¤ï¿½Éƒ}ï¿½bï¿½sï¿½ï¿½ï¿½O
             // W/S -> forward * ly, A/D -> right * lx
             moveDirection.x += -forward.x * ly + right.x * lx;
             moveDirection.z += -forward.z * ly + right.z * lx;
         }
     }
 
-    // ˆÚ“®ƒxƒNƒgƒ‹‚ğ³‹K‰»
+    // ï¿½Ú“ï¿½ï¿½xï¿½Nï¿½gï¿½ï¿½ï¿½ğ³‹Kï¿½ï¿½
     float moveLength = sqrtf(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
     if (moveLength >0.0f) {
         moveDirection.x /= moveLength;
         moveDirection.z /= moveLength;
     }
 
-    // ƒAƒNƒeƒBƒuƒvƒŒƒCƒ„[‚Ì‚İ‚ªˆÚ“®“ü—Í‚ğó‚¯•t‚¯‚é
+    // ï¿½Aï¿½Nï¿½eï¿½Bï¿½uï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ì‚İ‚ï¿½ï¿½Ú“ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½ó‚¯•tï¿½ï¿½ï¿½ï¿½
     activePlayer->Move(moveDirection, deltaTime);
 
-    // ƒWƒƒƒ“ƒv‚àƒAƒNƒeƒBƒuƒvƒŒƒCƒ„[‚Ì‚İ
+    // ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Aï¿½Nï¿½eï¿½Bï¿½uï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ì‚ï¿½
     if (Keyboard_IsKeyDown(KK_SPACE)) {
         activePlayer->Jump();
     }
 
-    // *** ’Ç‰Á ***
-    // ’e”­Ëi2Pê—pj
+    // *** ï¿½Ç‰ï¿½ ***
+    // ï¿½eï¿½ï¿½ï¿½Ëi2Pï¿½ï¿½pï¿½j
     if (activePlayer->GetPlayerId() == 2 && activePlayer->IsAlive() && Keyboard_IsKeyDownTrigger(KK_ENTER)) {
         XMFLOAT3 pos = activePlayer->GetPosition();
         float yawRad = XMConvertToRadians(activePlayer->GetRotation().y);
@@ -520,10 +520,10 @@ void PlayerManager::HandleInput(float deltaTime) {
         b->Initialize(GetPolygonTexture(), pos, dir);
         g_bullets.push_back(std::move(b));
     }
-    // *** ’Ç‰Á‚±‚±‚Ü‚Å ***
+    // *** ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ ***
 }
 
-// ƒOƒ[ƒoƒ‹ŠÖ”iŒã•ûŒİŠ·«j
+// ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½Öï¿½ï¿½iï¿½ï¿½ï¿½ï¿½İŠï¿½ï¿½ï¿½ï¿½j
 void InitializePlayers(Map* map, ID3D11ShaderResourceView* texture) {
     PlayerManager::GetInstance().Initialize(map, texture);
 }

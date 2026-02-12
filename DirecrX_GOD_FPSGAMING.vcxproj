@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="box_collider.h" />
     <ClInclude Include="bullet.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="game_controller.h" />
@@ -32,6 +33,9 @@
     <ClInclude Include="NetWork\network_manager.h" />
     <ClInclude Include="NetWork\udp_network.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="polygon.h" />
+    <ClInclude Include="renderer.h" />
+    <ClInclude Include="sprite.h" />
     <ClInclude Include="System\Collision\box_collider.h" />
     <ClInclude Include="System\Collision\collider.h" />
     <ClInclude Include="System\Collision\collision_system.h" />
