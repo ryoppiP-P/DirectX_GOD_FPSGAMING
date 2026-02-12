@@ -3,6 +3,7 @@
 #include "texture_loader.h"
 #include "../../polygon.h"
 #include <cstring>
+#include <cstddef>
 
 namespace Engine {
     static ID3D11ShaderResourceView* g_pDefaultTexture = nullptr;
@@ -79,6 +80,10 @@ namespace {
     struct BoxInitializer {
         BoxInitializer() {
             static_assert(sizeof(VERTEX_3D) == sizeof(Engine::Vertex3D), "VERTEX_3D and Engine::Vertex3D must have same size");
+            static_assert(offsetof(VERTEX_3D, position) == offsetof(Engine::Vertex3D, position), "position offset mismatch");
+            static_assert(offsetof(VERTEX_3D, normal) == offsetof(Engine::Vertex3D, normal), "normal offset mismatch");
+            static_assert(offsetof(VERTEX_3D, color) == offsetof(Engine::Vertex3D, color), "color offset mismatch");
+            static_assert(offsetof(VERTEX_3D, texCoord) == offsetof(Engine::Vertex3D, texCoord), "texCoord offset mismatch");
             std::memcpy(Box, Engine::BoxVertices, sizeof(Box));
         }
     } g_boxInit;
