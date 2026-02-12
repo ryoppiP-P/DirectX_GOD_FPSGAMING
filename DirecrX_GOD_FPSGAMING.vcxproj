@@ -32,7 +32,6 @@
     <ClInclude Include="NetWork\network_manager.h" />
     <ClInclude Include="NetWork\udp_network.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="sprite.h" />
     <ClInclude Include="System\Collision\box_collider.h" />
     <ClInclude Include="System\Collision\collider.h" />
     <ClInclude Include="System\Collision\collision_system.h" />
