@@ -5,13 +5,19 @@
 #include "vertex.h"
 
 namespace Engine {
-    // Box vertex data (36 vertices)
+    // 立方体の頂点データ（36頂点）
     extern Vertex3D BoxVertices[36];
 
-    // Primitive init/uninit
+    // プリミティブ初期化・終了
     void InitPrimitives(ID3D11Device* pDevice);
     void UninitPrimitives();
 
-    // Default texture
+    // デフォルトテクスチャ取得
     ID3D11ShaderResourceView* GetDefaultTexture();
 }
+
+// グローバル公開
+extern Engine::Vertex3D Box[36];
+inline void InitPolygon() { Engine::InitPrimitives(Engine::GetDevice()); }
+inline void UninitPolygon() { Engine::UninitPrimitives(); }
+inline ID3D11ShaderResourceView* GetPolygonTexture() { return Engine::GetDefaultTexture(); }
