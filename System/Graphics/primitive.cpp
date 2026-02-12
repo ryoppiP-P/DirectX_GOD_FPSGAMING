@@ -1,47 +1,49 @@
 // system/graphics/primitive.cpp
 #include "primitive.h"
 #include "texture_loader.h"
+#include "../../polygon.h"
+#include <cstring>
 
 namespace Engine {
     static ID3D11ShaderResourceView* g_pDefaultTexture = nullptr;
 
     Vertex3D BoxVertices[36] = {
-        // 前面 (Z = -0.5)
+        // Front (Z = -0.5)
         {{-0.5f,  0.5f, -0.5f}, {0, 0, -1}, {1, 1, 1, 1}, {0, 0}},
         {{ 0.5f,  0.5f, -0.5f}, {0, 0, -1}, {1, 1, 1, 1}, {1, 0}},
         {{-0.5f, -0.5f, -0.5f}, {0, 0, -1}, {1, 1, 1, 1}, {0, 1}},
         {{-0.5f, -0.5f, -0.5f}, {0, 0, -1}, {1, 1, 1, 1}, {0, 1}},
         {{ 0.5f,  0.5f, -0.5f}, {0, 0, -1}, {1, 1, 1, 1}, {1, 0}},
         {{ 0.5f, -0.5f, -0.5f}, {0, 0, -1}, {1, 1, 1, 1}, {1, 1}},
-        // 背面 (Z = 0.5)
+        // Back (Z = 0.5)
         {{ 0.5f,  0.5f,  0.5f}, {0, 0, 1}, {1, 1, 1, 1}, {0, 0}},
         {{-0.5f,  0.5f,  0.5f}, {0, 0, 1}, {1, 1, 1, 1}, {1, 0}},
         {{ 0.5f, -0.5f,  0.5f}, {0, 0, 1}, {1, 1, 1, 1}, {0, 1}},
         {{ 0.5f, -0.5f,  0.5f}, {0, 0, 1}, {1, 1, 1, 1}, {0, 1}},
         {{-0.5f,  0.5f,  0.5f}, {0, 0, 1}, {1, 1, 1, 1}, {1, 0}},
         {{-0.5f, -0.5f,  0.5f}, {0, 0, 1}, {1, 1, 1, 1}, {1, 1}},
-        // 左面 (X = -0.5)
+        // Left (X = -0.5)
         {{-0.5f,  0.5f,  0.5f}, {-1, 0, 0}, {1, 1, 1, 1}, {0, 0}},
         {{-0.5f,  0.5f, -0.5f}, {-1, 0, 0}, {1, 1, 1, 1}, {1, 0}},
         {{-0.5f, -0.5f,  0.5f}, {-1, 0, 0}, {1, 1, 1, 1}, {0, 1}},
         {{-0.5f, -0.5f,  0.5f}, {-1, 0, 0}, {1, 1, 1, 1}, {0, 1}},
         {{-0.5f,  0.5f, -0.5f}, {-1, 0, 0}, {1, 1, 1, 1}, {1, 0}},
         {{-0.5f, -0.5f, -0.5f}, {-1, 0, 0}, {1, 1, 1, 1}, {1, 1}},
-        // 右面 (X = 0.5)
+        // Right (X = 0.5)
         {{ 0.5f,  0.5f, -0.5f}, {1, 0, 0}, {1, 1, 1, 1}, {0, 0}},
         {{ 0.5f,  0.5f,  0.5f}, {1, 0, 0}, {1, 1, 1, 1}, {1, 0}},
         {{ 0.5f, -0.5f, -0.5f}, {1, 0, 0}, {1, 1, 1, 1}, {0, 1}},
         {{ 0.5f, -0.5f, -0.5f}, {1, 0, 0}, {1, 1, 1, 1}, {0, 1}},
         {{ 0.5f,  0.5f,  0.5f}, {1, 0, 0}, {1, 1, 1, 1}, {1, 0}},
         {{ 0.5f, -0.5f,  0.5f}, {1, 0, 0}, {1, 1, 1, 1}, {1, 1}},
-        // 上面 (Y = 0.5)
+        // Top (Y = 0.5)
         {{-0.5f,  0.5f,  0.5f}, {0, 1, 0}, {1, 1, 1, 1}, {0, 0}},
         {{ 0.5f,  0.5f,  0.5f}, {0, 1, 0}, {1, 1, 1, 1}, {1, 0}},
         {{-0.5f,  0.5f, -0.5f}, {0, 1, 0}, {1, 1, 1, 1}, {0, 1}},
         {{-0.5f,  0.5f, -0.5f}, {0, 1, 0}, {1, 1, 1, 1}, {0, 1}},
         {{ 0.5f,  0.5f,  0.5f}, {0, 1, 0}, {1, 1, 1, 1}, {1, 0}},
         {{ 0.5f,  0.5f, -0.5f}, {0, 1, 0}, {1, 1, 1, 1}, {1, 1}},
-        // 下面 (Y = -0.5)
+        // Bottom (Y = -0.5)
         {{-0.5f, -0.5f, -0.5f}, {0, -1, 0}, {1, 1, 1, 1}, {0, 0}},
         {{ 0.5f, -0.5f, -0.5f}, {0, -1, 0}, {1, 1, 1, 1}, {1, 0}},
         {{-0.5f, -0.5f,  0.5f}, {0, -1, 0}, {1, 1, 1, 1}, {0, 1}},
@@ -69,14 +71,20 @@ namespace Engine {
     }
 }
 
-// グローバル公開用
-Engine::Vertex3D Box[36];
+// Global Box vertex data (VERTEX_3D type from polygon.h)
+VERTEX_3D Box[36];
 
-// 静的初期化でコピー
+// Static initializer to copy from Engine::BoxVertices
 namespace {
     struct BoxInitializer {
         BoxInitializer() {
-            memcpy(Box, Engine::BoxVertices, sizeof(Box));
+            static_assert(sizeof(VERTEX_3D) == sizeof(Engine::Vertex3D), "VERTEX_3D and Engine::Vertex3D must have same size");
+            std::memcpy(Box, Engine::BoxVertices, sizeof(Box));
         }
     } g_boxInit;
 }
+
+// Global function implementations for polygon.h
+void InitPolygon() { Engine::InitPrimitives(Engine::GetDevice()); }
+void UninitPolygon() { Engine::UninitPrimitives(); }
+ID3D11ShaderResourceView* GetPolygonTexture() { return Engine::GetDefaultTexture(); }

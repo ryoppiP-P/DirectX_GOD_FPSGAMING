@@ -66,6 +66,7 @@
     <ClCompile Include="NetWork\udp_network.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="player_manager_impl.cpp" />
+    <ClCompile Include="renderer_globals.cpp" />
     <ClCompile Include="System\Collision\box_collider.cpp" />
     <ClCompile Include="System\Collision\collision_system.cpp" />
     <ClCompile Include="System\Collision\sphere_collider.cpp" />

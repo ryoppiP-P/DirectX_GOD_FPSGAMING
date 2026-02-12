@@ -1,19 +1,38 @@
 /*********************************************************************
-  \file    ƒŒƒ“ƒ_ƒ‰[ŒİŠ·ƒwƒbƒ_[ [renderer.h]
-  
-  System/Core/renderer.h ‚ğƒ‰ƒbƒv‚µA‹ŒƒVƒXƒeƒ€‚ÌƒOƒ[ƒoƒ‹ŠÖ”‚ğ’ñ‹Ÿ‚·‚é
+  \file    ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½[ [renderer.h]
+
+  DirectX11 ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½ÌƒOï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½Öï¿½ï¿½ÆŠÖ˜Aï¿½^ï¿½ï¿½`ï¿½B
+  ï¿½ï¿½ï¿½Ìƒwï¿½bï¿½_ï¿½[ï¿½Í’Pï¿½Ì‚Ågï¿½pï¿½Å‚ï¿½ï¿½ASystem/ ï¿½ï¿½ï¿½Ìƒwï¿½bï¿½_ï¿½[ï¿½ÉˆË‘Rï¿½ï¿½ï¿½È‚ï¿½ï¿½B
  *********************************************************************/
 #pragma once
 
-// VƒVƒXƒeƒ€‚ÌƒŒƒ“ƒ_ƒ‰[‚ğƒCƒ“ƒNƒ‹[ƒh
-#include "System/Core/renderer.h"
-#include "System/Graphics/vertex.h"
-#include "System/Graphics/material.h"
+#include <d3d11.h>
+#include <DirectXMath.h>
 
-// ‹ŒƒVƒXƒeƒ€ŒİŠ·‚ÌŒ^’ñ‹Ÿ
-using VERTEX_3D = Engine::Vertex3D;
+// 3D ï¿½ï¿½ï¿½_ï¿½\ï¿½ï¿½ï¿½ï¿½
+struct VERTEX_3D {
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT4 color;
+    DirectX::XMFLOAT2 texCoord;
 
-// ‹ŒƒVƒXƒeƒ€‚Ì MATERIAL \‘¢‘ÌŒİŠ·
+    VERTEX_3D()
+        : position(0.0f, 0.0f, 0.0f)
+        , normal(0.0f, 0.0f, 0.0f)
+        , color(1.0f, 1.0f, 1.0f, 1.0f)
+        , texCoord(0.0f, 0.0f) {
+    }
+
+    VERTEX_3D(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& norm,
+        const DirectX::XMFLOAT4& col, const DirectX::XMFLOAT2& uv)
+        : position(pos)
+        , normal(norm)
+        , color(col)
+        , texCoord(uv) {
+    }
+};
+
+// MATERIAL ï¿½\ï¿½ï¿½ï¿½ï¿½
 struct MATERIAL {
     DirectX::XMFLOAT4 Diffuse;
     DirectX::XMFLOAT4 Ambient;
@@ -23,63 +42,25 @@ struct MATERIAL {
     float Padding[3];
 };
 
-// ƒfƒoƒCƒXƒAƒNƒZƒXi‹ŒƒOƒ[ƒoƒ‹ŠÖ”ŒİŠ·j
-inline ID3D11Device* GetDevice() {
-    return Engine::Renderer::GetInstance().GetDevice();
-}
+// ï¿½fï¿½oï¿½Cï¿½Xï¿½Aï¿½Nï¿½Zï¿½X
+ID3D11Device* GetDevice();
+ID3D11DeviceContext* GetDeviceContext();
 
-inline ID3D11DeviceContext* GetDeviceContext() {
-    return Engine::Renderer::GetInstance().GetContext();
-}
+// ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½Iï¿½ï¿½
+HRESULT InitRenderer(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);
+void UninitRenderer();
 
-// ƒŒƒ“ƒ_ƒ‰[‰Šú‰»/I—¹
-inline HRESULT InitRenderer(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
-    return Engine::Renderer::GetInstance().Initialize(hInstance, hWnd, bWindow != FALSE) ? S_OK : E_FAIL;
-}
+// ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void Clear();
+void Present();
 
-inline void UninitRenderer() {
-    Engine::Renderer::GetInstance().Finalize();
-}
+// ï¿½sï¿½ï¿½İ’ï¿½
+void SetWorldMatrix(const DirectX::XMMATRIX& matrix);
+void SetViewMatrix(const DirectX::XMMATRIX& matrix);
+void SetProjectionMatrix(const DirectX::XMMATRIX& matrix);
 
-// ƒtƒŒ[ƒ€ˆ—
-inline void Clear() {
-    Engine::Renderer::GetInstance().Clear();
-}
+// ï¿½[ï¿½xï¿½İ’ï¿½
+void SetDepthEnable(bool enable);
 
-inline void Present() {
-    Engine::Renderer::GetInstance().Present();
-}
-
-// s—ñİ’è
-inline void SetWorldMatrix(const DirectX::XMMATRIX& matrix) {
-    Engine::Renderer::GetInstance().SetWorldMatrix(matrix);
-}
-
-inline void SetViewMatrix(const DirectX::XMMATRIX& matrix) {
-    Engine::Renderer::GetInstance().SetViewMatrix(matrix);
-}
-
-inline void SetProjectionMatrix(const DirectX::XMMATRIX& matrix) {
-    Engine::Renderer::GetInstance().SetProjectionMatrix(matrix);
-}
-
-// [“xİ’è
-inline void SetDepthEnable(bool enable) {
-    Engine::Renderer::GetInstance().SetDepthEnable(enable);
-}
-
-// ƒ}ƒeƒŠƒAƒ‹İ’èi‹Œ MATERIAL \‘¢‘Ì‘Î‰j
-inline void SetMaterial(const MATERIAL& mat) {
-    ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
-    ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
-    if (ctx && buf) {
-        // MATERIAL ‚ğ MaterialData ‚Ö•ÏŠ·
-        Engine::MaterialData data = {};
-        data.diffuse = mat.Diffuse;
-        data.ambient = mat.Ambient;
-        data.specular = mat.Specular;
-        data.emission = mat.Emission;
-        data.shininess = mat.Shininess;
-        ctx->UpdateSubresource(buf, 0, nullptr, &data, 0, 0);
-    }
-}
+// ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½İ’ï¿½
+void SetMaterial(const MATERIAL& mat);
