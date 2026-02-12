@@ -1,11 +1,11 @@
 /*********************************************************************
-  \file    ƒ}ƒbƒv•`‰æƒVƒXƒeƒ€ [map_renderer.cpp]
+  \file    ï¿½}ï¿½bï¿½vï¿½`ï¿½ï¿½Vï¿½Xï¿½eï¿½ï¿½ [map_renderer.cpp]
 
   \Author  Ryoto Kikuchi
   \data    2025/9/26
  *********************************************************************/
 #include "map_renderer.h"
-#include "polygon.h"
+#include "System/Graphics/primitive.h"
 #include "camera.h"
 #include "external/DirectXTex.h"
 
@@ -16,65 +16,65 @@
 #endif
 
  //*****************************************************************************
- // ƒ}ƒNƒ’è‹`
+ // ï¿½}ï¿½Nï¿½ï¿½ï¿½ï¿½`
  //*****************************************************************************
-#define CUBE_VERTEX_COUNT 24  // 1–Ê4’¸“_ ~ 6–Ê
-#define CUBE_INDEX_COUNT 36   // 6–Ê ~ 2OŠpŒ` ~ 3’¸“_
+#define CUBE_VERTEX_COUNT 24  // 1ï¿½ï¿½4ï¿½ï¿½ï¿½_ ï¿½~ 6ï¿½ï¿½
+#define CUBE_INDEX_COUNT 36   // 6ï¿½ï¿½ ï¿½~ 2ï¿½Oï¿½pï¿½` ï¿½~ 3ï¿½ï¿½ï¿½_
 
 //*****************************************************************************
-// —§•û‘Ì‚Ì’¸“_ƒf[ƒ^iUnity•û®: 24’¸“_{36ƒCƒ“ƒfƒbƒNƒXj
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì’ï¿½ï¿½_ï¿½fï¿½[ï¿½^ï¿½iUnityï¿½ï¿½ï¿½ï¿½: 24ï¿½ï¿½ï¿½_ï¿½{36ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½j
 //*****************************************************************************
-static VERTEX_3D g_CubeVertices[CUBE_VERTEX_COUNT] = {
-    // ‘O–Ê (Z = -0.5)
+static Engine::Vertex3D g_CubeVertices[CUBE_VERTEX_COUNT] = {
+    // ï¿½Oï¿½ï¿½ (Z = -0.5)
     {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
     {{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
     {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
     {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-    // ”w–Ê (Z = 0.5)
+    // ï¿½wï¿½ï¿½ (Z = 0.5)
     {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
     {{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
     {{ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
     {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-    // ¶–Ê (X = -0.5)
+    // ï¿½ï¿½ï¿½ï¿½ (X = -0.5)
     {{-0.5f,  0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
     {{-0.5f,  0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
     {{-0.5f, -0.5f,  0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
     {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-    // ‰E–Ê (X = 0.5)
+    // ï¿½Eï¿½ï¿½ (X = 0.5)
     {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
     {{ 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
     {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
     {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-    // ã–Ê (Y = 0.5)
+    // ï¿½ï¿½ï¿½ (Y = 0.5)
     {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
     {{ 0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
     {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
     {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-    // ‰º–Ê (Y = -0.5)
+    // ï¿½ï¿½ï¿½ï¿½ (Y = -0.5)
     {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
     {{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
     {{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
     {{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
 };
 
-// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@i36ƒCƒ“ƒfƒbƒNƒX: 6–Ê~2OŠpŒ`~3’¸“_j
+// ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½i36ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½X: 6ï¿½Ê~2ï¿½Oï¿½pï¿½`ï¿½~3ï¿½ï¿½ï¿½_ï¿½j
 static WORD g_CubeIndices[CUBE_INDEX_COUNT] = {
-    // ‘O–Ê
+    // ï¿½Oï¿½ï¿½
     0, 1, 2, 2, 1, 3,
-    // ”w–Ê
+    // ï¿½wï¿½ï¿½
     4, 5, 6, 6, 5, 7,
-    // ¶–Ê
+    // ï¿½ï¿½ï¿½ï¿½
     8, 9,10,10, 9,11,
-    // ‰E–Ê
+    // ï¿½Eï¿½ï¿½
     12,13,14,14,13,15,
-    // ã–Ê
+    // ï¿½ï¿½ï¿½
     16,17,18,18,17,19,
-    // ‰º–Ê
+    // ï¿½ï¿½ï¿½ï¿½
     20,21,22,22,21,23
 };
 
 //=============================================================================
-// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 //=============================================================================
 MapRenderer::MapRenderer()
 {
@@ -85,7 +85,7 @@ MapRenderer::MapRenderer()
 }
 
 //=============================================================================
-// ƒfƒXƒgƒ‰ƒNƒ^
+// ï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 //=============================================================================
 MapRenderer::~MapRenderer()
 {
@@ -93,21 +93,21 @@ MapRenderer::~MapRenderer()
 }
 
 //=============================================================================
-// ‰Šú‰»ˆ—
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //=============================================================================
 HRESULT MapRenderer::Initialize(Map* pMap)
 {
     m_pMap = pMap;
 
-    // —§•û‘Ì‚Ì’¸“_EƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğì¬
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì’ï¿½ï¿½_ï¿½Eï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½ì¬
     CreateCubeBuffers();
 
-    // ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+    // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ì“Ç‚İï¿½ï¿½ï¿½
     DirectX::TexMetadata metadata;
     DirectX::ScratchImage image;
     HRESULT hr = DirectX::LoadFromWICFile(L"resource/texture/white.png", DirectX::WIC_FLAGS_NONE, &metadata, image);
     if (SUCCEEDED(hr)) {
-        hr = DirectX::CreateShaderResourceView(GetDevice(), image.GetImages(),
+        hr = DirectX::CreateShaderResourceView(Engine::GetDevice(), image.GetImages(),
             image.GetImageCount(), metadata, &m_Texture);
     }
     if (FAILED(hr)) {
@@ -117,7 +117,7 @@ HRESULT MapRenderer::Initialize(Map* pMap)
 }
 
 //=============================================================================
-// I—¹ˆ—
+// ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //=============================================================================
 void MapRenderer::Uninitialize()
 {
@@ -136,15 +136,15 @@ void MapRenderer::Uninitialize()
 }
 
 //=============================================================================
-// —§•û‘Ì‚Ì’¸“_EƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ì¬
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì’ï¿½ï¿½_ï¿½Eï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ì¬
 //=============================================================================
 void MapRenderer::CreateCubeBuffers()
 {
-    // ’¸“_ƒoƒbƒtƒ@
+    // ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(VERTEX_3D) * CUBE_VERTEX_COUNT;
+    bd.ByteWidth = sizeof(Engine::Vertex3D) * CUBE_VERTEX_COUNT;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bd.CPUAccessFlags = 0;
 
@@ -152,9 +152,9 @@ void MapRenderer::CreateCubeBuffers()
     ZeroMemory(&InitData, sizeof(InitData));
     InitData.pSysMem = g_CubeVertices;
 
-    GetDevice()->CreateBuffer(&bd, &InitData, &m_VertexBuffer);
+    Engine::GetDevice()->CreateBuffer(&bd, &InitData, &m_VertexBuffer);
 
-    // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@
+    // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@
     D3D11_BUFFER_DESC ibd;
     ZeroMemory(&ibd, sizeof(ibd));
     ibd.Usage = D3D11_USAGE_DEFAULT;
@@ -166,19 +166,19 @@ void MapRenderer::CreateCubeBuffers()
     ZeroMemory(&iInitData, sizeof(iInitData));
     iInitData.pSysMem = g_CubeIndices;
 
-    GetDevice()->CreateBuffer(&ibd, &iInitData, &m_IndexBuffer);
+    Engine::GetDevice()->CreateBuffer(&ibd, &iInitData, &m_IndexBuffer);
 }
 
 //=============================================================================
-// •`‰æˆ—
+// ï¿½`ï¿½æˆï¿½ï¿½
 //=============================================================================
 void MapRenderer::Draw()
 {
     if (!m_pMap) return;
 
-    SetDepthEnable(true);
+    Engine::Renderer::GetInstance().SetDepthEnable(true);
 
-    // ƒJƒƒ‰‚ÌQÆ‚ğæ“¾
+    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ÌQï¿½Æ‚ï¿½ï¿½æ“¾
     Camera& camera = GetMainCamera();
 
     XMMATRIX ProjectionMatrix =
@@ -186,29 +186,34 @@ void MapRenderer::Draw()
             (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
             camera.nearclip, camera.farclip
         );
-    SetProjectionMatrix(ProjectionMatrix);
+    Engine::Renderer::GetInstance().SetProjectionMatrix(ProjectionMatrix);
 
     XMVECTOR eyev = XMLoadFloat3(&camera.Atposition);
     XMVECTOR pos = XMLoadFloat3(&camera.position);
     XMVECTOR up = XMLoadFloat3(&camera.Upvector);
     XMMATRIX ViewMatrix = XMMatrixLookAtLH(pos, eyev, up);
-    SetViewMatrix(ViewMatrix);
+    Engine::Renderer::GetInstance().SetViewMatrix(ViewMatrix);
 
     if (m_Texture) {
-        GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
+        Engine::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
     }
 
-    // ’¸“_EƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğƒZƒbƒg
-    UINT stride = sizeof(VERTEX_3D);
+    // ï¿½ï¿½ï¿½_ï¿½Eï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½Zï¿½bï¿½g
+    UINT stride = sizeof(Engine::Vertex3D);
     UINT offset = 0;
-    GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
-    GetDeviceContext()->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    Engine::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
+    Engine::GetDeviceContext()->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    Engine::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    MATERIAL material;
-    ZeroMemory(&material, sizeof(material));
-    material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    SetMaterial(material);
+    Engine::MaterialData material = {};
+    material.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    {
+        ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
+        ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
+        if (ctx && buf) {
+            ctx->UpdateSubresource(buf, 0, nullptr, &material, 0, 0);
+        }
+    }
 
     for (int y = 0; y < m_pMap->GetHeight(); y++) {
         for (int z = 0; z < m_pMap->GetDepth(); z++) {
@@ -223,7 +228,7 @@ void MapRenderer::Draw()
 }
 
 //=============================================================================
-// ŒÂ•Ê‚Ìƒ{ƒbƒNƒX•`‰æ
+// ï¿½Â•Ê‚Ìƒ{ï¿½bï¿½Nï¿½Xï¿½`ï¿½ï¿½
 //=============================================================================
 void MapRenderer::DrawBox(float x, float y, float z)
 {
@@ -231,14 +236,14 @@ void MapRenderer::DrawBox(float x, float y, float z)
     XMMATRIX ScalingMatrix = XMMatrixScaling(BOX_SIZE, BOX_SIZE, BOX_SIZE);
     XMMATRIX WorldMatrix = ScalingMatrix * TranslationMatrix;
 
-    SetWorldMatrix(WorldMatrix);
+    Engine::Renderer::GetInstance().SetWorldMatrix(WorldMatrix);
 
-    // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğg‚Á‚Ä•`‰æ
-    GetDeviceContext()->DrawIndexed(CUBE_INDEX_COUNT, 0, 0);
+    // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Ä•`ï¿½ï¿½
+    Engine::GetDeviceContext()->DrawIndexed(CUBE_INDEX_COUNT, 0, 0);
 }
 
 //=============================================================================
-// ƒ[ƒ‹ƒhÀ•W‚ÌŒvZ
+// ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½Wï¿½ÌŒvï¿½Z
 //=============================================================================
 XMFLOAT3 MapRenderer::GetWorldPosition(int mapX, int mapY, int mapZ) const
 {

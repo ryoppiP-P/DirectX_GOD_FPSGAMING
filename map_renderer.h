@@ -1,5 +1,5 @@
 /*********************************************************************
-  \file    ƒ}ƒbƒv•`‰æƒVƒXƒeƒ€ [map_renderer.h]
+  \file    ï¿½}ï¿½bï¿½vï¿½`ï¿½ï¿½Vï¿½Xï¿½eï¿½ï¿½ [map_renderer.h]
   
   \Author  Ryoto Kikuchi
   \data    2025/9/29
@@ -7,50 +7,52 @@
 #pragma once
 
 #include "main.h"
-#include "renderer.h"
+#include "System/Core/renderer.h"
+#include "System/Graphics/vertex.h"
+#include "System/Graphics/material.h"
 #include "map.h"
 
 //*****************************************************************************
-// ƒ}ƒNƒ’è‹`
+// ï¿½}ï¿½Nï¿½ï¿½ï¿½ï¿½`
 //*****************************************************************************
-#define BOX_SIZE 1.0f  // 1‚Â‚Ìƒ{ƒbƒNƒX‚ÌƒTƒCƒY
+#define BOX_SIZE 1.0f  // 1ï¿½Â‚Ìƒ{ï¿½bï¿½Nï¿½Xï¿½ÌƒTï¿½Cï¿½Y
 
 //*****************************************************************************
-// ƒNƒ‰ƒX’è‹`
+// ï¿½Nï¿½ï¿½ï¿½Xï¿½ï¿½`
 //*****************************************************************************
 class MapRenderer
 {
 private:
-    // —§•û‘Ì‚Ì’¸“_ƒoƒbƒtƒ@
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì’ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@
     ID3D11Buffer* m_VertexBuffer;
 
-    // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@iUnity•û®‘Î‰j
+    // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½iUnityï¿½ï¿½ï¿½ï¿½ï¿½Î‰ï¿½ï¿½j
     ID3D11Buffer* m_IndexBuffer;
 
-    // ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX
+    // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½[ï¿½X
     ID3D11ShaderResourceView* m_Texture;
 
-    // ƒ}ƒbƒvƒf[ƒ^‚Ö‚ÌQÆ
+    // ï¿½}ï¿½bï¿½vï¿½fï¿½[ï¿½^ï¿½Ö‚ÌQï¿½ï¿½
     Map* m_pMap;
 
-    // —§•û‘Ì‚Ì’¸“_EƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğì¬iUnity•û®: 24’¸“_+36ƒCƒ“ƒfƒbƒNƒXj
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì’ï¿½ï¿½_ï¿½Eï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½ì¬ï¿½iUnityï¿½ï¿½ï¿½ï¿½: 24ï¿½ï¿½ï¿½_+36ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½j
     void CreateCubeBuffers();
 
 public:
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^EƒfƒXƒgƒ‰ƒNƒ^
+    // ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½Eï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
     MapRenderer();
     ~MapRenderer();
 
-    // ‰Šú‰»EI—¹ˆ—
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     HRESULT Initialize(Map* pMap);
     void Uninitialize();
 
-    // •`‰æˆ—
+    // ï¿½`ï¿½æˆï¿½ï¿½
     void Draw();
 
-    // ŒÂ•Ê‚Ìƒ{ƒbƒNƒX•`‰æ
+    // ï¿½Â•Ê‚Ìƒ{ï¿½bï¿½Nï¿½Xï¿½`ï¿½ï¿½
     void DrawBox(float x, float y, float z);
 
-    // ƒ[ƒ‹ƒhÀ•W‚ÌŒvZ
+    // ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½Wï¿½ÌŒvï¿½Z
     XMFLOAT3 GetWorldPosition(int mapX, int mapY, int mapZ) const;
 };

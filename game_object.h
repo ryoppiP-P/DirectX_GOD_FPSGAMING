@@ -1,8 +1,35 @@
 // game_object.h
 #pragma once
 #include <memory>
-#include "box_collider.h"
-#include "renderer.h"
+#include "System/Core/renderer.h"
+#include "System/Graphics/vertex.h"
+#include "System/Graphics/material.h"
+#include <DirectXMath.h>
+
+using namespace DirectX;
+
+// AABB collision struct (formerly in box_collider.h)
+struct BoxCollider {
+    XMFLOAT3 min, max;
+
+    BoxCollider() : min{0.0f, 0.0f, 0.0f}, max{0.0f, 0.0f, 0.0f} {}
+    BoxCollider(XMFLOAT3 minVal, XMFLOAT3 maxVal) : min(minVal), max(maxVal) {}
+
+    static BoxCollider fromCenterAndSize(XMFLOAT3 center, XMFLOAT3 size) {
+        XMFLOAT3 half = { size.x * 0.5f, size.y * 0.5f, size.z * 0.5f };
+        return BoxCollider(
+            { center.x - half.x, center.y - half.y, center.z - half.z },
+            { center.x + half.x, center.y + half.y, center.z + half.z }
+        );
+    }
+
+    bool intersects(const BoxCollider& other) const {
+        if (max.x < other.min.x || min.x > other.max.x) return false;
+        if (max.y < other.min.y || min.y > other.max.y) return false;
+        if (max.z < other.min.z || min.z > other.max.z) return false;
+        return true;
+    }
+};
 
 enum class ColliderType {
     None,
@@ -18,28 +45,28 @@ public:
     ColliderType colliderType;
     std::unique_ptr<BoxCollider> boxCollider;
 
-    // •`‰æ—p
-    const VERTEX_3D* meshVertices;
+    // ï¿½`ï¿½ï¿½p
+    const Engine::Vertex3D* meshVertices;
     int meshVertexCount;
     ID3D11ShaderResourceView* texture;
 
-    // ƒpƒtƒH[ƒ}ƒ“ƒX‰ü‘PFVertexBuffer‚ğƒLƒƒƒbƒVƒ…
+    // ï¿½pï¿½tï¿½Hï¿½[ï¿½}ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½Pï¿½FVertexBufferï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½
     ID3D11Buffer* vertexBuffer;
     bool bufferNeedsUpdate;
 
     GameObject();
-    ~GameObject(); // ƒfƒXƒgƒ‰ƒNƒ^‚ğ’Ç‰Á
+    ~GameObject(); // ï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½ï¿½Ç‰ï¿½
 
     void setBoxCollider(const XMFLOAT3& size);
-    void setMesh(const VERTEX_3D* vertices, int count, ID3D11ShaderResourceView* tex);
+    void setMesh(const Engine::Vertex3D* vertices, int count, ID3D11ShaderResourceView* tex);
     void draw();
     bool checkCollision(const GameObject& other) const;
 
-    // ˆÊ’u‚â‰ñ“]‚ª•Ï‚í‚Á‚½‚Éƒtƒ‰ƒO‚ğ—§‚Ä‚é
+    // ï¿½Ê’uï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½Ï‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éƒtï¿½ï¿½ï¿½Oï¿½ğ—§‚Ä‚ï¿½
     void markBufferForUpdate() { bufferNeedsUpdate = true; }
     
-    // *** ’Ç‰Á ***
-    // BoxCollider ‚ğæ“¾inullptr ‚Ì‰Â”\«‚ ‚èj
+    // *** ï¿½Ç‰ï¿½ ***
+    // BoxCollider ï¿½ï¿½ï¿½æ“¾ï¿½inullptr ï¿½Ì‰Â”\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½j
     BoxCollider* GetBoxCollider() const { return boxCollider.get(); }
 
     uint32_t getId() const { return id; }
@@ -51,5 +78,5 @@ public:
 
 private:
     uint32_t id = 0;
-    void createVertexBuffer(); // VertexBufferì¬—pƒwƒ‹ƒp[ŠÖ”
+    void createVertexBuffer(); // VertexBufferï¿½ì¬ï¿½pï¿½wï¿½ï¿½ï¿½pï¿½[ï¿½Öï¿½
 };

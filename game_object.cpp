@@ -28,11 +28,11 @@ void GameObject::setBoxCollider(const XMFLOAT3& size) {
     colliderType = ColliderType::Box;
 }
 
-void GameObject::setMesh(const VERTEX_3D* vertices, int count, ID3D11ShaderResourceView* tex) {
+void GameObject::setMesh(const Engine::Vertex3D* vertices, int count, ID3D11ShaderResourceView* tex) {
     meshVertices = vertices;
     meshVertexCount = count;
     texture = tex;
-    bufferNeedsUpdate = true; // ƒƒbƒVƒ…‚ª•Ï‚í‚Á‚½‚Ì‚Åƒoƒbƒtƒ@XVƒtƒ‰ƒO‚ð—§‚Ä‚é
+    bufferNeedsUpdate = true; // ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ï‚ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Åƒoï¿½bï¿½tï¿½@ï¿½Xï¿½Vï¿½tï¿½ï¿½ï¿½Oï¿½ð—§‚Ä‚ï¿½
 }
 
 void GameObject::createVertexBuffer() {
@@ -44,15 +44,15 @@ void GameObject::createVertexBuffer() {
     if (!meshVertices || meshVertexCount == 0) return;
 
     D3D11_BUFFER_DESC bd = {};
-    bd.Usage = D3D11_USAGE_DEFAULT; // DYNAMIC ‚©‚ç DEFAULT ‚É•ÏXi‚æ‚è‚‘¬j
-    bd.ByteWidth = sizeof(VERTEX_3D) * meshVertexCount;
+    bd.Usage = D3D11_USAGE_DEFAULT; // DYNAMIC ï¿½ï¿½ï¿½ï¿½ DEFAULT ï¿½É•ÏXï¿½iï¿½ï¿½è‚ï¿½ï¿½ï¿½j
+    bd.ByteWidth = sizeof(Engine::Vertex3D) * meshVertexCount;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.CPUAccessFlags = 0; // CPU ‚©‚ç‚ÌƒAƒNƒZƒX‚Í•s—v
+    bd.CPUAccessFlags = 0; // CPU ï¿½ï¿½ï¿½ï¿½ÌƒAï¿½Nï¿½Zï¿½Xï¿½Í•sï¿½v
 
     D3D11_SUBRESOURCE_DATA subResource = {};
     subResource.pSysMem = meshVertices;
 
-    HRESULT hr = GetDevice()->CreateBuffer(&bd, &subResource, &vertexBuffer);
+    HRESULT hr = Engine::GetDevice()->CreateBuffer(&bd, &subResource, &vertexBuffer);
     if (FAILED(hr)) {
         vertexBuffer = nullptr;
     }
@@ -61,7 +61,7 @@ void GameObject::createVertexBuffer() {
 void GameObject::draw() {
     if (!meshVertices || meshVertexCount == 0) return;
 
-    // ƒoƒbƒtƒ@‚ª•K—v‚Èê‡‚Ì‚Ýì¬/XV
+    // ï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½Kï¿½vï¿½Èê‡ï¿½Ì‚Ýì¬/ï¿½Xï¿½V
     if (bufferNeedsUpdate || !vertexBuffer) {
         createVertexBuffer();
         bufferNeedsUpdate = false;
@@ -69,7 +69,7 @@ void GameObject::draw() {
 
     if (!vertexBuffer) return;
 
-    // ƒ[ƒ‹ƒhs—ñ‚ÌŒvŽZi•ÏX‚ª‚ ‚Á‚½ê‡‚Ì‚Ýj
+    // ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½sï¿½ï¿½ÌŒvï¿½Zï¿½iï¿½ÏXï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚Ýj
     static XMFLOAT3 lastPosition = { 0, 0, 0 };
     static XMFLOAT3 lastRotation = { 0, 0, 0 };
     static XMFLOAT3 lastScale = { 1, 1, 1 };
@@ -94,22 +94,28 @@ void GameObject::draw() {
         lastScale = scale;
     }
 
-    SetWorldMatrix(lastWorldMatrix);
+    Engine::Renderer::GetInstance().SetWorldMatrix(lastWorldMatrix);
 
     if (texture) {
-        GetDeviceContext()->PSSetShaderResources(0, 1, &texture);
+        Engine::GetDeviceContext()->PSSetShaderResources(0, 1, &texture);
     }
 
-    UINT stride = sizeof(VERTEX_3D);
+    UINT stride = sizeof(Engine::Vertex3D);
     UINT offset = 0;
-    GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-    GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    Engine::GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    Engine::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    MATERIAL mat = {};
-    mat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    SetMaterial(mat);
+    Engine::MaterialData mat = {};
+    mat.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    {
+        ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
+        ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
+        if (ctx && buf) {
+            ctx->UpdateSubresource(buf, 0, nullptr, &mat, 0, 0);
+        }
+    }
 
-    GetDeviceContext()->Draw(meshVertexCount, 0);
+    Engine::GetDeviceContext()->Draw(meshVertexCount, 0);
 }
 
 bool GameObject::checkCollision(const GameObject& other) const {

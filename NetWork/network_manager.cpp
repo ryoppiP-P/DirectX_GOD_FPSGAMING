@@ -2,7 +2,7 @@
 #include "network_manager.h"
 #include "../game_object.h"
 #include "../main.h"
-#include "../polygon.h"
+#include "../System/Graphics/primitive.h"
 #include <iostream>
 #include <cstring>
 #include <chrono>
@@ -12,14 +12,14 @@
 #include <algorithm>
 #include <condition_variable>
 
-// player.cpp ‚Å’è‹`‚³‚ê‚½ŠÖ”‚Ì‘O•ûéŒ¾
+// player.cpp ï¿½Å’ï¿½`ï¿½ï¿½ï¿½ê‚½ï¿½Öï¿½ï¿½Ì‘Oï¿½ï¿½ï¿½éŒ¾
 extern void ForceUpdatePlayerPosition(const XMFLOAT3& pos, const XMFLOAT3& rot);
 
-NetworkManager g_network; // ƒOƒ[ƒoƒ‹ƒCƒ“ƒXƒ^ƒ“ƒX’è‹`
+NetworkManager g_network; // ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½ï¿½`
 static auto lastQueueLog = std::chrono::steady_clock::now();
 auto now = std::chrono::steady_clock::now();
 
-// Simple thread-safe network logger (’á•p“x‚Ì‚İƒƒOo‚·)
+// Simple thread-safe network logger (ï¿½ï¿½pï¿½xï¿½Ì‚İƒï¿½ï¿½Oï¿½oï¿½ï¿½)
 static std::mutex g_netlog_mutex;
 static void netlog_printf(const char* fmt, ...) {
     std::lock_guard<std::mutex> lk(g_netlog_mutex);
@@ -29,7 +29,7 @@ static void netlog_printf(const char* fmt, ...) {
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
 
-    // timestamp (’Z‚ß)
+    // timestamp (ï¿½Zï¿½ï¿½)
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
     char timebuf[32];
@@ -62,7 +62,7 @@ uint32_t NetworkManager::getMyPlayerId() const {
     return m_myPlayerId;
 }
 
-// start_as_host/start_as_client ‚Íƒ\ƒPƒbƒg‰Šú‰»Œã‚Éƒ[ƒJ[‚ğ‹N“®‚·‚é
+// start_as_host/start_as_client ï¿½Íƒ\ï¿½Pï¿½bï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éƒï¿½ï¿½[ï¿½Jï¿½[ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 bool NetworkManager::start_as_host() {
     add_firewall_exception();
     if (!initialize_with_fallback()) {
@@ -72,7 +72,7 @@ bool NetworkManager::start_as_host() {
     m_isHost = true;
     // Reserve player ID1 for the host's local player; start assigning clients at2
     m_nextPlayerId =2;
-    // ƒ[ƒJ[ŠJn
+    // ï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½Jï¿½n
     start_worker();
     netlog_printf("STARTED AS HOST, net port=%d discovery port=%d", m_net.get_current_port(), m_discovery.get_current_port());
     return true;
@@ -96,7 +96,7 @@ bool NetworkManager::start_as_client() {
     return true;
 }
 
-// discover_and_join ‚Ì“®ì‚Í•Ï‚¦‚¸iƒuƒƒbƒNŒ^’Tõj‚¾‚ªA’T¸—p‚Ì‘Ò‚¿ŠÔ‚ğ’Zk
+// discover_and_join ï¿½Ì“ï¿½ï¿½ï¿½Í•Ï‚ï¿½ï¿½ï¿½ï¿½iï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½^ï¿½Tï¿½ï¿½ï¿½jï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½Tï¿½ï¿½ï¿½pï¿½Ì‘Ò‚ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½Zï¿½k
 bool NetworkManager::discover_and_join(std::string& out_host_ip) {
     scan_channel_usage();
     for (int channelIdx = 0; channelIdx < NUM_CHANNELS; channelIdx++) {
@@ -110,7 +110,7 @@ bool NetworkManager::discover_and_join(std::string& out_host_ip) {
         int from_port;
 
         auto start = std::chrono::steady_clock::now();
-        // 1 •b‚É’Zk
+        // 1 ï¿½bï¿½É’Zï¿½k
         while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count() < 1000) {
             int r = m_discovery.poll_recv(buf, sizeof(buf), from_ip, from_port, 200);
             if (r > 0) {
@@ -132,7 +132,7 @@ bool NetworkManager::discover_and_join(std::string& out_host_ip) {
     return false;
 }
 
-// update: ƒ[ƒJ[‚ªó‚¯æ‚èƒLƒ…[‚ÉÏ‚ñ‚¾ƒpƒPƒbƒg‚ğÅ‘å m_maxPacketsPerFrame Œˆ—‚·‚éi”ñí‚ÉŒy—Êj
+// update: ï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½ï¿½ï¿½ó‚¯ï¿½ï¿½Lï¿½ï¿½ï¿½[ï¿½ÉÏ‚ñ‚¾ƒpï¿½Pï¿½bï¿½gï¿½ï¿½ï¿½Å‘ï¿½ m_maxPacketsPerFrame ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ÉŒyï¿½Êj
 void NetworkManager::update(float dt, GameObject* localPlayer, std::vector<GameObject*>& worldObjects) {
     // process up to N packets from the recv queue
     size_t processed = 0;
@@ -165,7 +165,7 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
                 memcpy(&pi, buf, sizeof(PacketInput));
                 host_handle_input(pi, worldObjects);
 
-                // ÅIÚGXV
+                // ï¿½ÅIï¿½ÚGï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½V
                 std::lock_guard<std::mutex> lk(m_mutex);
                 for (auto& client : m_clients) {
                     if (client.playerId == pi.playerId) {
@@ -250,7 +250,7 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
 }
 
 void NetworkManager::host_handle_join(const std::string& from_ip, int from_port, std::vector<GameObject*>& worldObjects) {
-    //Šù‘¶ƒNƒ‰ƒCƒAƒ“ƒgƒ`ƒFƒbƒN
+    //ï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½`ï¿½Fï¿½bï¿½N
     {
         std::lock_guard<std::mutex> lk(m_mutex);
         for (auto& c : m_clients) {
@@ -347,7 +347,7 @@ void NetworkManager::client_handle_state(const PacketStateHeader& hdr, const Obj
         netlog_printf("CLIENT RECV STATE: Processing id=%u pos=(%.2f,%.2f,%.2f) rot=(%.2f,%.2f,%.2f)",
             os.id, os.posX, os.posY, os.posZ, os.rotX, os.rotY, os.rotZ);
 
-        // ©•ª‚ÌƒvƒŒƒCƒ„[ID‚Ìê‡‚ÍƒXƒLƒbƒviƒ[ƒJƒ‹§Œä—Dæj
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[IDï¿½Ìê‡ï¿½ÍƒXï¿½Lï¿½bï¿½vï¿½iï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Dï¿½ï¿½j
         if (os.id == m_myPlayerId) {
             netlog_printf("CLIENT RECV STATE: Skipped self position sync for id=%u", os.id);
             continue;
@@ -389,12 +389,12 @@ void NetworkManager::send_input(const PacketInput& input) {
     m_net.send_to(m_hostIp, m_hostPort, &input, (int)sizeof(PacketInput));
 }
 
-// send_state_to_clients_round_robin: 1ƒNƒ‰ƒCƒAƒ“ƒg•ª‚¾‚¯‚ğ‘—‚Á‚Ä•‰‰×‚ğ•ªUiƒ[ƒJ[‚©‚çŒÄ‚Ôj
+// send_state_to_clients_round_robin: 1ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ğ‘—‚ï¿½ï¿½Ä•ï¿½ï¿½×‚ğ•ªUï¿½iï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½ï¿½ï¿½ï¿½Ä‚Ôj
 void NetworkManager::send_state_to_clients_round_robin(std::vector<GameObject*>* worldObjectsPtr) {
     std::lock_guard<std::mutex> lk(m_mutex);
     if (m_clients.empty() || worldObjectsPtr == nullptr) return;
 
-    // ‘—M‘ÎÛ‚Íˆêl‚¸‚Âiƒ[ƒe[ƒVƒ‡ƒ“j
+    // ï¿½ï¿½ï¿½Mï¿½ÎÛ‚Íˆï¿½lï¿½ï¿½ï¿½Âiï¿½ï¿½ï¿½[ï¿½eï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½j
     size_t idx = m_stateSendIndex % m_clients.size();
     ClientInfo& c = m_clients[idx];
 
@@ -512,7 +512,7 @@ void NetworkManager::FrameSync(GameObject* localPlayer, std::vector<GameObject*>
             netlog_printf("CLIENT FRAMESYNC: hostIP is empty - SKIPPING");
             return;
         }
-        //d—v: JOIN/ACK ‚ğó‚¯‚ÄƒvƒŒƒCƒ„[ID‚ªŠ„‚è“–‚Ä‚ç‚ê‚é‚Ü‚ÅSTATE‘—M‚ğs‚í‚È‚¢
+        //ï¿½dï¿½v: JOIN/ACK ï¿½ï¿½ï¿½ó‚¯‚Äƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[IDï¿½ï¿½ï¿½ï¿½ï¿½è“–ï¿½Ä‚ï¿½ï¿½ï¿½Ü‚ï¿½STATEï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½sï¿½ï¿½È‚ï¿½
         if (m_myPlayerId ==0) {
             netlog_printf("CLIENT FRAMESYNC: myPlayerId is0 (not joined) - SKIPPING");
             return;
@@ -574,15 +574,15 @@ bool NetworkManager::try_dynamic_ports() {
     return m_net.initialize_dynamic_port() && m_discovery.initialize_dynamic_port();
 }
 
-// check_existing_firewall_rule: Å¬ŒÀ‚É‚µ‚Ä‚¨‚­
+// check_existing_firewall_rule: ï¿½Åï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
 bool NetworkManager::check_existing_firewall_rule() {
-    // ƒRƒXƒg‚Ì‚‚¢COM—ñ‹“‚Í”ğ‚¯‚Ä false ‚ğ•Ô‚µ‚Ä‚¨‚­iadd_firewall_exception ‚Å‚ÍŠÇ—Ò”»’è‚¾‚¯‚ÅI—¹j
+    // ï¿½Rï¿½Xï¿½gï¿½Ìï¿½ï¿½ï¿½COMï¿½ñ‹“‚Í”ï¿½ï¿½ï¿½ï¿½ï¿½ false ï¿½ï¿½Ô‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½iadd_firewall_exception ï¿½Å‚ÍŠÇ—ï¿½ï¿½Ò”ï¿½ï¿½è‚¾ï¿½ï¿½ï¿½ÅIï¿½ï¿½ï¿½j
     return false;
 }
 
-// add_firewall_exception: ŠÇ—Ò—L–³‚¾‚¯ƒ`ƒFƒbƒN‚µ‚Äd‚¢‘€ì‚Í‚µ‚È‚¢
+// add_firewall_exception: ï¿½Ç—ï¿½ï¿½Ò—Lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½Fï¿½bï¿½Nï¿½ï¿½ï¿½Ädï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í‚ï¿½ï¿½È‚ï¿½
 bool NetworkManager::add_firewall_exception() {
-    // ŠÇ—Òƒ`ƒFƒbƒN‚ğs‚¤‚ªAÀÛ‚ÉCOM‚Å’Ç‰Á‚·‚éˆ—‚Ís‚í‚È‚¢iŠwZŠÂ‹«‚Å‚Í‘½‚­‚Ìê‡•s‰Âj
+    // ï¿½Ç—ï¿½ï¿½Òƒ`ï¿½Fï¿½bï¿½Nï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Û‚ï¿½COMï¿½Å’Ç‰ï¿½ï¿½ï¿½ï¿½éˆï¿½ï¿½ï¿½Ísï¿½ï¿½È‚ï¿½ï¿½iï¿½wï¿½Zï¿½Â‹ï¿½ï¿½Å‚Í‘ï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½sï¿½Âj
     BOOL isAdmin = FALSE;
     PSID administratorsGroup = NULL;
     SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
@@ -599,7 +599,7 @@ bool NetworkManager::add_firewall_exception() {
     return true;
 }
 
-// handle_channel_scan / handle_channel_info: Œy—Ê‚É•Û
+// handle_channel_scan / handle_channel_info: ï¿½yï¿½Ê‚É•Ûï¿½
 void NetworkManager::handle_channel_scan(const std::string& from_ip, int from_port) {
     ChannelInfo info;
     info.type = PKT_CHANNEL_INFO;
@@ -752,9 +752,9 @@ void NetworkManager::send_state_to_all(std::vector<GameObject*>& worldObjects) {
     // Build state list: include host player (id==1) if present, plus all connected clients
     std::vector<ObjectState> states;
 
-    // ƒzƒXƒgƒvƒŒƒCƒ„[iID=1j‚ğ•K‚¸ƒ[ƒJƒ‹ƒvƒŒƒCƒ„[‚©‚çæ“¾
+    // ï¿½zï¿½Xï¿½gï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½iID=1ï¿½jï¿½ï¿½Kï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½æ“¾
     GameObject* localPlayer = nullptr;
-    // main.cpp‚ÌGetLocalPlayerGameObject()‚ğg—p
+    // main.cppï¿½ï¿½GetLocalPlayerGameObject()ï¿½ï¿½ï¿½gï¿½p
     extern GameObject* GetLocalPlayerGameObject();
     localPlayer = GetLocalPlayerGameObject();
 

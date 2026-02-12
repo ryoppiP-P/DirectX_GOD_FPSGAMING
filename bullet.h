@@ -2,7 +2,6 @@
 #pragma once
 #include "main.h"
 #include "game_object.h"
-#include "box_collider.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;
@@ -17,9 +16,9 @@ public:
     GameObject visual;
 
     Bullet();
-    Bullet(const Bullet&) = delete;            // ƒRƒs[‹Ö~
-    Bullet& operator=(const Bullet&) = delete; // ƒRƒs[‹Ö~
-    Bullet(Bullet&&) = default;                // ƒ€[ƒu‚ÍOK
+    Bullet(const Bullet&) = delete;            // ï¿½Rï¿½sï¿½[ï¿½Ö~
+    Bullet& operator=(const Bullet&) = delete; // ï¿½Rï¿½sï¿½[ï¿½Ö~
+    Bullet(Bullet&&) = default;                // ï¿½ï¿½ï¿½[ï¿½uï¿½ï¿½OK
     Bullet& operator=(Bullet&&) = default;
 
     void Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, const XMFLOAT3& dir);

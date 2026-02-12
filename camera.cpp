@@ -5,13 +5,13 @@
 #include "game_controller.h"
 #include "player.h"
 #include "map.h"
-#include "polygon.h"
+
 #include "NetWork/network_manager.h"
 #include <cmath>
 #include <stdio.h>
 #include <iostream>
 
-// ѓЃѓCѓ“ѓJѓЃѓ‰‚МѓVѓ“ѓOѓ‹ѓgѓ“
+// пїЅпїЅпїЅCпїЅпїЅпїЅJпїЅпїЅпїЅпїЅпїЅМѓVпїЅпїЅпїЅOпїЅпїЅпїЅgпїЅпїЅ
 static Camera s_mainCamera = {
  XMFLOAT3(0.0f,0.0f, -4.0f),
  XMFLOAT3(0.0f,0.0f,1.0f),
@@ -27,12 +27,12 @@ Camera& GetMainCamera() {
 	return s_mainCamera;
 }
 
-// ѓvѓЊѓCѓ„Ѓ[Џ‰Љъ‰»—pЃiЉO•”‚©‚з‚НЊД‚О‚И‚ўЃj
+// пїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅпїЅпїЅпїЅпїЅпїЅпїЅpпїЅiпїЅOпїЅпїЅпїЅпїЅпїЅпїЅНЊД‚О‚И‚пїЅпїЅj
 void InitializePlayer(Map* map, ID3D11ShaderResourceView* texture) {
 	InitializePlayers(map, texture);
 }
 
-// ѓvѓЊѓCѓ„Ѓ[•`‰ж—p
+// пїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅ`пїЅпїЅp
 void DrawPlayer() {
 	DrawPlayers();
 }
@@ -47,7 +47,7 @@ void UpdatePlayer() {
 	UpdatePlayers();
 }
 
-// ѓlѓbѓgѓЏЃ[ѓN—pЃFѓvѓЊѓCѓ„Ѓ[‹­ђ§€Ъ“®
+// пїЅlпїЅbпїЅgпїЅпїЅпїЅ[пїЅNпїЅpпїЅFпїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅпїЅпїЅпїЅпїЅЪ“пїЅ
 void ForceUpdatePlayerPosition(const XMFLOAT3& pos, const XMFLOAT3& rot) {
 	Player* activePlayer = GetActivePlayer();
 	if (activePlayer) {
@@ -57,11 +57,11 @@ void ForceUpdatePlayerPosition(const XMFLOAT3& pos, const XMFLOAT3& rot) {
 }
 
 void Camera::Update(void) {
-	// CameraManager‚ЙЏ€—ќ‚р€ПЏч
+	// CameraManagerпїЅЙЏпїЅпїЅпїЅпїЅпїЅпїЅПЏпїЅ
 	CameraManager::GetInstance().Update(1.0f / 60.0f);
 }
 
-// CameraManagerЋА‘•
+// CameraManagerпїЅпїЅпїЅпїЅ
 CameraManager* CameraManager::instance = nullptr;
 
 CameraManager& CameraManager::GetInstance() {
@@ -78,14 +78,14 @@ void CameraManager::Update(float deltaTime) {
 		controllerInitialized = true;
 	}
 
-	// ’иђ”’и‹`
+	// пїЅиђ”пїЅпїЅ`
 	constexpr float rotateSpeed = 2.0f;
 	constexpr float mouseSensitivity = 0.2f;
 	constexpr float stickSensitivity = 3.0f;
 	constexpr float cameraDistance = 5.0f;
 	constexpr float cameraHeight = 2.0f;
 
-	// ========== ѓ}ѓEѓX“ь—Н ==========
+	// ========== пїЅ}пїЅEпїЅXпїЅпїЅпїЅпїЅ ==========
 	Mouse_State mouseState;
 	Mouse_GetState(&mouseState);
 
@@ -111,7 +111,7 @@ void CameraManager::Update(float deltaTime) {
 		}
 	}
 
-	// ========== ѓLЃ[ѓ{Ѓ[ѓh’З‰Б‘ЂЌмЃi–о€уѓLЃ[Ѓj ==========
+	// ========== пїЅLпїЅ[пїЅ{пїЅ[пїЅhпїЅЗ‰пїЅпїЅпїЅпїЅпїЅiпїЅпїЅпїЅLпїЅ[пїЅj ==========
 	if (Keyboard_IsKeyDown(KK_LEFT)) {
 		rotation -= rotateSpeed;
 	}
@@ -131,7 +131,7 @@ void CameraManager::Update(float deltaTime) {
 	// ========== GameController ==========
 	{
 		GamepadState pad;
-		const float rightDead =0.12f; // ѓmѓCѓYЏњ‹Ћ—p‚µ‚«‚ў’l
+		const float rightDead =0.12f; // пїЅmпїЅCпїЅYпїЅпїЅпїЅпїЅпїЅpпїЅпїЅпїЅпїЅпїЅпїЅпїЅl
 		bool applied = false;
 		if (GameController::GetState(pad)) {
 			if (fabsf(pad.rightStickX) > rightDead || fabsf(pad.rightStickY) > rightDead) {
@@ -140,10 +140,10 @@ void CameraManager::Update(float deltaTime) {
 				applied = true;
 			}
 		}
-		// ѓtѓHЃ[ѓ‹ѓoѓbѓN: GetState ‚Є rightStick ‚р•Ф‚і‚И‚ў/Њл‚йЉВ‹«Њь‚Ї‚Йђ¶’l‚р’јђЪ“З‚Ю
+		// пїЅtпїЅHпїЅ[пїЅпїЅпїЅoпїЅbпїЅN: GetState пїЅпїЅ rightStick пїЅпїЅФ‚пїЅпїЅИ‚пїЅ/пїЅпїЅпїЅВ‹пїЅпїЅпїЅпїЅпїЅпїЅЙђпїЅпїЅlпїЅр’јђЪ“З‚пїЅ
 		if (!applied) {
 			const int RAW_CENTER =32767;
-			const float rawDeadNorm =0.12f; // ђі‹K‰»Њг‚Ми‡’l
+			const float rawDeadNorm =0.12f; // пїЅпїЅпїЅKпїЅпїЅпїЅпїЅпїЅи‡’l
 			for (int id =0; id <16; ++id) {
 				int test = GameController::GetGamepadValue(id,3);
 				if (test ==32767) continue;
@@ -167,7 +167,7 @@ void CameraManager::Update(float deltaTime) {
 		}
 	}
 
-	// ѓAѓNѓeѓBѓuѓvѓЊѓCѓ„Ѓ[‚ЙЉо‚Г‚ў‚ДѓJѓЃѓ‰‚рЌXђV
+	// пїЅAпїЅNпїЅeпїЅBпїЅuпїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅЙЉпїЅГ‚пїЅпїЅДѓJпїЅпїЅпїЅпїЅпїЅпїЅпїЅXпїЅV
 	PlayerManager& playerMgr = PlayerManager::GetInstance();
 	UpdateCameraForPlayer(playerMgr.GetActivePlayerId());
 }
@@ -176,19 +176,19 @@ void CameraManager::UpdateCameraForPlayer(int playerId) {
 	Player* player = PlayerManager::GetInstance().GetPlayer(playerId);
 	if (!player) return;
 
-	// ѓvѓЊѓCѓ„Ѓ[‚М‰с“]‚рѓJѓЃѓ‰‚М‰с“]‚Й“ЇЉъ
+	// пїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅМ‰пїЅ]пїЅпїЅпїЅJпїЅпїЅпїЅпїЅпїЅМ‰пїЅ]пїЅЙ“пїЅпїЅпїЅ
 	XMFLOAT3 playerRot = player->GetRotation();
 	if (player->GetViewMode() == ViewMode::FIRST_PERSON) {
-		//1ђlЏМ: ѓJѓЃѓ‰‚МЊь‚«‚ЙѓvѓЊѓCѓ„Ѓ[‚рЌ‡‚н‚№‚йЃiЏ]—€‚М‹““®Ѓj
+		//1пїЅlпїЅпїЅ: пїЅJпїЅпїЅпїЅпїЅпїЅМЊпїЅпїЅпїЅпїЅЙѓvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅпїЅпїЅпїЅпїЅн‚№пїЅпїЅiпїЅ]пїЅпїЅпїЅМ‹пїЅпїЅпїЅпїЅj
 		playerRot.y = rotation;
 		player->ForceSetRotation(playerRot);
 	} else {
-		//3ђlЏМ: ѓJѓЃѓ‰‚МЊь‚«‚ЙѓvѓЊѓCѓ„Ѓ[‚рЌ‡‚н‚№‚йЃiѓ}ѓEѓX‚вѓXѓeѓBѓbѓN‚ЕЋ‹“_‚р“®‚©‚µ‚Ѕ‚зѓvѓЊѓCѓ„Ѓ[‚ЄЊь‚­Ѓj
+		//3пїЅlпїЅпїЅ: пїЅJпїЅпїЅпїЅпїЅпїЅМЊпїЅпїЅпїЅпїЅЙѓvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅпїЅпїЅпїЅпїЅн‚№пїЅпїЅiпїЅ}пїЅEпїЅXпїЅпїЅXпїЅeпїЅBпїЅbпїЅNпїЅЕЋпїЅпїЅ_пїЅр“®‚пїЅпїЅпїЅпїЅпїЅпїЅпїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅпїЅпїЅпїЅпїЅпїЅпїЅj
 		playerRot.y = rotation;
 		player->ForceSetRotation(playerRot);
 	}
 
-	// ѓJѓЃѓ‰‚М•ыЊьѓxѓNѓgѓ‹ЊvЋZ
+	// пїЅJпїЅпїЅпїЅпїЅпїЅМ•пїЅпїЅпїЅпїЅxпїЅNпїЅgпїЅпїЅпїЅvпїЅZ
 	float yawRad = XMConvertToRadians(rotation);
 	float pitchRad = XMConvertToRadians(pitch);
 
@@ -207,7 +207,7 @@ void CameraManager::UpdateCameraForPlayer(int playerId) {
 	ViewMode viewMode = player->GetViewMode();
 
 	if (viewMode == ViewMode::THIRD_PERSON) {
-		//3ђlЏМЋ‹“_: ѓvѓЊѓCѓ„Ѓ[‚МЊг•ы‚©‚зЊ©‚й
+		//3пїЅlпїЅМЋпїЅпїЅ_: пїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅМЊпїЅпїЅпїЅпїЅпїЅзЊ©пїЅпїЅ
 		constexpr float cameraDistance = 5.0f;
 		constexpr float cameraHeight = 2.0f;
 
@@ -215,14 +215,14 @@ void CameraManager::UpdateCameraForPlayer(int playerId) {
 		s_mainCamera.position.y = playerPos.y + cameraHeight - forward.y * cameraDistance;
 		s_mainCamera.position.z = playerPos.z - forward.z * cameraDistance;
 
-		// ’ЌЋ‹“_‚НѓvѓЊѓCѓ„Ѓ[‚М’†ђS
+		// пїЅпїЅпїЅпїЅпїЅ_пїЅНѓvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅМ’пїЅпїЅS
 		s_mainCamera.Atposition.x = playerPos.x;
 		s_mainCamera.Atposition.y = playerPos.y + 1.0f;
 		s_mainCamera.Atposition.z = playerPos.z;
 	} else { // FIRST_PERSON
-		//1ђlЏМЋ‹“_: ѓvѓЊѓCѓ„Ѓ[‚М–Ъђь
+		//1пїЅlпїЅМЋпїЅпїЅ_: пїЅvпїЅпїЅпїЅCпїЅпїЅпїЅ[пїЅМ–ЪђпїЅ
 		s_mainCamera.position.x = playerPos.x;
-		s_mainCamera.position.y = playerPos.y + 1.0f; //–Ъ‚МЌ‚‚і
+		s_mainCamera.position.y = playerPos.y + 1.0f; //пїЅЪ‚МЌпїЅпїЅпїЅ
 		s_mainCamera.position.z = playerPos.z;
 
 		s_mainCamera.Atposition.x = s_mainCamera.position.x + forward.x;
@@ -231,9 +231,9 @@ void CameraManager::UpdateCameraForPlayer(int playerId) {
 	}
 }
 
-// ѓOѓЌЃ[ѓoѓ‹ЉЦђ”
+// пїЅOпїЅпїЅпїЅ[пїЅoпїЅпїЅпїЅЦђпїЅ
 void InitializeCameraSystem() {
-	// Џ‰Љъ‰»‚Н“Б‚Й•K—v‚И‚µЃiѓVѓ“ѓOѓ‹ѓgѓ“‚ЄЋ©“®“I‚ЙЏ‰Љъ‰»‚і‚к‚йЃj
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅН“пїЅпїЅЙ•KпїЅvпїЅИ‚пїЅпїЅiпїЅVпїЅпїЅпїЅOпїЅпїЅпїЅgпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅIпїЅЙЏпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅj
 }
 
 void UpdateCameraSystem() {
