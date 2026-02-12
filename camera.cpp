@@ -6,7 +6,7 @@
 #include "player.h"
 #include "map.h"
 #include "polygon.h"
-#include "network_manager.h"
+#include "NetWork/network_manager.h"
 #include <cmath>
 #include <stdio.h>
 #include <iostream>

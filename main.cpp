@@ -14,7 +14,7 @@
 #include "mouse.h"
 #include "player.h"
 #include "camera.h"
-#include "network_manager.h"
+#include "NetWork/network_manager.h"
 #include "game_controller.h"
 #include "system_timer.h"
 #include <iostream>

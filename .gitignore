@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# CodeQL analysis artifacts
+_codeql_detected_source_root

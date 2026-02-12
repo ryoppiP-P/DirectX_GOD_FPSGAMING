@@ -2,6 +2,7 @@
 #pragma once
 
 #include "../core/renderer.h"
+#include "vertex.h"
 
 namespace Engine {
     // 立方体の頂点データ（36頂点）

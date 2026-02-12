@@ -2,6 +2,7 @@
 #include "network_manager.h"
 #include "../game_object.h"
 #include "../main.h"
+#include "../polygon.h"
 #include <iostream>
 #include <cstring>
 #include <chrono>

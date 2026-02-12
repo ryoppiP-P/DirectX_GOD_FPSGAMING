@@ -3,7 +3,7 @@
 #include "map.h"
 #include "map_renderer.h"
 #include "polygon.h"
-#include "network_manager.h"
+#include "NetWork/network_manager.h"
 #include "keyboard.h"
 #include "camera.h" // ƒJƒƒ‰“¯Šú‚Ì‚½‚ß‚É’Ç‰Á
 #include <cmath>
