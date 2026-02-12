@@ -2,7 +2,7 @@
 #include "player.h"
 #include "map.h"
 #include "map_renderer.h"
-#include "polygon.h"
+#include "System/Graphics/primitive.h"
 #include "NetWork/network_manager.h"
 #include "keyboard.h"
 #include "camera.h" // カメラ同期のために追加
@@ -14,7 +14,6 @@
 #include <memory>
 #include <vector>
 static std::vector<std::unique_ptr<Bullet>> g_bullets;
-extern ID3D11ShaderResourceView* GetPolygonTexture(); // 弾用テクスチャ取得関数
 
 
 // minの代わりに使うヘルパー関数

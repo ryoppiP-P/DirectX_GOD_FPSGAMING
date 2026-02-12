@@ -5,8 +5,10 @@
   \data    2025/9/26
  *********************************************************************/
 #include "main.h"
-#include "renderer.h"
-#include "polygon.h"
+#include "System/Core/renderer.h"
+#include "System/Graphics/vertex.h"
+#include "System/Graphics/material.h"
+#include "System/Graphics/primitive.h"
 #include "sprite.h"
 #include "keyboard.h"
 #include "map.h"
@@ -257,7 +259,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 //==================================
 HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
     //DirectX関連の初期化
-    InitRenderer(hInstance, hWnd, bWindow);
+    Engine::Renderer::GetInstance().Initialize(hInstance, hWnd, bWindow != FALSE);
     InitSprite();
 
     Keyboard_Initialize();
@@ -287,7 +289,6 @@ HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
     }
 
     // プレイヤー初期化（新システム）
-    extern ID3D11ShaderResourceView* GetPolygonTexture(); // polygon.cppで定義
 
     // Ask user which player to use at game start. Lock selection for whole run.
     int msgRes = MessageBox(hWnd, "Choose starting player:\nYes = Player1 (TPS)\nNo = Player2 (FPS)", "Select Player", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1);
@@ -360,7 +361,7 @@ void	Uninit(void) {
     Mouse_Finalize();
 
     //DirectX関連の終了処理
-    UninitRenderer();
+    Engine::Renderer::GetInstance().Finalize();
 }
 
 //===================================
@@ -481,7 +482,7 @@ void	Update(void) {
 //==================================
 void	Draw(void) {
     //バックバッファのクリア
-    Clear();
+    Engine::Renderer::GetInstance().Clear();
 
     //マップ描画
     if (g_pMapRenderer) {
@@ -517,5 +518,5 @@ void	Draw(void) {
     }
 
     //バックバッファをフロントバッファにコピー
-    Present();
+    Engine::Renderer::GetInstance().Present();
 }

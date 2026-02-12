@@ -2,7 +2,7 @@
 #include "network_manager.h"
 #include "../game_object.h"
 #include "../main.h"
-#include "../polygon.h"
+#include "../System/Graphics/primitive.h"
 #include <iostream>
 #include <cstring>
 #include <chrono>

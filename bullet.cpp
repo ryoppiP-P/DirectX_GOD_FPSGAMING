@@ -1,6 +1,6 @@
 #include "bullet.h"
-#include "renderer.h"
-#include "polygon.h"
+#include "System/Core/renderer.h"
+#include "System/Graphics/primitive.h"
 
 Bullet::Bullet()
     : position(0, 0, 0), velocity(0, 0, 0), lifeTime(0), active(false)
@@ -16,7 +16,7 @@ void Bullet::Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, 
 
     visual.position = position;
     visual.scale = XMFLOAT3(0.2f, 0.2f, 0.2f);
-    visual.setMesh(Box, 36, texture);      // polygon.h ‚Å’è‹`‚³‚ê‚Ä‚¢‚é Box
+    visual.setMesh(Box, 36, texture);      // primitive.h ‚Å’è‹`‚³‚ê‚Ä‚¢‚é Box
     visual.setBoxCollider(visual.scale);
     visual.markBufferForUpdate();
 

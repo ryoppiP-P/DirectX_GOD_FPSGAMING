@@ -28,7 +28,7 @@ void GameObject::setBoxCollider(const XMFLOAT3& size) {
     colliderType = ColliderType::Box;
 }
 
-void GameObject::setMesh(const VERTEX_3D* vertices, int count, ID3D11ShaderResourceView* tex) {
+void GameObject::setMesh(const Engine::Vertex3D* vertices, int count, ID3D11ShaderResourceView* tex) {
     meshVertices = vertices;
     meshVertexCount = count;
     texture = tex;
@@ -45,14 +45,14 @@ void GameObject::createVertexBuffer() {
 
     D3D11_BUFFER_DESC bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT; // DYNAMIC から DEFAULT に変更（より高速）
-    bd.ByteWidth = sizeof(VERTEX_3D) * meshVertexCount;
+    bd.ByteWidth = sizeof(Engine::Vertex3D) * meshVertexCount;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bd.CPUAccessFlags = 0; // CPU からのアクセスは不要
 
     D3D11_SUBRESOURCE_DATA subResource = {};
     subResource.pSysMem = meshVertices;
 
-    HRESULT hr = GetDevice()->CreateBuffer(&bd, &subResource, &vertexBuffer);
+    HRESULT hr = Engine::GetDevice()->CreateBuffer(&bd, &subResource, &vertexBuffer);
     if (FAILED(hr)) {
         vertexBuffer = nullptr;
     }
@@ -94,22 +94,28 @@ void GameObject::draw() {
         lastScale = scale;
     }
 
-    SetWorldMatrix(lastWorldMatrix);
+    Engine::Renderer::GetInstance().SetWorldMatrix(lastWorldMatrix);
 
     if (texture) {
-        GetDeviceContext()->PSSetShaderResources(0, 1, &texture);
+        Engine::GetDeviceContext()->PSSetShaderResources(0, 1, &texture);
     }
 
-    UINT stride = sizeof(VERTEX_3D);
+    UINT stride = sizeof(Engine::Vertex3D);
     UINT offset = 0;
-    GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-    GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    Engine::GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    Engine::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    MATERIAL mat = {};
-    mat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    SetMaterial(mat);
+    Engine::MaterialData mat = {};
+    mat.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    {
+        ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
+        ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
+        if (ctx && buf) {
+            ctx->UpdateSubresource(buf, 0, nullptr, &mat, 0, 0);
+        }
+    }
 
-    GetDeviceContext()->Draw(meshVertexCount, 0);
+    Engine::GetDeviceContext()->Draw(meshVertexCount, 0);
 }
 
 bool GameObject::checkCollision(const GameObject& other) const {

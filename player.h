@@ -1,7 +1,6 @@
 // player.h
 #pragma once
 #include "main.h"
-#include "box_collider.h"
 #include "game_object.h"
 #include <DirectXMath.h>
 

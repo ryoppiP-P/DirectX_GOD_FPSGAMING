@@ -2,7 +2,6 @@
 #pragma once
 #include "main.h"
 #include "game_object.h"
-#include "box_collider.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;

@@ -7,7 +7,7 @@
 #include "map.h"
 #include "game_object.h"
 #include "map_renderer.h"
-#include "polygon.h"
+#include "System/Graphics/primitive.h"
 
  // í«â¡: Clampä÷êî
 template<typename T>

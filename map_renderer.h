@@ -7,7 +7,9 @@
 #pragma once
 
 #include "main.h"
-#include "renderer.h"
+#include "System/Core/renderer.h"
+#include "System/Graphics/vertex.h"
+#include "System/Graphics/material.h"
 #include "map.h"
 
 //*****************************************************************************

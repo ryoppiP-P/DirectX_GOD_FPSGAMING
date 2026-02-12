@@ -5,7 +5,6 @@
 #include "game_controller.h"
 #include "player.h"
 #include "map.h"
-#include "polygon.h"
 #include "NetWork/network_manager.h"
 #include <cmath>
 #include <stdio.h>

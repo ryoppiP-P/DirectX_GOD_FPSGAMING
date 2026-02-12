@@ -5,7 +5,7 @@
   \data    2025/9/26
  *********************************************************************/
 #include "map_renderer.h"
-#include "polygon.h"
+#include "System/Graphics/primitive.h"
 #include "camera.h"
 #include "external/DirectXTex.h"
 
@@ -24,7 +24,7 @@
 //*****************************************************************************
 // 立方体の頂点データ（Unity方式: 24頂点＋36インデックス）
 //*****************************************************************************
-static VERTEX_3D g_CubeVertices[CUBE_VERTEX_COUNT] = {
+static Engine::Vertex3D g_CubeVertices[CUBE_VERTEX_COUNT] = {
     // 前面 (Z = -0.5)
     {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
     {{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
@@ -107,7 +107,7 @@ HRESULT MapRenderer::Initialize(Map* pMap)
     DirectX::ScratchImage image;
     HRESULT hr = DirectX::LoadFromWICFile(L"resource/texture/white.png", DirectX::WIC_FLAGS_NONE, &metadata, image);
     if (SUCCEEDED(hr)) {
-        hr = DirectX::CreateShaderResourceView(GetDevice(), image.GetImages(),
+        hr = DirectX::CreateShaderResourceView(Engine::GetDevice(), image.GetImages(),
             image.GetImageCount(), metadata, &m_Texture);
     }
     if (FAILED(hr)) {
@@ -144,7 +144,7 @@ void MapRenderer::CreateCubeBuffers()
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(VERTEX_3D) * CUBE_VERTEX_COUNT;
+    bd.ByteWidth = sizeof(Engine::Vertex3D) * CUBE_VERTEX_COUNT;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bd.CPUAccessFlags = 0;
 
@@ -152,7 +152,7 @@ void MapRenderer::CreateCubeBuffers()
     ZeroMemory(&InitData, sizeof(InitData));
     InitData.pSysMem = g_CubeVertices;
 
-    GetDevice()->CreateBuffer(&bd, &InitData, &m_VertexBuffer);
+    Engine::GetDevice()->CreateBuffer(&bd, &InitData, &m_VertexBuffer);
 
     // インデックスバッファ
     D3D11_BUFFER_DESC ibd;
@@ -166,7 +166,7 @@ void MapRenderer::CreateCubeBuffers()
     ZeroMemory(&iInitData, sizeof(iInitData));
     iInitData.pSysMem = g_CubeIndices;
 
-    GetDevice()->CreateBuffer(&ibd, &iInitData, &m_IndexBuffer);
+    Engine::GetDevice()->CreateBuffer(&ibd, &iInitData, &m_IndexBuffer);
 }
 
 //=============================================================================
@@ -176,7 +176,7 @@ void MapRenderer::Draw()
 {
     if (!m_pMap) return;
 
-    SetDepthEnable(true);
+    Engine::Renderer::GetInstance().SetDepthEnable(true);
 
     // カメラの参照を取得
     Camera& camera = GetMainCamera();
@@ -186,29 +186,35 @@ void MapRenderer::Draw()
             (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
             camera.nearclip, camera.farclip
         );
-    SetProjectionMatrix(ProjectionMatrix);
+    Engine::Renderer::GetInstance().SetProjectionMatrix(ProjectionMatrix);
 
     XMVECTOR eyev = XMLoadFloat3(&camera.Atposition);
     XMVECTOR pos = XMLoadFloat3(&camera.position);
     XMVECTOR up = XMLoadFloat3(&camera.Upvector);
     XMMATRIX ViewMatrix = XMMatrixLookAtLH(pos, eyev, up);
-    SetViewMatrix(ViewMatrix);
+    Engine::Renderer::GetInstance().SetViewMatrix(ViewMatrix);
 
     if (m_Texture) {
-        GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
+        Engine::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
     }
 
     // 頂点・インデックスバッファをセット
-    UINT stride = sizeof(VERTEX_3D);
+    UINT stride = sizeof(Engine::Vertex3D);
     UINT offset = 0;
-    GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
-    GetDeviceContext()->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    Engine::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
+    Engine::GetDeviceContext()->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    Engine::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    MATERIAL material;
+    Engine::MaterialData material;
     ZeroMemory(&material, sizeof(material));
-    material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    SetMaterial(material);
+    material.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    {
+        ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
+        ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
+        if (ctx && buf) {
+            ctx->UpdateSubresource(buf, 0, nullptr, &material, 0, 0);
+        }
+    }
 
     for (int y = 0; y < m_pMap->GetHeight(); y++) {
         for (int z = 0; z < m_pMap->GetDepth(); z++) {
@@ -231,10 +237,10 @@ void MapRenderer::DrawBox(float x, float y, float z)
     XMMATRIX ScalingMatrix = XMMatrixScaling(BOX_SIZE, BOX_SIZE, BOX_SIZE);
     XMMATRIX WorldMatrix = ScalingMatrix * TranslationMatrix;
 
-    SetWorldMatrix(WorldMatrix);
+    Engine::Renderer::GetInstance().SetWorldMatrix(WorldMatrix);
 
     // インデックスバッファを使って描画
-    GetDeviceContext()->DrawIndexed(CUBE_INDEX_COUNT, 0, 0);
+    Engine::GetDeviceContext()->DrawIndexed(CUBE_INDEX_COUNT, 0, 0);
 }
 
 //=============================================================================
