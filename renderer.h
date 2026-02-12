@@ -23,8 +23,14 @@ struct MATERIAL {
     float Padding[3];
 };
 
-// 旧システムのグローバル関数互換ラッパー
-using namespace Engine;
+// デバイスアクセス（旧グローバル関数互換）
+inline ID3D11Device* GetDevice() {
+    return Engine::Renderer::GetInstance().GetDevice();
+}
+
+inline ID3D11DeviceContext* GetDeviceContext() {
+    return Engine::Renderer::GetInstance().GetContext();
+}
 
 // レンダラー初期化/終了
 inline HRESULT InitRenderer(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
@@ -64,8 +70,8 @@ inline void SetDepthEnable(bool enable) {
 
 // マテリアル設定（旧 MATERIAL 構造体対応）
 inline void SetMaterial(const MATERIAL& mat) {
-    auto* ctx = Engine::Renderer::GetInstance().GetContext();
-    auto* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
+    ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
+    ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
     if (ctx && buf) {
         // MATERIAL を MaterialData へ変換
         Engine::MaterialData data = {};
