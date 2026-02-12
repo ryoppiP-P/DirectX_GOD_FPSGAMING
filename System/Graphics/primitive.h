@@ -5,18 +5,18 @@
 #include "vertex.h"
 
 namespace Engine {
-    // ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì’ï¿½ï¿½_ï¿½fï¿½[ï¿½^ï¿½i36ï¿½ï¿½ï¿½_ï¿½j
+    // —§•û‘Ì‚Ì’¸“_ƒf[ƒ^i36’¸“_j
     extern Vertex3D BoxVertices[36];
 
-    // ï¿½vï¿½ï¿½ï¿½~ï¿½eï¿½Bï¿½uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Iï¿½ï¿½
+    // ƒvƒŠƒ~ƒeƒBƒu‰Šú‰»EI—¹
     void InitPrimitives(ID3D11Device* pDevice);
     void UninitPrimitives();
 
-    // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½æ“¾
+    // ƒfƒtƒHƒ‹ƒgƒeƒNƒXƒ`ƒƒæ“¾
     ID3D11ShaderResourceView* GetDefaultTexture();
 }
 
-// ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½ï¿½ï¿½J
+// ƒOƒ[ƒoƒ‹ŒöŠJ
 extern Engine::Vertex3D Box[36];
 inline void InitPolygon() { Engine::InitPrimitives(Engine::GetDevice()); }
 inline void UninitPolygon() { Engine::UninitPrimitives(); }
