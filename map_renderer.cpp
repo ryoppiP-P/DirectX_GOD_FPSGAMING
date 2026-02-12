@@ -7,7 +7,7 @@
 #include "map_renderer.h"
 #include "polygon.h"
 #include "camera.h"
-#include "DirectXTex.h"
+#include "external/DirectXTex.h"
 
 #if _DEBUG
 #pragma comment(lib, "DirectXTex_Debug.lib")

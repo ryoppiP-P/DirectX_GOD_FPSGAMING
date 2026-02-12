@@ -18,6 +18,7 @@
 #include "game_controller.h"
 #include "system_timer.h"
 #include <iostream>
+#include <Windows.h>
 
 // extern for player update wrapper
 extern void UpdatePlayer();

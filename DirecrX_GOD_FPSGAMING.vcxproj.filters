@@ -231,8 +231,8 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader.hlsl">
+    <None Include="shader.hlsl">
       <Filter>シェーダーファイル</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>
