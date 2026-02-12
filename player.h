@@ -23,18 +23,18 @@ private:
     BoxCollider collider;
     GameObject visualObject;
 
-    // *** ï¿½Ç‰ï¿½ ***
-    // HPï¿½Ç‰ï¿½
+    // *** ’Ç‰Á ***
+    // HP’Ç‰Á
     int hp;
     bool isAlive;
-    // *** ï¿½Ç‰ï¿½ ï¿½Iï¿½ï¿½ ***
+    // *** ’Ç‰Á I—¹ ***
 
-    // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÌƒTï¿½Cï¿½Y
+    // ƒvƒŒƒCƒ„[‚ÌƒTƒCƒY
     static constexpr float WIDTH = 0.8f;
     static constexpr float HEIGHT = 1.8f;
     static constexpr float DEPTH = 0.8f;
 
-    // ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^
+    // •¨—ƒpƒ‰ƒ[ƒ^
     static constexpr float GRAVITY = -9.8f;
     static constexpr float JUMP_POWER = 5.0f;
     static constexpr float MOVE_SPEED = 5.0f;
@@ -44,9 +44,9 @@ private:
     Map* mapRef;
     int playerId;
     ViewMode viewMode;
-    bool colliderDirty; // ï¿½Rï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½Xï¿½Vï¿½ï¿½ï¿½Kï¿½vï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½Ìƒtï¿½ï¿½ï¿½O
+    bool colliderDirty; // ƒRƒ‰ƒCƒ_[XV‚ª•K—v‚©‚Ç‚¤‚©‚Ìƒtƒ‰ƒO
 
-    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Pï¿½Ê‚Å•Ûï¿½ï¿½iï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ø‘Öï¿½ï¿½É•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é‚½ï¿½ßj
+    // ƒJƒƒ‰ó‘Ô‚ğƒvƒŒƒCƒ„[’PˆÊ‚Å•ÛiƒvƒŒƒCƒ„[Ø‘Ö‚É•œŒ³‚·‚é‚½‚ßj
     float cameraYaw;
     float cameraPitch;
 
@@ -74,30 +74,30 @@ public:
     void SetRotation(const XMFLOAT3& rot) { rotation = rot; }
     void SetViewMode(ViewMode mode) { viewMode = mode; }
 
-    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½pï¿½xï¿½ÌƒAï¿½Nï¿½Zï¿½Tï¿½iï¿½{ï¿½Ì‚ï¿½ player.cpp ï¿½Éï¿½ï¿½ï¿½ï¿½j
+    // ƒJƒƒ‰Šp“x‚ÌƒAƒNƒZƒTi–{‘Ì‚Í player.cpp ‚ÉÀ‘•j
     void SetCameraAngles(float yaw, float pitch);
     float GetCameraYaw() const;
     float GetCameraPitch() const;
 
-    // ï¿½Õ“Ëï¿½ï¿½ï¿½ï¿½ï¿½ NPC ï¿½}ï¿½lï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚×‚ï¿½æ‚¤ï¿½ï¿½ public ï¿½É‚ï¿½ï¿½ï¿½
+    // Õ“Ëˆ—‚ğ NPC ƒ}ƒl[ƒWƒƒ‚©‚çŒÄ‚×‚é‚æ‚¤‚É public ‚É‚·‚é
     bool CheckCollisionWithBox(const BoxCollider& box, XMFLOAT3& penetration);
     void ResolveCollision(const XMFLOAT3& penetration);
 
-    // NPC ï¿½}ï¿½lï¿½[ï¿½Wï¿½ï¿½ï¿½pï¿½ï¿½ï¿½bï¿½pï¿½[ï¿½iï¿½ï¿½ï¿½Sï¿½ÉÕ“Ë”ï¿½ï¿½ï¿½Æ”ï¿½ï¿½fï¿½ï¿½ï¿½sï¿½ï¿½ï¿½j
+    // NPC ƒ}ƒl[ƒWƒƒ—pƒ‰ƒbƒp[iˆÀ‘S‚ÉÕ“Ë”»’è‚Æ”½‰f‚ğs‚¤j
     bool ComputePenetrationWithBox(const BoxCollider& box, XMFLOAT3& penetration);
     void ApplyPenetration(const XMFLOAT3& penetration);
 
     // Networking / external accessors for the underlying GameObject
     GameObject* GetGameObject();
     
-    // ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½pï¿½Fï¿½Ê’uï¿½ï¿½ï¿½ï¿½ï¿½ã‘ï¿½ï¿½
+    // ƒlƒbƒgƒ[ƒN—pFˆÊ’u‹­§ã‘‚«
     void ForceSetPosition(const XMFLOAT3& pos);
     void ForceSetRotation(const XMFLOAT3& rot);
 
-    // *** ï¿½Ç‰ï¿½ ***
-    // HPï¿½Ö˜A
+    // *** ’Ç‰Á ***
+    // HPŠÖ˜A
     int GetHP() const { return hp; }
-    bool IsAlive() const { return isAlive; } // getterï¿½Ç‰ï¿½
+    bool IsAlive() const { return isAlive; } // getter’Ç‰Á
     void TakeDamage(int dmg) {
         hp -= dmg;
         if (hp <= 0) {
@@ -107,7 +107,7 @@ public:
     }
 };
 
-// ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ç—ï¿½ï¿½Nï¿½ï¿½ï¿½X
+// ƒvƒŒƒCƒ„[ŠÇ—ƒNƒ‰ƒX
 class PlayerManager {
 private:
     static PlayerManager* instance;
@@ -118,7 +118,7 @@ private:
     bool player2Initialized;
     bool initialPlayerLocked; // when true, initial active player cannot be switched and other player is not used
 
-    PlayerManager(); // ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½[ï¿½ï¿½éŒ¾
+    PlayerManager(); // ƒRƒ“ƒXƒgƒ‰ƒNƒ^[‚ğéŒ¾
 
 public:
     static PlayerManager& GetInstance();
@@ -138,7 +138,7 @@ public:
     void HandleInput(float deltaTime);
 };
 
-// ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½Öï¿½ï¿½iï¿½ï¿½ï¿½ï¿½İŠï¿½ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ßj
+// ƒOƒ[ƒoƒ‹ŠÖ”iŒã•ûŒİŠ·«‚Ì‚½‚ßj
 void InitializePlayers(Map* map, ID3D11ShaderResourceView* texture);
 void UpdatePlayers();
 void DrawPlayers();

@@ -8,14 +8,14 @@
 
 using namespace DirectX;
 
-// AABB collision struct (formerly in box_collider.h)
+// AABB“–‚½‚è”»’è—p\‘¢‘Ì
 struct BoxCollider {
     XMFLOAT3 min, max;
 
     BoxCollider() : min{0.0f, 0.0f, 0.0f}, max{0.0f, 0.0f, 0.0f} {}
-    BoxCollider(XMFLOAT3 minVal, XMFLOAT3 maxVal) : min(minVal), max(maxVal) {}
+    BoxCollider(const XMFLOAT3& minVal, const XMFLOAT3& maxVal) : min(minVal), max(maxVal) {}
 
-    static BoxCollider fromCenterAndSize(XMFLOAT3 center, XMFLOAT3 size) {
+    static BoxCollider fromCenterAndSize(const XMFLOAT3& center, const XMFLOAT3& size) {
         XMFLOAT3 half = { size.x * 0.5f, size.y * 0.5f, size.z * 0.5f };
         return BoxCollider(
             { center.x - half.x, center.y - half.y, center.z - half.z },
@@ -45,28 +45,28 @@ public:
     ColliderType colliderType;
     std::unique_ptr<BoxCollider> boxCollider;
 
-    // ï¿½`ï¿½ï¿½p
+    // •`‰æ—p
     const Engine::Vertex3D* meshVertices;
     int meshVertexCount;
     ID3D11ShaderResourceView* texture;
 
-    // ï¿½pï¿½tï¿½Hï¿½[ï¿½}ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½Pï¿½FVertexBufferï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½
+    // ƒpƒtƒH[ƒ}ƒ“ƒX‰ü‘PFVertexBuffer‚ğƒLƒƒƒbƒVƒ…
     ID3D11Buffer* vertexBuffer;
     bool bufferNeedsUpdate;
 
     GameObject();
-    ~GameObject(); // ï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½ï¿½Ç‰ï¿½
+    ~GameObject(); // ƒfƒXƒgƒ‰ƒNƒ^‚ğ’Ç‰Á
 
     void setBoxCollider(const XMFLOAT3& size);
     void setMesh(const Engine::Vertex3D* vertices, int count, ID3D11ShaderResourceView* tex);
     void draw();
     bool checkCollision(const GameObject& other) const;
 
-    // ï¿½Ê’uï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½Ï‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éƒtï¿½ï¿½ï¿½Oï¿½ğ—§‚Ä‚ï¿½
+    // ˆÊ’u‚â‰ñ“]‚ª•Ï‚í‚Á‚½‚Éƒtƒ‰ƒO‚ğ—§‚Ä‚é
     void markBufferForUpdate() { bufferNeedsUpdate = true; }
     
-    // *** ï¿½Ç‰ï¿½ ***
-    // BoxCollider ï¿½ï¿½ï¿½æ“¾ï¿½inullptr ï¿½Ì‰Â”\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½j
+    // *** ’Ç‰Á ***
+    // BoxCollider ‚ğæ“¾inullptr ‚Ì‰Â”\«‚ ‚èj
     BoxCollider* GetBoxCollider() const { return boxCollider.get(); }
 
     uint32_t getId() const { return id; }
@@ -78,5 +78,5 @@ public:
 
 private:
     uint32_t id = 0;
-    void createVertexBuffer(); // VertexBufferï¿½ì¬ï¿½pï¿½wï¿½ï¿½ï¿½pï¿½[ï¿½Öï¿½
+    void createVertexBuffer(); // VertexBufferì¬—pƒwƒ‹ƒp[ŠÖ”
 };

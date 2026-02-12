@@ -32,7 +32,7 @@ void GameObject::setMesh(const Engine::Vertex3D* vertices, int count, ID3D11Shad
     meshVertices = vertices;
     meshVertexCount = count;
     texture = tex;
-    bufferNeedsUpdate = true; // ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ï‚ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Åƒoï¿½bï¿½tï¿½@ï¿½Xï¿½Vï¿½tï¿½ï¿½ï¿½Oï¿½ğ—§‚Ä‚ï¿½
+    bufferNeedsUpdate = true; // ƒƒbƒVƒ…‚ª•Ï‚í‚Á‚½‚Ì‚Åƒoƒbƒtƒ@XVƒtƒ‰ƒO‚ğ—§‚Ä‚é
 }
 
 void GameObject::createVertexBuffer() {
@@ -44,10 +44,10 @@ void GameObject::createVertexBuffer() {
     if (!meshVertices || meshVertexCount == 0) return;
 
     D3D11_BUFFER_DESC bd = {};
-    bd.Usage = D3D11_USAGE_DEFAULT; // DYNAMIC ï¿½ï¿½ï¿½ï¿½ DEFAULT ï¿½É•ÏXï¿½iï¿½ï¿½è‚ï¿½ï¿½ï¿½j
+    bd.Usage = D3D11_USAGE_DEFAULT; // DYNAMIC ‚©‚ç DEFAULT ‚É•ÏXi‚æ‚è‚‘¬j
     bd.ByteWidth = sizeof(Engine::Vertex3D) * meshVertexCount;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.CPUAccessFlags = 0; // CPU ï¿½ï¿½ï¿½ï¿½ÌƒAï¿½Nï¿½Zï¿½Xï¿½Í•sï¿½v
+    bd.CPUAccessFlags = 0; // CPU ‚©‚ç‚ÌƒAƒNƒZƒX‚Í•s—v
 
     D3D11_SUBRESOURCE_DATA subResource = {};
     subResource.pSysMem = meshVertices;
@@ -61,7 +61,7 @@ void GameObject::createVertexBuffer() {
 void GameObject::draw() {
     if (!meshVertices || meshVertexCount == 0) return;
 
-    // ï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½Kï¿½vï¿½Èê‡ï¿½Ì‚İì¬/ï¿½Xï¿½V
+    // ƒoƒbƒtƒ@‚ª•K—v‚Èê‡‚Ì‚İì¬/XV
     if (bufferNeedsUpdate || !vertexBuffer) {
         createVertexBuffer();
         bufferNeedsUpdate = false;
@@ -69,7 +69,7 @@ void GameObject::draw() {
 
     if (!vertexBuffer) return;
 
-    // ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½sï¿½ï¿½ÌŒvï¿½Zï¿½iï¿½ÏXï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚İj
+    // ƒ[ƒ‹ƒhs—ñ‚ÌŒvZi•ÏX‚ª‚ ‚Á‚½ê‡‚Ì‚İj
     static XMFLOAT3 lastPosition = { 0, 0, 0 };
     static XMFLOAT3 lastRotation = { 0, 0, 0 };
     static XMFLOAT3 lastScale = { 1, 1, 1 };

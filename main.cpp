@@ -1,5 +1,5 @@
 /*********************************************************************
-  \file    ï¿½ï¿½ï¿½Cï¿½ï¿½ [main.cpp]
+  \file    ƒƒCƒ“ [main.cpp]
 
   \Author  Ryoto Kikuchi
   \data    2025/9/26
@@ -32,7 +32,7 @@ static std::vector<GameObject*> g_worldObjects;
 Player g_player;
 
 
-// worldObjectsï¿½Ö‚ÌƒAï¿½Nï¿½Zï¿½Xï¿½Öï¿½
+// worldObjects‚Ö‚ÌƒAƒNƒZƒXŠÖ”
 std::vector<GameObject*>& GetWorldObjects() {
     return g_worldObjects;
 }
@@ -41,7 +41,7 @@ std::vector<GameObject*>& GetWorldObjects() {
 static uint32_t g_inputSeq = 0;
 
 //===================================
-// ï¿½ï¿½ï¿½Cï¿½uï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½ï¿½ï¿½N
+// ƒ‰ƒCƒuƒ‰ƒŠ‚ÌƒŠƒ“ƒN
 //===================================
 #pragma	comment (lib, "d3d11.lib")
 #pragma	comment (lib, "d3dcompiler.lib")
@@ -50,153 +50,153 @@ static uint32_t g_inputSeq = 0;
 #pragma	comment (lib, "dinput8.lib")
 
 //=================================
-//ï¿½}ï¿½Nï¿½ï¿½ï¿½ï¿½`
+//ƒ}ƒNƒ’è‹`
 //=================================
 #define		CLASS_NAME		"DX21 Window"
-#define		WINDOW_CAPTION	"3Dtest - Player1(1ï¿½Lï¿½[,TPS) Player2(2ï¿½Lï¿½[,FPS)"
+#define		WINDOW_CAPTION	"3Dtest - Player1(1ƒL[,TPS) Player2(2ƒL[,FPS)"
 
 //===================================
-//ï¿½vï¿½ï¿½ï¿½gï¿½^ï¿½Cï¿½vï¿½éŒ¾
+//ƒvƒƒgƒ^ƒCƒvéŒ¾
 //===================================
-//ï¿½Rï¿½[ï¿½ï¿½ï¿½oï¿½bï¿½Nï¿½Öï¿½ï¿½iï¿½ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½ÅŒÄ‚Ñoï¿½ï¿½ï¿½ï¿½ï¿½Öï¿½ï¿½j
+//ƒR[ƒ‹ƒoƒbƒNŠÖ”i’è‹`‚µ‚½–¼‘O‚ÅŒÄ‚Ño‚³‚ê‚éŠÖ”j
 LRESULT	CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öï¿½
+//‰Šú‰»ŠÖ”
 HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);
-//ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//I—¹ˆ—
 void	Uninit(void);
-//ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
+//XVˆ—
 void	Update(void);
-//ï¿½`ï¿½æˆï¿½ï¿½
+//•`‰æˆ—
 void	Draw(void);
 
 //===================================
-//ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½Ïï¿½
+//ƒOƒ[ƒoƒ‹•Ï”
 //===================================
 static Map* g_pMap = nullptr;
 static MapRenderer* g_pMapRenderer = nullptr;
 
 //=====================================
-//ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Öï¿½
+//ƒƒCƒ“ŠÖ”
 //======================================
 int APIENTRY WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance, LPSTR lpCmd, int nCmdShow) {
 
     HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
 
-    //ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Nï¿½ï¿½ï¿½Xï¿½Ì“oï¿½^ï¿½iï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ìdï¿½lï¿½Iï¿½È•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½Windowsï¿½ÉƒZï¿½bï¿½gï¿½ï¿½ï¿½ï¿½j
-    WNDCLASS	wc;	//ï¿½\ï¿½ï¿½ï¿½ÌéŒ¾
-    ZeroMemory(&wc, sizeof(WNDCLASS));//ï¿½ï¿½ï¿½xï¿½Oï¿½Åï¿½ï¿½ï¿½ï¿½ï¿½
-    wc.lpfnWndProc = WndProc;	//ï¿½Rï¿½[ï¿½ï¿½ï¿½oï¿½bï¿½Nï¿½Öï¿½ï¿½Ìƒ|ï¿½Cï¿½ï¿½ï¿½^ï¿½[
-    wc.lpszClassName = CLASS_NAME;	//ï¿½ï¿½ï¿½Ìdï¿½lï¿½ï¿½ï¿½Ì–ï¿½ï¿½O
-    wc.hInstance = hInstance;	//ï¿½ï¿½ï¿½ÌƒAï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);//ï¿½Jï¿½[ï¿½\ï¿½ï¿½ï¿½Ìï¿½ï¿½
-    wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND + 1);//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ì”wï¿½iï¿½F
-    RegisterClass(&wc);	//ï¿½\ï¿½ï¿½ï¿½Ì‚ï¿½Windowsï¿½ÖƒZï¿½bï¿½g
+    //ƒEƒBƒ“ƒhƒEƒNƒ‰ƒX‚Ì“o˜^iƒEƒBƒ“ƒhƒE‚Ìd—l“I‚È•”•ª‚ğŒˆ‚ß‚ÄWindows‚ÉƒZƒbƒg‚·‚éj
+    WNDCLASS	wc;	//\‘¢‘ÌéŒ¾
+    ZeroMemory(&wc, sizeof(WNDCLASS));//–ˆ“x‚O‚Å‰Šú‰»
+    wc.lpfnWndProc = WndProc;	//ƒR[ƒ‹ƒoƒbƒNŠÖ”‚Ìƒ|ƒCƒ“ƒ^[
+    wc.lpszClassName = CLASS_NAME;	//‚±‚Ìd—l‘‚Ì–¼‘O
+    wc.hInstance = hInstance;	//‚±‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Ì‚à‚Ì
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);//ƒJ[ƒ\ƒ‹‚Ìí—Ş
+    wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND + 1);//ƒEƒBƒ“ƒhƒE‚Ì”wŒiF
+    RegisterClass(&wc);	//\‘¢‘Ì‚ğWindows‚ÖƒZƒbƒg
 
 
-    //ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Tï¿½Cï¿½Yï¿½Ì’ï¿½ï¿½ï¿½
-    //   ï¿½ï¿½ï¿½ï¿½ï¿½@ï¿½@ï¿½cï¿½ï¿½
-    RECT	rc = { 0, 0, 1280, 720 };//ï¿½ï¿½1280 ï¿½c720
-    //ï¿½`ï¿½ï¿½Ìˆæ‚ª1280X720ï¿½É‚È‚ï¿½æ‚¤ï¿½ÉƒTï¿½Cï¿½Yï¿½ğ’²ï¿½ï¿½ï¿½ï¿½ï¿½
+    //ƒEƒBƒ“ƒhƒEƒTƒCƒY‚Ì’²®
+    //   ‰¡•@@c•
+    RECT	rc = { 0, 0, 1280, 720 };//‰¡1280 c720
+    //•`‰æ‚Ìˆæ‚ª1280X720‚É‚È‚é‚æ‚¤‚ÉƒTƒCƒY‚ğ’²®‚·‚é
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW ^ (WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX), FALSE);
 
-    //ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ìì¬
+    //ƒEƒBƒ“ƒhƒE‚Ìì¬
     HWND	hWnd = CreateWindow(
-        CLASS_NAME,	//ï¿½ï¿½è‚½ï¿½ï¿½ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½E
-        WINDOW_CAPTION,	//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½É•\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½^ï¿½Cï¿½gï¿½ï¿½
-        WS_OVERLAPPEDWINDOW ^ (WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX),	//ï¿½Wï¿½ï¿½ï¿½Iï¿½ÈŒ`ï¿½ÌƒEï¿½Bï¿½ï¿½ï¿½hï¿½E ï¿½Tï¿½Cï¿½Yï¿½ÏXï¿½Ö~
-        CW_USEDEFAULT,		//ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½İ’ï¿½Å‚ï¿½ï¿½Cï¿½ï¿½
+        CLASS_NAME,	//ì‚è‚½‚¢ƒEƒBƒ“ƒhƒE
+        WINDOW_CAPTION,	//ƒEƒBƒ“ƒhƒE‚É•\¦‚³‚ê‚éƒ^ƒCƒgƒ‹
+        WS_OVERLAPPEDWINDOW ^ (WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX),	//•W€“I‚ÈŒ`‚ÌƒEƒBƒ“ƒhƒE ƒTƒCƒY•ÏX‹Ö~
+        CW_USEDEFAULT,		//ƒfƒtƒHƒ‹ƒgİ’è‚Å‚¨”C‚¹
         CW_USEDEFAULT,
-        rc.right - rc.left,//CW_USEDEFAULT,//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ì•ï¿½
-        rc.bottom - rc.top,//CW_USEDEFAULT,//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ìï¿½ï¿½ï¿½
+        rc.right - rc.left,//CW_USEDEFAULT,//ƒEƒBƒ“ƒhƒE‚Ì•
+        rc.bottom - rc.top,//CW_USEDEFAULT,//ƒEƒBƒ“ƒhƒE‚Ì‚‚³
         NULL,
         NULL,
-        hInstance,		//ï¿½Aï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Ìƒnï¿½ï¿½ï¿½hï¿½ï¿½
+        hInstance,		//ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Ìƒnƒ“ƒhƒ‹
         NULL
     );
 
-    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //‰Šú‰»ˆ—
     if (FAILED(Init(hInstance, hWnd, true))) {
-        return -1;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½s
+        return -1;//‰Šú‰»ˆ—¸”s
     }
 
-    SystemTimer_Initialize(); // ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½^ï¿½Cï¿½}ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    SystemTimer_Initialize(); // ƒVƒXƒeƒ€ƒ^ƒCƒ}[‰Šú‰»
 
-    //ï¿½ì¬ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½ï¿½\ï¿½ï¿½
-    ShowWindow(hWnd, nCmdShow);//ï¿½ï¿½ï¿½ï¿½ï¿½É]ï¿½ï¿½ï¿½Ä•\ï¿½ï¿½ï¿½Aï¿½Ü‚ï¿½ï¿½Í”ï¿½\ï¿½ï¿½
-    //ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ì“ï¿½ï¿½eï¿½ï¿½ï¿½ÅVï¿½\ï¿½ï¿½
+    //ì¬‚µ‚½ƒEƒBƒ“ƒhƒE‚ğ•\¦
+    ShowWindow(hWnd, nCmdShow);//ˆø”‚É]‚Á‚Ä•\¦A‚Ü‚½‚Í”ñ•\¦
+    //ƒEƒBƒ“ƒhƒE‚Ì“à—e‚ğÅV•\¦
     UpdateWindow(hWnd);
 
-    //ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½ï¿½[ï¿½v
+    //ƒƒbƒZ[ƒWƒ‹[ƒv
     MSG	msg;
-    ZeroMemory(&msg, sizeof(MSG));//ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½\ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ì¬ï¿½ï¿½ï¿½Äï¿½ï¿½ï¿½ï¿½ï¿½
+    ZeroMemory(&msg, sizeof(MSG));//ƒƒbƒZ[ƒW\‘¢‘Ì‚ğì¬‚µ‚Ä‰Šú‰»
 
 
-    double exec_last_time = 0.0;    // ï¿½Oï¿½ï¿½ÌƒQï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½
-    double fps_last_time = 0.0;     // ï¿½Oï¿½ï¿½ï¿½FPSï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½  
-    double current_time = 0.0;      // ï¿½ï¿½ï¿½İï¿½ï¿½ï¿½
-    ULONG frame_count = 0;          // ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Jï¿½Eï¿½ï¿½ï¿½^
-    double fps = 0.0l;              // ï¿½ï¿½ï¿½İ‚ï¿½FPSï¿½l
+    double exec_last_time = 0.0;    // ‘O‰ñ‚ÌƒQ[ƒ€ˆ—Às
+    double fps_last_time = 0.0;     // ‘O‰ñ‚ÌFPSŒvZ  
+    double current_time = 0.0;      // Œ»İ
+    ULONG frame_count = 0;          // ƒtƒŒ[ƒ€ƒJƒEƒ“ƒ^
+    double fps = 0.0l;              // Œ»İ‚ÌFPS’l
 
     exec_last_time = fps_last_time = SystemTimer_GetTime();
 
-    //ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚Åƒï¿½ï¿½[ï¿½vï¿½ï¿½ï¿½ï¿½
-    //ï¿½Qï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½v
-    while (1) {	//ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½Ì—Lï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½Fï¿½bï¿½N
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) { //Windowsï¿½ï¿½ï¿½çƒï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½ï¿½Í‚ï¿½ï¿½ï¿½
-            if (msg.message == WM_QUIT)//ï¿½ï¿½ï¿½Sï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½W
+    //I—¹ƒƒbƒZ[ƒW‚ª—ˆ‚é‚Ü‚Åƒ‹[ƒv‚·‚é
+    //ƒQ[ƒ€ƒ‹[ƒv
+    while (1) {	//ƒƒbƒZ[ƒW‚Ì—L–³‚ğƒ`ƒFƒbƒN
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) { //Windows‚©‚çƒƒbƒZ[ƒW‚ª“Í‚¢‚½
+            if (msg.message == WM_QUIT)//Š®‘SI—¹‚µ‚Ü‚·ƒƒbƒZ[ƒW
             {
-                break;	//whileï¿½ï¿½ï¿½[ï¿½vï¿½ï¿½ï¿½ï¿½Eï¿½oï¿½ï¿½ï¿½ï¿½
+                break;	//whileƒ‹[ƒv‚©‚ç’Eo‚·‚é
             } else {
                 TranslateMessage(&msg);
-                DispatchMessage(&msg);	//WndProcï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                DispatchMessage(&msg);	//WndProc‚ğŒÄ‚Ño‚³‚¹‚é
             }
 
-        } else //Windowsï¿½ï¿½ï¿½çƒï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½
+        } else //Windows‚©‚çƒƒbƒZ[ƒW‚ª—ˆ‚Ä‚¢‚È‚¢
         {
 
-            // ï¿½ï¿½ï¿½İï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ“¾
+            // Œ»İ‚ğæ“¾
             current_time = SystemTimer_GetTime();
 
-            // FPSï¿½vï¿½Zï¿½pï¿½ÌŒoï¿½ßï¿½ï¿½ÔŒvï¿½Z
+            // FPSŒvZ—p‚ÌŒo‰ßŠÔŒvZ
             double elapsed_time = current_time - fps_last_time;
 
-            // 1ï¿½bï¿½oï¿½ß‚ï¿½ï¿½ï¿½ï¿½ï¿½FPSï¿½ï¿½ï¿½vï¿½Z
+            // 1•bŒo‰ß‚µ‚½‚çFPS‚ğŒvZ
             if (elapsed_time >= 1.0f) {
                 fps = frame_count / elapsed_time;
                 fps_last_time = current_time;
                 frame_count = 0;
             }
 
-            // ï¿½Qï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½ÌŒoï¿½ßï¿½ï¿½ÔŒvï¿½Z
+            // ƒQ[ƒ€ˆ——p‚ÌŒo‰ßŠÔŒvZ
             elapsed_time = current_time - exec_last_time;
 
             if (elapsed_time >= (1.0 / 60.0)) {
 
-                exec_last_time = current_time;  // ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½V
+                exec_last_time = current_time;  // Às‚ğXV
 
-                Update();	//ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
-                Draw();		//ï¿½`ï¿½æˆï¿½ï¿½
+                Update();	//XVˆ—
+                Draw();		//•`‰æˆ—
                 keycopy();
 
-                frame_count++;  // ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Jï¿½Eï¿½ï¿½ï¿½^ï¿½ğ‘‰ï¿½
+                frame_count++;  // ƒtƒŒ[ƒ€ƒJƒEƒ“ƒ^‚ğ‘‰Á
             }
         }
 
     }//while
 
-    //ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //I—¹ˆ—
     Uninit();
 
-    //ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //I—¹ˆ—
     return (int)msg.wParam;
 
 }
 
 //=========================================
-//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½vï¿½ï¿½ï¿½Vï¿½[ï¿½Wï¿½ï¿½
-// ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½ï¿½[ï¿½vï¿½ï¿½ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½ï¿½ï¿½
+//ƒEƒBƒ“ƒhƒEƒvƒƒV[ƒWƒƒ
+// ƒƒbƒZ[ƒWƒ‹[ƒv‚©‚çŒÄ‚Ño‚³‚ê‚é
 //=========================================
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -207,16 +207,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         Keyboard_ProcessMessage(uMsg, wParam, lParam);
         Mouse_ProcessMessage(uMsg, wParam, lParam);
         break;
-    case WM_KEYDOWN:	//ï¿½Lï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½
-        if (wParam == VK_ESCAPE)//ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½Ì‚ï¿½ESCï¿½Lï¿½[
+    case WM_KEYDOWN:	//ƒL[‚ª‰Ÿ‚³‚ê‚½
+        if (wParam == VK_ESCAPE)//‰Ÿ‚³‚ê‚½‚Ì‚ªESCƒL[
         {
-            //ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½ï¿½Â‚ï¿½ï¿½éƒŠï¿½Nï¿½Gï¿½Xï¿½gï¿½ï¿½Windowsï¿½É‘ï¿½ï¿½ï¿½
+            //ƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚éƒŠƒNƒGƒXƒg‚ğWindows‚É‘—‚é
             SendMessage(hWnd, WM_CLOSE, 0, 0);
         }
         Keyboard_ProcessMessage(uMsg, wParam, lParam);
         break;
 
-        // ï¿½}ï¿½Eï¿½Xï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½Ì’Ç‰ï¿½
+        // ƒ}ƒEƒXƒƒbƒZ[ƒW‚Ì’Ç‰Á
     case WM_INPUT:
     case WM_MOUSEMOVE:
     case WM_LBUTTONDOWN:
@@ -232,33 +232,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         Mouse_ProcessMessage(uMsg, wParam, lParam);
         break;
 
-    case WM_CLOSE:	// ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Iï¿½ï¿½
+    case WM_CLOSE:	// ƒEƒBƒ“ƒhƒEI—¹
         if (
-            MessageBox(hWnd, "ï¿½{ï¿½ï¿½ï¿½ÉIï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ë‚µï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½H",
-                "ï¿½mï¿½F", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK
-            ) {//OKï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½Æ‚ï¿½
-            DestroyWindow(hWnd);//ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½Windowsï¿½Éƒï¿½ï¿½Nï¿½Gï¿½Xï¿½g
+            MessageBox(hWnd, "–{“–‚ÉI—¹‚µ‚Ä‚à‚æ‚ë‚µ‚¢‚Å‚·‚©H",
+                "Šm”F", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK
+            ) {//OK‚ª‰Ÿ‚³‚ê‚½‚Æ‚«
+            DestroyWindow(hWnd);//I—¹ˆ—‘±s‚ğWindows‚ÉƒŠƒNƒGƒXƒg
         } else {
-            return 0;	//ï¿½ß‚ï¿½lï¿½Oï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
+            return 0;	//–ß‚è’l‚OI—¹‚µ‚È‚¢
         }
 
         break;
-    case WM_DESTROY:	//ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½OKï¿½Å‚ï¿½
-        PostQuitMessage(0);		//ï¿½Oï¿½Ô‚Ìƒï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½É‚Oï¿½ğ‘—‚ï¿½
+    case WM_DESTROY:	//I—¹ˆ—OK‚Å‚·
+        PostQuitMessage(0);		//‚O”Ô‚ÌƒƒbƒZ[ƒW‚É‚O‚ğ‘—‚é
         break;
 
     }
 
-    //ï¿½Yï¿½ï¿½ï¿½Ì–ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½Í“Kï¿½ï¿½ï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÄIï¿½ï¿½
+    //ŠY“–‚Ì–³‚¢ƒƒbƒZ[ƒW‚Í“K“–‚Éˆ—‚µ‚ÄI—¹
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
 }
 
 //==================================
-//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//‰Šú‰»ˆ—
 //==================================
 HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
-    //DirectXï¿½Ö˜Aï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
+    //DirectXŠÖ˜A‚Ì‰Šú‰»
     Engine::Renderer::GetInstance().Initialize(hInstance, hWnd, bWindow != FALSE);
     InitSprite();
 
@@ -266,7 +266,7 @@ HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
     Mouse_Initialize(hWnd);
     GameController::Initialize();
 
-    InitPolygon();//ï¿½|ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
+    InitPolygon();//ƒ|ƒŠƒSƒ“•\¦ƒTƒ“ƒvƒ‹‚Ì‰Šú‰»
 
     // Enable CRT debug heap checks early in debug builds
 #ifdef _DEBUG
@@ -277,7 +277,7 @@ HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
     }
 #endif
 
-    //ï¿½}ï¿½bï¿½vï¿½Ö˜Aï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
+    //ƒ}ƒbƒvŠÖ˜A‚Ì‰Šú‰»
     g_pMap = new Map();
     if (g_pMap) {
         g_pMap->Initialize(GetPolygonTexture());
@@ -288,7 +288,7 @@ HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
         g_pMapRenderer->Initialize(g_pMap);
     }
 
-    // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Vï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½j
+    // ƒvƒŒƒCƒ„[‰Šú‰»iVƒVƒXƒeƒ€j
 
     // Ask user which player to use at game start. Lock selection for whole run.
     int msgRes = MessageBox(hWnd, "Choose starting player:\nYes = Player1 (TPS)\nNo = Player2 (FPS)", "Select Player", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1);
@@ -302,7 +302,7 @@ HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
 
     InitializePlayers(g_pMap, GetPolygonTexture());
 
-    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ƒJƒƒ‰ƒVƒXƒeƒ€‰Šú‰»
     InitializeCameraSystem();
 
     // populate worldObjects with map blocks
@@ -314,23 +314,23 @@ HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
         }
     }
 
-    // ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½worldObjectsï¿½É’Ç‰ï¿½ï¿½iï¿½zï¿½Xï¿½gï¿½ï¿½ï¿½Å‚ÍŒï¿½Åƒlï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½ÅŠÇ—ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½j
+    // ƒ[ƒJƒ‹ƒvƒŒƒCƒ„[‚ğworldObjects‚É’Ç‰ÁiƒzƒXƒg‘¤‚Å‚ÍŒã‚Åƒlƒbƒgƒ[ƒNˆ—‚ÅŠÇ—‚³‚ê‚éj
     GameObject* localGo = GetLocalPlayerGameObject();
     if (localGo) {
-        localGo->setId(0); // ï¿½ï¿½ï¿½zï¿½Ôï¿½ï¿½ï¿½ ID=0ï¿½iï¿½ï¿½ÅŠï¿½ï¿½è“–ï¿½Äj
+        localGo->setId(0); // ‰¼‘z”Ô†‚Å ID=0iŒã‚ÅŠ„‚è“–‚Äj
         std::cout << "[Main] Players initialized\n";
-        std::cout << "[Main] 1ï¿½Lï¿½[: Player1 (TPSï¿½ï¿½ï¿½_), 2ï¿½Lï¿½[: Player2 (FPSï¿½ï¿½ï¿½_)\n";
+        std::cout << "[Main] 1ƒL[: Player1 (TPS‹“_), 2ƒL[: Player2 (FPS‹“_)\n";
     }
 
     return	S_OK;
 }
 
 //====================================
-//	ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//	I—¹ˆ—
 //====================================
 void	Uninit(void) {
 
-    //ï¿½}ï¿½bï¿½vï¿½Ö˜Aï¿½ÌIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //ƒ}ƒbƒvŠÖ˜A‚ÌI—¹ˆ—
     if (g_pMapRenderer) {
         g_pMapRenderer->Uninitialize();
         delete g_pMapRenderer;
@@ -355,20 +355,20 @@ void	Uninit(void) {
     }
 
     UninitSprite();
-    UninitPolygon();//ï¿½|ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    UninitPolygon();//ƒ|ƒŠƒSƒ“•\¦ƒTƒ“ƒvƒ‹I—¹ˆ—
 
     GameController::Shutdown();
     Mouse_Finalize();
 
-    //DirectXï¿½Ö˜Aï¿½ÌIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //DirectXŠÖ˜A‚ÌI—¹ˆ—
     Engine::Renderer::GetInstance().Finalize();
 }
 
 //===================================
-//ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
+//XVˆ—
 //====================================
 void	Update(void) {
-    // ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Jï¿½Eï¿½ï¿½ï¿½^ï¿½[ï¿½i10ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½Ì“ï¿½ï¿½ï¿½ï¿½pï¿½j
+    // ƒtƒŒ[ƒ€ƒJƒEƒ“ƒ^[i10ƒtƒŒ[ƒ€‚É1‰ñ‚Ì“¯Šú—pj
     static int frameCounter = 0;
     frameCounter++;
 
@@ -407,28 +407,28 @@ void	Update(void) {
     constexpr float fixedDt = 1.0f / 60.0f;
     g_network.update(fixedDt, localGo, g_worldObjects);
 
-    // ï¿½zï¿½Xï¿½gï¿½ï¿½ï¿½Fï¿½ï¿½ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[IDï¿½ï¿½İ’è‚µï¿½AworldObjectsï¿½Éï¿½ï¿½ï¿½ï¿½pï¿½ï¿½GameObjectï¿½ï¿½Ç‰ï¿½
+    // ƒzƒXƒg‘¤F©•ª‚ÌƒvƒŒƒCƒ„[ID‚ğİ’è‚µAworldObjects‚É©•ª—p‚ÌGameObject‚ğ’Ç‰Á
     if (g_network.is_host() && localGo && localGo->getId() == 0) {
-        // ï¿½zï¿½Xï¿½gï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[IDï¿½Í’Êï¿½1
+        // ƒzƒXƒg‚ÌƒvƒŒƒCƒ„[ID‚Í’Êí1
         localGo->setId(1);
         std::cout << "[Main] Host player assigned id=1\n";
 
-        // ï¿½zï¿½Xï¿½gï¿½pï¿½Ìƒlï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½NGameObjectï¿½Íì¬ï¿½ï¿½ï¿½È‚ï¿½ï¿½iï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½worldObjectsï¿½É’ï¿½ï¿½Ú’Ç‰ï¿½ï¿½j
+        // ƒzƒXƒg—p‚Ìƒlƒbƒgƒ[ƒNGameObject‚Íì¬‚µ‚È‚¢iƒ[ƒJƒ‹ƒvƒŒƒCƒ„[‚ğworldObjects‚É’¼Ú’Ç‰Áj
         g_worldObjects.push_back(localGo);
         std::cout << "[Main] Host player added to worldObjects with id=1\n";
     }
 
-    // ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Fï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[IDï¿½ï¿½ï¿½ï¿½ï¿½è“–ï¿½Ä‚ï¿½ê‚½ï¿½ï¿½worldObjectsï¿½É’Ç‰ï¿½
+    // ƒNƒ‰ƒCƒAƒ“ƒg‘¤FƒvƒŒƒCƒ„[ID‚ªŠ„‚è“–‚Ä‚ç‚ê‚½‚çworldObjects‚É’Ç‰Á
     if (!g_network.is_host() && g_network.getMyPlayerId() != 0) {
         GameObject* lg = GetLocalPlayerGameObject();
         if (lg && lg->getId() == 0) {
             lg->setId(g_network.getMyPlayerId());
-            g_worldObjects.push_back(lg); // ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Íƒï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½worldObjectsï¿½É’Ç‰ï¿½
+            g_worldObjects.push_back(lg); // ƒNƒ‰ƒCƒAƒ“ƒg‘¤‚Íƒ[ƒJƒ‹ƒvƒŒƒCƒ„[‚ğworldObjects‚É’Ç‰Á
             std::cout << "[Main] Client player assigned id=" << lg->getId() << "\n";
         }
     }
 
-    // *** 10ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ÌˆÊ’uï¿½ï¿½ï¿½ï¿½ (60FPS / 10 = 6Hzï¿½ï¿½ï¿½ï¿½) ***
+    // *** 10ƒtƒŒ[ƒ€‚É1‰ñ‚ÌˆÊ’u“¯Šú (60FPS / 10 = 6Hz“¯Šú) ***
     if (frameCounter % 3 == 0) {
         bool isNetworkActive = g_network.is_host() || g_network.getMyPlayerId() != 0;
         std::cout << "[Network] Frame " << frameCounter << " - NetworkActive: " << (isNetworkActive ? "YES" : "NO");
@@ -457,40 +457,40 @@ void	Update(void) {
         std::cout << "\n";
     }
 
-    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½ÌXï¿½V
+    // ƒJƒƒ‰ƒVƒXƒeƒ€‚ÌXV
     UpdateCameraSystem();
-    // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÌXï¿½V
+    // ƒvƒŒƒCƒ„[‚ÌXV
     UpdatePlayer();
 
-    // *** ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½ï¿½Ô‚Ì’ï¿½ï¿½ï¿½\ï¿½ï¿½ ***
+    // *** ƒlƒbƒgƒ[ƒNó‘Ô‚Ì’èŠú•\¦ ***
     static int statusCounter = 0;
     statusCounter++;
-    if (statusCounter % 180 == 0) { // 3ï¿½bï¿½ï¿½1ï¿½ï¿½
+    if (statusCounter % 180 == 0) { // 3•b‚É1‰ñ
         std::cout << "[NetworkStatus] Host: " << (g_network.is_host() ? "YES" : "NO")
             << " MyId: " << g_network.getMyPlayerId()
             << " WorldObjects: " << g_worldObjects.size() << "\n";
     }
 
-    //// *** ï¿½Ç‰ï¿½ ***
+    //// *** ’Ç‰Á ***
     //constexpr float dt = 1.0f / 60.0f;
     //g_npcManager.Update(dt, &g_player);
     //g_npcManager.CheckPlayerCollisions(&g_player);
 }
 
 //==================================
-//ï¿½`ï¿½æˆï¿½ï¿½
+//•`‰æˆ—
 //==================================
 void	Draw(void) {
-    //ï¿½oï¿½bï¿½Nï¿½oï¿½bï¿½tï¿½@ï¿½ÌƒNï¿½ï¿½ï¿½A
+    //ƒoƒbƒNƒoƒbƒtƒ@‚ÌƒNƒŠƒA
     Engine::Renderer::GetInstance().Clear();
 
-    //ï¿½}ï¿½bï¿½vï¿½`ï¿½ï¿½
+    //ƒ}ƒbƒv•`‰æ
     if (g_pMapRenderer) {
         g_pMapRenderer->Draw();
     }
 
-    // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½`ï¿½ï¿½iï¿½Vï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½j
-    DrawPlayers(); // ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½`ï¿½ï¿½
+    // ƒvƒŒƒCƒ„[•`‰æiVƒVƒXƒeƒ€j
+    DrawPlayers(); // —¼•û‚ÌƒvƒŒƒCƒ„[‚ğ•`‰æ
 
     // draw remote network objects (players)
     GameObject* local = GetLocalPlayerGameObject();
@@ -498,17 +498,17 @@ void	Draw(void) {
         if (!go) continue;
         // skip map blocks (id==0) and skip local player's own object
         if (go->getId() != 0 && go != local) {
-            // ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ï¿½`ï¿½ï¿½iï¿½zï¿½Xï¿½gï¿½Eï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½í‚¸ï¿½j
-                   // ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Æ“ï¿½ï¿½ï¿½IDï¿½ÌƒIï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½Í•`ï¿½æ‚µï¿½È‚ï¿½
+            // ƒlƒbƒgƒ[ƒNƒIƒuƒWƒFƒNƒg‚ğ•`‰æiƒzƒXƒgEƒNƒ‰ƒCƒAƒ“ƒg–â‚í‚¸j
+                   // ©•ª‚Ìƒ[ƒJƒ‹ƒvƒŒƒCƒ„[‚Æ“¯‚¶ID‚ÌƒIƒuƒWƒFƒNƒg‚Í•`‰æ‚µ‚È‚¢
             if (local && go->getId() == local->getId()) {
-                continue; // ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Æ“ï¿½ï¿½ï¿½IDï¿½Ìƒlï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ÍƒXï¿½Lï¿½bï¿½v
+                continue; // ©•ª‚ÌƒvƒŒƒCƒ„[‚Æ“¯‚¶ID‚Ìƒlƒbƒgƒ[ƒNƒIƒuƒWƒFƒNƒg‚ÍƒXƒLƒbƒv
             }
 
             go->draw();
 
-            // ï¿½fï¿½oï¿½bï¿½Oï¿½Fï¿½`ï¿½æ‚µï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½Ìï¿½ï¿½oï¿½ï¿½
+            // ƒfƒoƒbƒOF•`‰æ‚µ‚½ƒIƒuƒWƒFƒNƒg‚Ìî•ño—Í
             static int debugCounter = 0;
-            if (debugCounter % 60 == 0) { // 1ï¿½bï¿½ï¿½1ï¿½ï¿½
+            if (debugCounter % 60 == 0) { // 1•b‚É1‰ñ
                 auto pos = go->getPosition();
                 std::cout << "[Draw] Remote player id=" << go->getId()
                     << " pos=(" << pos.x << "," << pos.y << "," << pos.z << ")\n";
@@ -517,6 +517,6 @@ void	Draw(void) {
         }
     }
 
-    //ï¿½oï¿½bï¿½Nï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½gï¿½oï¿½bï¿½tï¿½@ï¿½ÉƒRï¿½sï¿½[
+    //ƒoƒbƒNƒoƒbƒtƒ@‚ğƒtƒƒ“ƒgƒoƒbƒtƒ@‚ÉƒRƒs[
     Engine::Renderer::GetInstance().Present();
 }

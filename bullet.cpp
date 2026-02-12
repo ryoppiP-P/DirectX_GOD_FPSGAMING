@@ -16,7 +16,7 @@ void Bullet::Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, 
 
     visual.position = position;
     visual.scale = XMFLOAT3(0.2f, 0.2f, 0.2f);
-    visual.setMesh(Box, 36, texture);      // polygon.h ï¿½Å’ï¿½`ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ Box
+    visual.setMesh(Box, 36, texture);      // primitive.h ‚Å’è‹`‚³‚ê‚Ä‚¢‚é Box
     visual.setBoxCollider(visual.scale);
     visual.markBufferForUpdate();
 

@@ -16,9 +16,9 @@ public:
     GameObject visual;
 
     Bullet();
-    Bullet(const Bullet&) = delete;            // ï¿½Rï¿½sï¿½[ï¿½Ö~
-    Bullet& operator=(const Bullet&) = delete; // ï¿½Rï¿½sï¿½[ï¿½Ö~
-    Bullet(Bullet&&) = default;                // ï¿½ï¿½ï¿½[ï¿½uï¿½ï¿½OK
+    Bullet(const Bullet&) = delete;            // ƒRƒs[‹Ö~
+    Bullet& operator=(const Bullet&) = delete; // ƒRƒs[‹Ö~
+    Bullet(Bullet&&) = default;                // ƒ€[ƒu‚ÍOK
     Bullet& operator=(Bullet&&) = default;
 
     void Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, const XMFLOAT3& dir);
