@@ -1,0 +1,442 @@
+[16:10:22] FIREWALL: not admin, will use dynamic ports if needed
+[16:10:22] STARTED AS HOST, net port=27777 discovery port=27778
+[16:10:22] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:22] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:22] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:22] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:22] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:22] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:22] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:22] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:22] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:22] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:22] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:22] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:22] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:22] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:23] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:23] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:24] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:24] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:25] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:25] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:26] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:26] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:27] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:27] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:28] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:28] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:29] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:29] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:30] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:30] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:31] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:31] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:32] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:32] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:33] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:33] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:34] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:34] HOST FRAMESYNC: No clients to send to - SKIPPING
+[16:10:34] FRAMESYNC: Starting - isHost=1 myPlayerId=0 localPlayerID=1
+[16:10:34] HOST FRAMESYNC: No clients to send to - SKIPPING

@@ -132,6 +132,9 @@
     <ClInclude Include="System\Graphics\primitive.h">
       <Filter>ヘッダー ファイル\System\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="System\Collision\map_collision.h">
+      <Filter>ヘッダー ファイル\System\Collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp">
@@ -162,9 +165,6 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="system_timer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="player_manager_impl.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="bullet.cpp">
@@ -208,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="System\Graphics\primitive.cpp">
       <Filter>ソース ファイル\System\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="System\Collision\map_collision.cpp">
+      <Filter>ソース ファイル\System\Collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

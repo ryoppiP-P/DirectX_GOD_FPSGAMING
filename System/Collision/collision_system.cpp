@@ -1,62 +1,82 @@
 #include "collision_system.h"
-#include "box_collider.h"
-#include "sphere_collider.h"
-#include <algorithm>
 
 namespace Engine {
+
     CollisionSystem& CollisionSystem::GetInstance() {
         static CollisionSystem instance;
         return instance;
     }
 
-    void CollisionSystem::RegisterCollider(Collider* pCollider) {
-        if (!pCollider) return;
-
-        auto it = std::find(m_colliders.begin(), m_colliders.end(), pCollider);
-        if (it == m_colliders.end()) {
-            m_colliders.push_back(pCollider);
-        }
+    void CollisionSystem::Initialize() {
+        m_colliders.clear();
+        m_nextId = 1;
     }
 
-    void CollisionSystem::UnregisterCollider(Collider* pCollider) {
-        auto it = std::find(m_colliders.begin(), m_colliders.end(), pCollider);
+    void CollisionSystem::Shutdown() {
+        m_colliders.clear();
+        m_callback = nullptr;
+    }
+
+    uint32_t CollisionSystem::Register(Collider* collider, CollisionLayer layer, CollisionLayer mask, void* userData) {
+        if (!collider) return 0;
+
+        uint32_t id = m_nextId++;
+        ColliderData data;
+        data.collider = collider;
+        data.layer = layer;
+        data.mask = mask;
+        data.userData = userData;
+        data.id = id;
+        data.enabled = true;
+
+        m_colliders[id] = data;
+        return id;
+    }
+
+    void CollisionSystem::Unregister(uint32_t id) {
+        m_colliders.erase(id);
+    }
+
+    void CollisionSystem::SetEnabled(uint32_t id, bool enabled) {
+        auto it = m_colliders.find(id);
         if (it != m_colliders.end()) {
-            m_colliders.erase(it);
+            it->second.enabled = enabled;
         }
     }
 
     void CollisionSystem::Update() {
-        // 全ペアチェック（O(n^2) - 将来的に空間分割で最適化）
-        for (size_t i = 0; i < m_colliders.size(); ++i) {
-            for (size_t j = i + 1; j < m_colliders.size(); ++j) {
-                CollisionResult result;
-                if (CheckCollision(m_colliders[i], m_colliders[j], result)) {
-                    if (m_callback) {
-                        m_callback(result);
+        if (!m_callback) return;
+
+        std::vector<ColliderData*> active;
+        for (auto& pair : m_colliders) {
+            if (pair.second.enabled && pair.second.collider) {
+                active.push_back(&pair.second);
+            }
+        }
+
+        for (size_t i = 0; i < active.size(); ++i) {
+            for (size_t j = i + 1; j < active.size(); ++j) {
+                ColliderData* a = active[i];
+                ColliderData* b = active[j];
+
+                if (!HasFlag(a->mask, b->layer)) continue;
+                if (!HasFlag(b->mask, a->layer)) continue;
+
+                if (a->collider->Intersects(b->collider)) {
+                    CollisionHit hit;
+                    hit.dataA = a;
+                    hit.dataB = b;
+
+                    if (a->collider->GetType() == ColliderType::BOX &&
+                        b->collider->GetType() == ColliderType::BOX) {
+                        static_cast<BoxCollider*>(a->collider)->ComputePenetration(
+                            static_cast<BoxCollider*>(b->collider), hit.penetration);
                     }
+
+                    m_callback(hit);
                 }
             }
         }
     }
 
-    void CollisionSystem::SetCollisionCallback(CollisionCallback callback) {
-        m_callback = std::move(callback);
-    }
-
-    bool CollisionSystem::CheckCollision(const Collider* pA, const Collider* pB, CollisionResult& outResult) {
-        if (!pA || !pB) return false;
-
-        bool hit = pA->Intersects(pB);
-        if (hit) {
-            outResult.pColliderA = const_cast<Collider*>(pA);
-            outResult.pColliderB = const_cast<Collider*>(pB);
-            // TODO: penetration計算
-        }
-        return hit;
-    }
-
-    bool CollisionSystem::Raycast(const XMFLOAT3& origin, const XMFLOAT3& direction, float maxDistance, CollisionResult& outResult) {
-        // 将来実装
-        return false;
-    }
-}
+} // namespace Engine

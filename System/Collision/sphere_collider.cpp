@@ -4,15 +4,18 @@
 #include <cmath>
 
 namespace Engine {
-    SphereCollider::SphereCollider()
-        : m_radius(1.0f)
-        , m_worldRadius(1.0f) {
+
+    SphereCollider::SphereCollider() : m_radius(1.0f), m_worldRadius(1.0f) {
+        m_position = { 0.0f, 0.0f, 0.0f };
     }
 
-    SphereCollider::SphereCollider(const XMFLOAT3& center, float radius)
-        : m_radius(radius) {
+    SphereCollider::SphereCollider(const XMFLOAT3& center, float radius) : m_radius(radius) {
         m_position = center;
         UpdateWorldRadius();
+    }
+
+    void SphereCollider::SetCenter(const XMFLOAT3& center) {
+        m_position = center;
     }
 
     void SphereCollider::SetRadius(float radius) {
@@ -20,16 +23,8 @@ namespace Engine {
         UpdateWorldRadius();
     }
 
-    void SphereCollider::SetTransform(const XMFLOAT3& position, const XMFLOAT3& rotation, const XMFLOAT3& scale) {
-        m_position = position;
-        m_rotation = rotation;
-        m_scale = scale;
-        UpdateWorldRadius();
-    }
-
     void SphereCollider::UpdateWorldRadius() {
-        // スケールの最大値を使用
-        float maxScale = (std::max)({ m_scale.x, m_scale.y, m_scale.z });
+        float maxScale = std::max({ m_scale.x, m_scale.y, m_scale.z });
         m_worldRadius = m_radius * maxScale;
     }
 
@@ -42,27 +37,24 @@ namespace Engine {
         outMax = { m_position.x + m_worldRadius, m_position.y + m_worldRadius, m_position.z + m_worldRadius };
     }
 
-    bool SphereCollider::Intersects(const Collider* pOther) const {
-        if (!pOther) return false;
+    bool SphereCollider::Intersects(const Collider* other) const {
+        if (!other) return false;
 
-        switch (pOther->GetType()) {
-        case ColliderType::SPHERE:
-        {
-            const auto* pSphere = static_cast<const SphereCollider*>(pOther);
-            float dx = m_position.x - pSphere->m_position.x;
-            float dy = m_position.y - pSphere->m_position.y;
-            float dz = m_position.z - pSphere->m_position.z;
+        switch (other->GetType()) {
+        case ColliderType::SPHERE: {
+            const auto* s = static_cast<const SphereCollider*>(other);
+            float dx = m_position.x - s->m_position.x;
+            float dy = m_position.y - s->m_position.y;
+            float dz = m_position.z - s->m_position.z;
             float distSq = dx * dx + dy * dy + dz * dz;
-            float radiusSum = m_worldRadius + pSphere->m_worldRadius;
+            float radiusSum = m_worldRadius + s->m_worldRadius;
             return distSq <= radiusSum * radiusSum;
         }
         case ColliderType::BOX:
-        {
-            // Box側の判定に委譲（将来実装）
-            return pOther->Intersects(this);
-        }
+            return other->Intersects(this);
         default:
             return false;
         }
     }
-}
+
+} // namespace Engine

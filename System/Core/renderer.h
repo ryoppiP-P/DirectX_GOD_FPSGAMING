@@ -39,6 +39,8 @@ namespace Engine {
         uint32_t GetScreenWidth() const { return m_screenWidth; }
         uint32_t GetScreenHeight() const { return m_screenHeight; }
 
+        IDXGISwapChain* GetSwapChain() const { return m_pSwapChain; }
+
     private:
         Renderer() = default;
         ~Renderer() = default;

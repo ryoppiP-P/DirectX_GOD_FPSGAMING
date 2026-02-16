@@ -1,17 +1,17 @@
-// game_object.cpp
 #include "game_object.h"
-#include <d3d11.h>
 
 GameObject::GameObject()
     : position(0.0f, 0.0f, 0.0f)
     , scale(1.0f, 1.0f, 1.0f)
     , rotation(0.0f, 0.0f, 0.0f)
-    , colliderType(ColliderType::None)
+    , boxCollider(nullptr)
     , meshVertices(nullptr)
     , meshVertexCount(0)
     , texture(nullptr)
     , vertexBuffer(nullptr)
-    , bufferNeedsUpdate(true) {
+    , bufferNeedsUpdate(true)
+    , id(0)
+    , m_worldMatrixDirty(true) {
 }
 
 GameObject::~GameObject() {
@@ -21,18 +21,78 @@ GameObject::~GameObject() {
     }
 }
 
+GameObject::GameObject(GameObject&& other) noexcept
+    : position(other.position)
+    , scale(other.scale)
+    , rotation(other.rotation)
+    , boxCollider(std::move(other.boxCollider))
+    , meshVertices(other.meshVertices)
+    , meshVertexCount(other.meshVertexCount)
+    , texture(other.texture)
+    , vertexBuffer(other.vertexBuffer)
+    , bufferNeedsUpdate(other.bufferNeedsUpdate)
+    , id(other.id)
+    , m_cachedWorldMatrix(other.m_cachedWorldMatrix)
+    , m_worldMatrixDirty(other.m_worldMatrixDirty) {
+    other.vertexBuffer = nullptr;
+    other.meshVertices = nullptr;
+    other.texture = nullptr;
+}
+
+GameObject& GameObject::operator=(GameObject&& other) noexcept {
+    if (this != &other) {
+        if (vertexBuffer) vertexBuffer->Release();
+
+        position = other.position;
+        scale = other.scale;
+        rotation = other.rotation;
+        boxCollider = std::move(other.boxCollider);
+        meshVertices = other.meshVertices;
+        meshVertexCount = other.meshVertexCount;
+        texture = other.texture;
+        vertexBuffer = other.vertexBuffer;
+        bufferNeedsUpdate = other.bufferNeedsUpdate;
+        id = other.id;
+        m_cachedWorldMatrix = other.m_cachedWorldMatrix;
+        m_worldMatrixDirty = other.m_worldMatrixDirty;
+
+        other.vertexBuffer = nullptr;
+        other.meshVertices = nullptr;
+        other.texture = nullptr;
+    }
+    return *this;
+}
+
+void GameObject::setPosition(const XMFLOAT3& p) {
+    position = p;
+    m_worldMatrixDirty = true;
+    bufferNeedsUpdate = true;
+    updateColliderTransform();
+}
+
+void GameObject::setRotation(const XMFLOAT3& r) {
+    rotation = r;
+    m_worldMatrixDirty = true;
+    bufferNeedsUpdate = true;
+    updateColliderTransform();
+}
+
+void GameObject::updateColliderTransform() {
+    if (boxCollider) {
+        boxCollider->SetTransform(position, rotation, scale);
+    }
+}
+
 void GameObject::setBoxCollider(const XMFLOAT3& size) {
-    boxCollider = std::make_unique<BoxCollider>(
-        BoxCollider::fromCenterAndSize(position, size)
-    );
-    colliderType = ColliderType::Box;
+    boxCollider = std::make_unique<Engine::BoxCollider>(position, size);
+    boxCollider->SetTransform(position, rotation, scale);
 }
 
 void GameObject::setMesh(const Engine::Vertex3D* vertices, int count, ID3D11ShaderResourceView* tex) {
     meshVertices = vertices;
     meshVertexCount = count;
     texture = tex;
-    bufferNeedsUpdate = true; // メッシュが変わったのでバッファ更新フラグを立てる
+    bufferNeedsUpdate = true;
 }
 
 void GameObject::createVertexBuffer() {
@@ -44,24 +104,19 @@ void GameObject::createVertexBuffer() {
     if (!meshVertices || meshVertexCount == 0) return;
 
     D3D11_BUFFER_DESC bd = {};
-    bd.Usage = D3D11_USAGE_DEFAULT; // DYNAMIC から DEFAULT に変更（より高速）
+    bd.Usage = D3D11_USAGE_DEFAULT;
     bd.ByteWidth = sizeof(Engine::Vertex3D) * meshVertexCount;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bd.CPUAccessFlags = 0; // CPU からのアクセスは不要
 
     D3D11_SUBRESOURCE_DATA subResource = {};
     subResource.pSysMem = meshVertices;
 
-    HRESULT hr = Engine::GetDevice()->CreateBuffer(&bd, &subResource, &vertexBuffer);
-    if (FAILED(hr)) {
-        vertexBuffer = nullptr;
-    }
+    Engine::GetDevice()->CreateBuffer(&bd, &subResource, &vertexBuffer);
 }
 
 void GameObject::draw() {
     if (!meshVertices || meshVertexCount == 0) return;
 
-    // バッファが必要な場合のみ作成/更新
     if (bufferNeedsUpdate || !vertexBuffer) {
         createVertexBuffer();
         bufferNeedsUpdate = false;
@@ -69,32 +124,18 @@ void GameObject::draw() {
 
     if (!vertexBuffer) return;
 
-    // ワールド行列の計算（変更があった場合のみ）
-    static XMFLOAT3 lastPosition = { 0, 0, 0 };
-    static XMFLOAT3 lastRotation = { 0, 0, 0 };
-    static XMFLOAT3 lastScale = { 1, 1, 1 };
-    static XMMATRIX lastWorldMatrix = XMMatrixIdentity();
-
-    bool transformChanged = (position.x != lastPosition.x || position.y != lastPosition.y || position.z != lastPosition.z ||
-        rotation.x != lastRotation.x || rotation.y != lastRotation.y || rotation.z != lastRotation.z ||
-        scale.x != lastScale.x || scale.y != lastScale.y || scale.z != lastScale.z);
-
-    if (transformChanged) {
-        XMMATRIX ScalingMatrix = XMMatrixScaling(scale.x, scale.y, scale.z);
-        XMMATRIX RotationMatrix = XMMatrixRotationRollPitchYaw(
+    if (m_worldMatrixDirty) {
+        XMMATRIX S = XMMatrixScaling(scale.x, scale.y, scale.z);
+        XMMATRIX R = XMMatrixRotationRollPitchYaw(
             XMConvertToRadians(rotation.x),
             XMConvertToRadians(rotation.y),
-            XMConvertToRadians(rotation.z)
-        );
-        XMMATRIX TranslationMatrix = XMMatrixTranslation(position.x, position.y, position.z);
-        lastWorldMatrix = ScalingMatrix * RotationMatrix * TranslationMatrix;
-
-        lastPosition = position;
-        lastRotation = rotation;
-        lastScale = scale;
+            XMConvertToRadians(rotation.z));
+        XMMATRIX T = XMMatrixTranslation(position.x, position.y, position.z);
+        m_cachedWorldMatrix = S * R * T;
+        m_worldMatrixDirty = false;
     }
 
-    Engine::Renderer::GetInstance().SetWorldMatrix(lastWorldMatrix);
+    Engine::Renderer::GetInstance().SetWorldMatrix(m_cachedWorldMatrix);
 
     if (texture) {
         Engine::GetDeviceContext()->PSSetShaderResources(0, 1, &texture);
@@ -107,20 +148,12 @@ void GameObject::draw() {
 
     Engine::MaterialData mat = {};
     mat.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    {
-        ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
-        ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
-        if (ctx && buf) {
-            ctx->UpdateSubresource(buf, 0, nullptr, &mat, 0, 0);
-        }
+
+    auto* ctx = Engine::Renderer::GetInstance().GetContext();
+    auto* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();
+    if (ctx && buf) {
+        ctx->UpdateSubresource(buf, 0, nullptr, &mat, 0, 0);
     }
 
     Engine::GetDeviceContext()->Draw(meshVertexCount, 0);
-}
-
-bool GameObject::checkCollision(const GameObject& other) const {
-    if (colliderType == ColliderType::Box && other.colliderType == ColliderType::Box) {
-        return boxCollider->intersects(*other.boxCollider);
-    }
-    return false;
 }

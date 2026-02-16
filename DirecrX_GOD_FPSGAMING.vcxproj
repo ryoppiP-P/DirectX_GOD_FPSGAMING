@@ -35,6 +35,7 @@
     <ClInclude Include="System\Collision\box_collider.h" />
     <ClInclude Include="System\Collision\collider.h" />
     <ClInclude Include="System\Collision\collision_system.h" />
+    <ClInclude Include="System\Collision\map_collision.h" />
     <ClInclude Include="System\Collision\sphere_collider.h" />
     <ClInclude Include="System\Core\renderer.h" />
     <ClInclude Include="System\Core\types.h" />
@@ -61,9 +62,9 @@
     <ClCompile Include="NetWork\network_manager.cpp" />
     <ClCompile Include="NetWork\udp_network.cpp" />
     <ClCompile Include="player.cpp" />
-    <ClCompile Include="player_manager_impl.cpp" />
     <ClCompile Include="System\Collision\box_collider.cpp" />
     <ClCompile Include="System\Collision\collision_system.cpp" />
+    <ClCompile Include="System\Collision\map_collision.cpp" />
     <ClCompile Include="System\Collision\sphere_collider.cpp" />
     <ClCompile Include="System\Core\renderer.cpp" />
     <ClCompile Include="System\Graphics\material.cpp" />

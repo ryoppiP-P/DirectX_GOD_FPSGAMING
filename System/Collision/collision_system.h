@@ -1,49 +1,67 @@
 #pragma once
 
 #include "collider.h"
+#include "box_collider.h"
 #include <vector>
 #include <functional>
-#include <memory>
+#include <unordered_map>
 
 namespace Engine {
-    // 衝突結果
-    struct CollisionResult {
-        Collider* pColliderA = nullptr;
-        Collider* pColliderB = nullptr;
-        XMFLOAT3 penetration = { 0.0f, 0.0f, 0.0f };
-        XMFLOAT3 contactPoint = { 0.0f, 0.0f, 0.0f };
+
+    enum class CollisionLayer : uint32_t {
+        NONE = 0,
+        PLAYER = 1 << 0,
+        ENEMY = 1 << 1,
+        PROJECTILE = 1 << 2,
+        TRIGGER = 1 << 3,
+        ALL = 0xFFFFFFFF
     };
 
-    // 衝突コールバック
-    using CollisionCallback = std::function<void(const CollisionResult&)>;
+    inline CollisionLayer operator|(CollisionLayer a, CollisionLayer b) {
+        return static_cast<CollisionLayer>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+    }
+
+    inline bool HasFlag(CollisionLayer value, CollisionLayer flag) {
+        return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
+    }
+
+    struct ColliderData {
+        Collider* collider = nullptr;
+        CollisionLayer layer = CollisionLayer::NONE;
+        CollisionLayer mask = CollisionLayer::ALL;
+        void* userData = nullptr;
+        uint32_t id = 0;
+        bool enabled = true;
+    };
+
+    struct CollisionHit {
+        ColliderData* dataA = nullptr;
+        ColliderData* dataB = nullptr;
+        XMFLOAT3 penetration = { 0, 0, 0 };
+    };
+
+    using CollisionCallback = std::function<void(const CollisionHit&)>;
 
     class CollisionSystem {
     public:
         static CollisionSystem& GetInstance();
 
-        // コライダー登録/解除
-        void RegisterCollider(Collider* pCollider);
-        void UnregisterCollider(Collider* pCollider);
+        void Initialize();
+        void Shutdown();
 
-        // 全衝突判定実行
+        uint32_t Register(Collider* collider, CollisionLayer layer, CollisionLayer mask, void* userData);
+        void Unregister(uint32_t id);
+        void SetEnabled(uint32_t id, bool enabled);
+
         void Update();
-
-        // コールバック登録
-        void SetCollisionCallback(CollisionCallback callback);
-
-        // 特定のコライダー同士の判定
-        bool CheckCollision(const Collider* pA, const Collider* pB, CollisionResult& outResult);
-
-        // レイキャスト（将来用）
-        bool Raycast(const XMFLOAT3& origin, const XMFLOAT3& direction, float maxDistance, CollisionResult& outResult);
+        void SetCallback(CollisionCallback callback) { m_callback = std::move(callback); }
 
     private:
         CollisionSystem() = default;
-        ~CollisionSystem() = default;
-        CollisionSystem(const CollisionSystem&) = delete;
-        CollisionSystem& operator=(const CollisionSystem&) = delete;
 
-        std::vector<Collider*> m_colliders;
+        std::unordered_map<uint32_t, ColliderData> m_colliders;
+        uint32_t m_nextId = 1;
         CollisionCallback m_callback;
     };
-}
+
+} // namespace Engine
