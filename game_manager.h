@@ -7,6 +7,7 @@
 #pragma once
 
 #include "main.h"
+#include "game.h"
 #include <vector>
 
 // 前方宣言
@@ -26,13 +27,17 @@ public:
     void Update();
     void Draw();
 
-    // ワールドオブジェクト管理
-    std::vector<GameObject*>& GetWorldObjects() { return m_worldObjects; }
-    const std::vector<GameObject*>& GetWorldObjects() const { return m_worldObjects; }
+    // シーン遷移管理へのアクセス
+    Game& GetGame() { return m_game; }
+    const Game& GetGame() const { return m_game; }
 
-    // 主要オブジェクト参照
-    Map* GetMap() const { return m_pMap; }
-    MapRenderer* GetMapRenderer() const { return m_pMapRenderer; }
+    // ワールドオブジェクト管理（現在のゲームシーン経由）
+    std::vector<GameObject*>& GetWorldObjects();
+    const std::vector<GameObject*>& GetWorldObjects() const;
+
+    // 主要オブジェクト参照（現在のゲームシーン経由）
+    Map* GetMap() const;
+    MapRenderer* GetMapRenderer() const;
     GameObject* GetLocalPlayerGameObject() const;
 
     // FPS情報
@@ -44,12 +49,13 @@ private:
     GameManager(const GameManager&) = delete;
     GameManager& operator=(const GameManager&) = delete;
 
-    // ゲームオブジェクト
-    Map* m_pMap = nullptr;
-    MapRenderer* m_pMapRenderer = nullptr;
-    std::vector<GameObject*> m_worldObjects;
+    // シーン遷移管理
+    Game m_game;
 
     // 内部状態
     double m_fps = 0.0;
     uint32_t m_inputSeq = 0;
+
+    // ワールドオブジェクト（ゲームシーンが無い場合のフォールバック用）
+    static std::vector<GameObject*> s_emptyWorldObjects;
 };
