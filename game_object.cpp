@@ -2,6 +2,7 @@
 
 GameObject::GameObject()
     : position(0.0f, 0.0f, 0.0f)
+    , velocity(0.0f, 0.0f, 0.0f)
     , scale(1.0f, 1.0f, 1.0f)
     , rotation(0.0f, 0.0f, 0.0f)
     , boxCollider(nullptr)
@@ -10,6 +11,9 @@ GameObject::GameObject()
     , texture(nullptr)
     , vertexBuffer(nullptr)
     , bufferNeedsUpdate(true)
+    , m_tag(ObjectTag::NONE)
+    , m_active(true)
+    , m_deleteFlag(false)
     , id(0)
     , m_worldMatrixDirty(true) {
 }
@@ -23,6 +27,7 @@ GameObject::~GameObject() {
 
 GameObject::GameObject(GameObject&& other) noexcept
     : position(other.position)
+    , velocity(other.velocity)
     , scale(other.scale)
     , rotation(other.rotation)
     , boxCollider(std::move(other.boxCollider))
@@ -31,6 +36,9 @@ GameObject::GameObject(GameObject&& other) noexcept
     , texture(other.texture)
     , vertexBuffer(other.vertexBuffer)
     , bufferNeedsUpdate(other.bufferNeedsUpdate)
+    , m_tag(other.m_tag)
+    , m_active(other.m_active)
+    , m_deleteFlag(other.m_deleteFlag)
     , id(other.id)
     , m_cachedWorldMatrix(other.m_cachedWorldMatrix)
     , m_worldMatrixDirty(other.m_worldMatrixDirty) {
@@ -44,6 +52,7 @@ GameObject& GameObject::operator=(GameObject&& other) noexcept {
         if (vertexBuffer) vertexBuffer->Release();
 
         position = other.position;
+        velocity = other.velocity;
         scale = other.scale;
         rotation = other.rotation;
         boxCollider = std::move(other.boxCollider);
@@ -52,6 +61,9 @@ GameObject& GameObject::operator=(GameObject&& other) noexcept {
         texture = other.texture;
         vertexBuffer = other.vertexBuffer;
         bufferNeedsUpdate = other.bufferNeedsUpdate;
+        m_tag = other.m_tag;
+        m_active = other.m_active;
+        m_deleteFlag = other.m_deleteFlag;
         id = other.id;
         m_cachedWorldMatrix = other.m_cachedWorldMatrix;
         m_worldMatrixDirty = other.m_worldMatrixDirty;
@@ -156,4 +168,13 @@ void GameObject::draw() {
     }
 
     Engine::GetDeviceContext()->Draw(meshVertexCount, 0);
+}
+
+void GameObject::Move(const XMFLOAT3& direction, float speed, float deltaTime) {
+    position.x += direction.x * speed * deltaTime;
+    position.y += direction.y * speed * deltaTime;
+    position.z += direction.z * speed * deltaTime;
+    m_worldMatrixDirty = true;
+    bufferNeedsUpdate = true;
+    updateColliderTransform();
 }

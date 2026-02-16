@@ -1,53 +1,18 @@
 /*********************************************************************
-  \file    ƒƒCƒ“ [main.cpp]
+  \file    ãƒ¡ã‚¤ãƒ³ [main.cpp]
 
   \Author  Ryoto Kikuchi
   \data    2025/9/26
  *********************************************************************/
 #include "main.h"
-#include "System/Core/renderer.h"
-#include "System/Graphics/vertex.h"
-#include "System/Graphics/material.h"
-#include "System/Graphics/primitive.h"
-#include "System/Graphics/sprite_2d.h"
-#include "System/Graphics/sprite_3d.h"
-#include "System/Collision/collision_system.h"
-#include "System/Collision/map_collision.h"
+#include "game_manager.h"
 #include "keyboard.h"
-#include "map.h"
-#include "map_renderer.h"
 #include "mouse.h"
-#include "player.h"
-#include "camera.h"
-#include "NetWork/network_manager.h"
-#include "game_controller.h"
 #include "system_timer.h"
-#include <iostream>
 #include <Windows.h>
-#include "bullet.h"
-
-static double g_fps = 0.0f;
-
-// extern for player update wrapper
-extern void UpdatePlayer();
-extern GameObject* GetLocalPlayerGameObject();
-
-// world objects for networking (map blocks + players)
-static std::vector<GameObject*> g_worldObjects;
-
-Player g_player;
-
-
-// worldObjects‚Ö‚ÌƒAƒNƒZƒXŠÖ”
-std::vector<GameObject*>& GetWorldObjects() {
-    return g_worldObjects;
-}
-
-// simple input sequence counter
-static uint32_t g_inputSeq = 0;
 
 //===================================
-// ƒ‰ƒCƒuƒ‰ƒŠ‚ÌƒŠƒ“ƒN
+// ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã®ãƒªãƒ³ã‚¯
 //===================================
 #pragma	comment (lib, "d3d11.lib")
 #pragma	comment (lib, "d3dcompiler.lib")
@@ -56,28 +21,23 @@ static uint32_t g_inputSeq = 0;
 #pragma	comment (lib, "dinput8.lib")
 
 //=================================
-//ƒ}ƒNƒ’è‹`
+// ãƒã‚¯ãƒ­å®šç¾©
 //=================================
 #define		CLASS_NAME		"DX21 Window"
-#define		WINDOW_CAPTION	"3Dtest - Player1(1ƒL[,TPS) Player2(2ƒL[,FPS)"
+#define		WINDOW_CAPTION	"3Dtest - Player1(1ã‚­ãƒ¼,TPS) Player2(2ã‚­ãƒ¼,FPS)"
 
 //===================================
-//ƒvƒƒgƒ^ƒCƒvéŒ¾
+// ãƒ—ãƒ­ãƒˆã‚¿ã‚¤ãƒ—å®£è¨€
 //===================================
 LRESULT	CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);
-void	Uninit(void);
-void	Update(void);
-void	Draw(void);
 
-//===================================
-//ƒOƒ[ƒoƒ‹•Ï”
-//===================================
-static Map* g_pMap = nullptr;
-static MapRenderer* g_pMapRenderer = nullptr;
+// worldObjectsã¸ã®ã‚¢ã‚¯ã‚»ã‚¹é–¢æ•°ï¼ˆæ—¢å­˜äº’æ›ï¼‰
+std::vector<GameObject*>& GetWorldObjects() {
+    return GameManager::Instance().GetWorldObjects();
+}
 
 //=====================================
-//ƒƒCƒ“ŠÖ”
+// ãƒ¡ã‚¤ãƒ³é–¢æ•°
 //======================================
 int APIENTRY WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance, LPSTR lpCmd, int nCmdShow) {
@@ -110,7 +70,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         NULL
     );
 
-    if (FAILED(Init(hInstance, hWnd, true))) {
+    if (FAILED(GameManager::Instance().Initialize(hInstance, hWnd, true))) {
         return -1;
     }
 
@@ -152,20 +112,20 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
             if (elapsed_time >= (1.0 / 60.0)) {
                 exec_last_time = current_time;
-                Update();
-                Draw();
+                GameManager::Instance().Update();
+                GameManager::Instance().Draw();
                 keycopy();
                 frame_count++;
             }
         }
     }
 
-    Uninit();
+    GameManager::Instance().Finalize();
     return (int)msg.wParam;
 }
 
 //=========================================
-//ƒEƒBƒ“ƒhƒEƒvƒƒV[ƒWƒƒ
+// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£
 //=========================================
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -199,8 +159,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         break;
 
     case WM_CLOSE:
-        if (MessageBox(hWnd, "–{“–‚ÉI—¹‚µ‚Ä‚à‚æ‚ë‚µ‚¢‚Å‚·‚©H",
-            "Šm”F", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
+        if (MessageBox(hWnd, "æœ¬å½“ã«çµ‚äº†ã—ã¦ã‚ˆã‚ã—ã„ã§ã™ã‹ï¼Ÿ",
+            "ç¢ºèª", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
             DestroyWindow(hWnd);
         } else {
             return 0;
@@ -212,305 +172,4 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     }
 
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-//==================================
-//‰Šú‰»ˆ—
-//==================================
-HRESULT	Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
-    // DirectXŠÖ˜A‚Ì‰Šú‰»
-    auto& renderer = Engine::Renderer::GetInstance();
-    if (!renderer.Initialize(hInstance, hWnd, bWindow != FALSE)) {
-        return E_FAIL;
-    }
-
-    // Renderer‰Šú‰»Œã‚ÉDebugText‰Šú‰»
-    if (!renderer.Initialize(hInstance, hWnd, bWindow != FALSE)) {
-        return E_FAIL;
-    }
-
-    // ƒXƒvƒ‰ƒCƒgƒVƒXƒeƒ€‰Šú‰»iVEnginej
-    Engine::Sprite2D::Initialize(renderer.GetDevice());
-    Engine::Sprite3D::Initialize(renderer.GetDevice());
-
-    Keyboard_Initialize();
-    Mouse_Initialize(hWnd);
-    GameController::Initialize();
-
-    // ƒvƒŠƒ~ƒeƒBƒu‰Šú‰»iVEnginej
-    Engine::InitPrimitives(renderer.GetDevice());
-
-#ifdef _DEBUG
-    {
-        int flags = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
-        flags |= _CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_LEAK_CHECK_DF;
-        _CrtSetDbgFlag(flags);
-    }
-#endif
-
-    // ƒ}ƒbƒvŠÖ˜A‚Ì‰Šú‰»
-    g_pMap = new Map();
-    if (g_pMap) {
-        g_pMap->Initialize(Engine::GetDefaultTexture());
-    }
-
-    g_pMapRenderer = new MapRenderer();
-    if (g_pMapRenderer) {
-        g_pMapRenderer->Initialize(g_pMap);
-    }
-
-    // ƒvƒŒƒCƒ„[‰Šú‰»
-    int msgRes = MessageBox(hWnd, "Choose starting player:\nYes = Player1 (TPS)\nNo = Player2 (FPS)",
-        "Select Player", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1);
-    if (msgRes == IDYES) {
-        PlayerManager::GetInstance().SetInitialActivePlayer(1);
-        std::cout << "[Main] Selected initial player:1\n";
-    } else {
-        PlayerManager::GetInstance().SetInitialActivePlayer(2);
-        std::cout << "[Main] Selected initial player:2\n";
-    }
-
-    InitializePlayers(g_pMap, Engine::GetDefaultTexture());
-
-    // ƒJƒƒ‰ƒVƒXƒeƒ€‰Šú‰»
-    InitializeCameraSystem();
-
-    // populate worldObjects with map blocks
-    g_worldObjects.clear();
-    if (g_pMap) {
-        const auto& blocks = g_pMap->GetBlockObjects();
-        for (const auto& up : blocks) {
-            g_worldObjects.push_back(up.get());
-        }
-    }
-
-    // Õ“ËƒVƒXƒeƒ€‰Šú‰»
-    Engine::CollisionSystem::GetInstance().Initialize();
-    Engine::MapCollision::GetInstance().Initialize(2.0f);
-
-    // ƒ}ƒbƒvƒuƒƒbƒN‚ğMapCollision‚É“o˜^
-    if (g_pMap) {
-        const auto& blocks = g_pMap->GetBlockObjects();
-        for (const auto& block : blocks) {
-            Engine::MapCollision::GetInstance().RegisterBlock(block->GetBoxCollider());
-        }
-    }
-
-    // “®“IƒIƒuƒWƒFƒNƒg“¯m‚ÌÕ“ËƒR[ƒ‹ƒoƒbƒN
-    Engine::CollisionSystem::GetInstance().SetCallback(
-        [](const Engine::CollisionHit& hit) {
-            Bullet* bullet = nullptr;
-            Player* player = nullptr;
-
-            if (Engine::HasFlag(hit.dataA->layer, Engine::CollisionLayer::PROJECTILE))
-                bullet = static_cast<Bullet*>(hit.dataA->userData);
-            if (Engine::HasFlag(hit.dataB->layer, Engine::CollisionLayer::PROJECTILE))
-                bullet = static_cast<Bullet*>(hit.dataB->userData);
-            if (Engine::HasFlag(hit.dataA->layer, Engine::CollisionLayer::PLAYER))
-                player = static_cast<Player*>(hit.dataA->userData);
-            if (Engine::HasFlag(hit.dataB->layer, Engine::CollisionLayer::PLAYER))
-                player = static_cast<Player*>(hit.dataB->userData);
-
-            if (bullet && player && bullet->active && player->IsAlive()) {
-                bullet->Deactivate();
-                player->TakeDamage(50);
-            }
-        }
-    );
-
-    GameObject* localGo = GetLocalPlayerGameObject();
-    if (localGo) {
-        localGo->setId(0);
-        std::cout << "[Main] Players initialized\n";
-        std::cout << "[Main] 1ƒL[: Player1 (TPS‹“_), 2ƒL[: Player2 (FPS‹“_)\n";
-    }
-
-    return S_OK;
-}
-
-//====================================
-//	I—¹ˆ—
-//====================================
-void Uninit(void) {
-    // ƒ}ƒbƒvŠÖ˜A‚ÌI—¹ˆ—
-    if (g_pMapRenderer) {
-        g_pMapRenderer->Uninitialize();
-        delete g_pMapRenderer;
-        g_pMapRenderer = nullptr;
-    }
-
-    for (auto go : g_worldObjects) {
-        if (go && go->getId() != 0) {
-            GameObject* local = GetLocalPlayerGameObject();
-            if (go != local) delete go;
-        }
-    }
-    g_worldObjects.clear();
-
-    if (g_pMap) {
-        g_pMap->Uninitialize();
-        delete g_pMap;
-        g_pMap = nullptr;
-    }
-
-    // ƒXƒvƒ‰ƒCƒgƒVƒXƒeƒ€I—¹iVEnginej
-    Engine::Sprite2D::Finalize();
-    Engine::Sprite3D::Finalize();
-
-    Engine::CollisionSystem::GetInstance().Shutdown();
-    Engine::MapCollision::GetInstance().Shutdown();
-
-    // ƒvƒŠƒ~ƒeƒBƒuI—¹iVEnginej
-    Engine::UninitPrimitives();
-
-    GameController::Shutdown();
-    Mouse_Finalize();
-
-    // DirectXŠÖ˜A‚ÌI—¹ˆ—
-    Engine::Renderer::GetInstance().Finalize();
-}
-
-//===================================
-//XVˆ—
-//====================================
-void Update(void) {
-    static int frameCounter = 0;
-    frameCounter++;
-
-    if (Keyboard_IsKeyDownTrigger(KK_F1)) {
-        if (!g_network.is_host()) {
-            if (g_network.start_as_host()) {
-                std::cout << "[Main] Started as HOST - Waiting for clients...\n";
-            } else {
-                std::cout << "[Main] FAILED to start as HOST\n";
-            }
-        } else {
-            std::cout << "[Main] Already running as HOST\n";
-        }
-    }
-    if (Keyboard_IsKeyDownTrigger(KK_F2)) {
-        if (!g_network.is_host()) {
-            if (g_network.start_as_client()) {
-                std::string hostIp;
-                if (g_network.discover_and_join(hostIp)) {
-                    std::cout << "[Main] Discovered host: " << hostIp << " - CLIENT CONNECTED!\n";
-                } else {
-                    std::cout << "[Main] CLIENT: Host discovery FAILED\n";
-                }
-            } else {
-                std::cout << "[Main] FAILED to start as CLIENT\n";
-            }
-        } else {
-            std::cout << "[Main] Cannot start client - already running as HOST\n";
-        }
-    }
-
-    GameObject* localGo = GetLocalPlayerGameObject();
-    constexpr float fixedDt = 1.0f / 60.0f;
-    g_network.update(fixedDt, localGo, g_worldObjects);
-
-    if (g_network.is_host() && localGo && localGo->getId() == 0) {
-        localGo->setId(1);
-        std::cout << "[Main] Host player assigned id=1\n";
-        g_worldObjects.push_back(localGo);
-        std::cout << "[Main] Host player added to worldObjects with id=1\n";
-    }
-
-    if (!g_network.is_host() && g_network.getMyPlayerId() != 0) {
-        GameObject* lg = GetLocalPlayerGameObject();
-        if (lg && lg->getId() == 0) {
-            lg->setId(g_network.getMyPlayerId());
-            g_worldObjects.push_back(lg);
-            std::cout << "[Main] Client player assigned id=" << lg->getId() << "\n";
-        }
-    }
-
-    if (frameCounter % 3 == 0) {
-        bool isNetworkActive = g_network.is_host() || g_network.getMyPlayerId() != 0;
-        std::cout << "[Network] Frame " << frameCounter << " - NetworkActive: " << (isNetworkActive ? "YES" : "NO");
-
-        if (isNetworkActive) {
-            g_network.FrameSync(localGo, g_worldObjects);
-            std::cout << " - FrameSync EXECUTED";
-            if (localGo) {
-                auto pos = localGo->getPosition();
-                auto rot = localGo->getRotation();
-                std::cout << " LOCAL pos=(" << pos.x << "," << pos.y << "," << pos.z << ")"
-                    << " rot=(" << rot.x << "," << rot.y << "," << rot.z << ")"
-                    << " id=" << localGo->getId();
-
-                if (g_network.is_host()) {
-                    std::cout << " [HOST] clients=" << g_worldObjects.size() - 1;
-                } else {
-                    std::cout << " [CLIENT] myId=" << g_network.getMyPlayerId();
-                }
-            } else {
-                std::cout << " (localGo=null)";
-            }
-        } else {
-            std::cout << " - FrameSync SKIPPED (not connected)";
-        }
-        std::cout << "\n";
-    }
-
-    Engine::CollisionSystem::GetInstance().Update();
-    UpdateCameraSystem();
-    UpdatePlayer();
-
-    static int statusCounter = 0;
-    statusCounter++;
-    if (statusCounter % 180 == 0) {
-        std::cout << "[NetworkStatus] Host: " << (g_network.is_host() ? "YES" : "NO")
-            << " MyId: " << g_network.getMyPlayerId()
-            << " WorldObjects: " << g_worldObjects.size() << "\n";
-    }
-
-    static int frameCount = 0;
-    static double lastFpsTime = SystemTimer_GetTime();
-
-    frameCount++;
-    double currentTime = SystemTimer_GetTime();
-    double elapsed = currentTime - lastFpsTime;
-
-
-    if (elapsed >= 0.5) {
-        g_fps = frameCount / elapsed;
-        frameCount = 0;
-        lastFpsTime = currentTime;
-
-        // ƒEƒBƒ“ƒhƒEƒ^ƒCƒgƒ‹‚É•\¦iŠmÀ‚É“®ìj
-        char title[256];
-        sprintf_s(title, "3Dtest - FPS: %.1f", g_fps);
-        HWND hWnd = FindWindowA(CLASS_NAME, nullptr);
-        if (hWnd) {
-            SetWindowTextA(hWnd, title);
-        }
-    }
-}
-
-//==================================
-//•`‰æˆ—
-//==================================
-void Draw(void) {
-    Engine::Renderer::GetInstance().Clear();
-
-    // ===== 3D•`‰æ =====
-    if (g_pMapRenderer) {
-        g_pMapRenderer->Draw();
-    }
-
-    DrawPlayers();
-
-    GameObject* local = GetLocalPlayerGameObject();
-    for (auto go : g_worldObjects) {
-        if (!go) continue;
-        if (go->getId() != 0 && go != local) {
-            if (local && go->getId() == local->getId()) {
-                continue;
-            }
-            go->draw();
-        }
-    }
-
-    Engine::Renderer::GetInstance().Present();
 }
