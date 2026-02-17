@@ -77,11 +77,6 @@ HRESULT GameManager::Initialize(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
         return E_FAIL;
     }
 
-    // Renderer初期化後にDebugText初期化
-    if (!renderer.Initialize(hInstance, hWnd, bWindow != FALSE)) {
-        return E_FAIL;
-    }
-
     // スプライトシステム初期化（新Engine）
     Engine::Sprite2D::Initialize(renderer.GetDevice());
     Engine::Sprite3D::Initialize(renderer.GetDevice());
