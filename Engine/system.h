@@ -6,6 +6,10 @@
  *********************************************************************/
 #pragma once
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include "Engine/Core/renderer.h"
 #include "Engine/Core/timer.h"
 #include "Engine/Input/input_manager.h"

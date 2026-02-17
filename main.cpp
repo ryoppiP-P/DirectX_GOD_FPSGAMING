@@ -159,8 +159,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         break;
 
     case WM_CLOSE:
-        if (MessageBox(hWnd, "本当に終了してよろしいですか？",
-            "確認", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
+        //if (MessageBoxW(hWnd, L"本当に終了してよろしいですか？",
+        //    L"確認", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
+        //    DestroyWindow(hWnd);
+        if (MessageBoxA(hWnd, "Are you sure you want to quit?",
+            "Confirm", MB_OKCANCEL | MB_DEFBUTTON2) == IDOK) {
             DestroyWindow(hWnd);
         } else {
             return 0;
