@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include "System/Core/renderer.h"
-#include "System/Graphics/vertex.h"
-#include "System/Collision/box_collider.h"
-#include "System/Graphics/material.h"
+#include "Engine/Core/renderer.h"
+#include "Engine/Graphics/vertex.h"
+#include "Engine/Collision/box_collider.h"
+#include "Engine/Graphics/material.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;

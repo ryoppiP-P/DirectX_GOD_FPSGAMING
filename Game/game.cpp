@@ -5,26 +5,23 @@
   \data    2025
  *********************************************************************/
 #include "game.h"
-#include "System/Core/renderer.h"
-#include "System/Graphics/vertex.h"
-#include "System/Graphics/material.h"
-#include "System/Graphics/primitive.h"
-#include "System/Collision/collision_system.h"
-#include "System/Collision/map_collision.h"
-#include "keyboard.h"
-#include "map.h"
-#include "map_renderer.h"
-#include "player.h"
-#include "camera.h"
+#include "Engine/Core/renderer.h"
+#include "Engine/Graphics/vertex.h"
+#include "Engine/Graphics/material.h"
+#include "Engine/Graphics/primitive.h"
+#include "Engine/Collision/collision_system.h"
+#include "Engine/Collision/map_collision.h"
+#include "Engine/Input/keyboard.h"
+#include "Game/Map/map.h"
+#include "Game/Map/map_renderer.h"
+#include "Game/Objects/player.h"
+#include "Game/Managers/player_manager.h"
+#include "Game/Objects/camera.h"
 #include "NetWork/network_manager.h"
-#include "bullet.h"
-#include "game_object.h"
-#include "system_timer.h"
+#include "Game/Objects/bullet.h"
+#include "Game/Objects/game_object.h"
+#include "Engine/Core/timer.h"
 #include <iostream>
-
-// extern for player update wrapper
-extern void UpdatePlayer();
-extern GameObject* GetLocalPlayerGameObject();
 
 //===================================
 // マクロ定義

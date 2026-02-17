@@ -7,7 +7,7 @@
 #pragma once
 
 #include "main.h"
-#include "game.h"
+#include "Game/game.h"
 #include <vector>
 
 // 前方宣言

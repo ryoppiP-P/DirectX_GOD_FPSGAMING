@@ -5,10 +5,10 @@
   \data    2025/9/26
  *********************************************************************/
 #include "main.h"
-#include "game_manager.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "system_timer.h"
+#include "Game/game_manager.h"
+#include "Engine/Input/keyboard.h"
+#include "Engine/Input/mouse.h"
+#include "Engine/Core/timer.h"
 #include <Windows.h>
 
 //===================================

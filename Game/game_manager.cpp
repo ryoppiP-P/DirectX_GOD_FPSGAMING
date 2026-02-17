@@ -5,22 +5,20 @@
   \data    2025
  *********************************************************************/
 #include "game_manager.h"
-#include "System/Core/renderer.h"
-#include "System/Graphics/vertex.h"
-#include "System/Graphics/material.h"
-#include "System/Graphics/primitive.h"
-#include "System/Graphics/sprite_2d.h"
-#include "System/Graphics/sprite_3d.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "game_controller.h"
-#include "system_timer.h"
-#include "game_object.h"
+#include "Engine/Core/renderer.h"
+#include "Engine/Graphics/vertex.h"
+#include "Engine/Graphics/material.h"
+#include "Engine/Graphics/primitive.h"
+#include "Engine/Graphics/sprite_2d.h"
+#include "Engine/Graphics/sprite_3d.h"
+#include "Engine/Input/keyboard.h"
+#include "Engine/Input/mouse.h"
+#include "Engine/Input/game_controller.h"
+#include "Engine/Core/timer.h"
+#include "Game/Objects/game_object.h"
+#include "Game/Objects/camera.h"
 #include <iostream>
 #include <Windows.h>
-
-// extern for player update wrapper
-extern GameObject* GetLocalPlayerGameObject();
 
 //===================================
 // マクロ定義
@@ -75,11 +73,6 @@ MapRenderer* GameManager::GetMapRenderer() const {
 HRESULT GameManager::Initialize(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
     // DirectX関連の初期化
     auto& renderer = Engine::Renderer::GetInstance();
-    if (!renderer.Initialize(hInstance, hWnd, bWindow != FALSE)) {
-        return E_FAIL;
-    }
-
-    // Renderer初期化後にDebugText初期化
     if (!renderer.Initialize(hInstance, hWnd, bWindow != FALSE)) {
         return E_FAIL;
     }

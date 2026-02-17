@@ -17,14 +17,14 @@ public:
 	float rotation;
 	float pitch;
 
-	// XVˆ—
+	// ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
 	void Update(void);
 };
 
-// ƒƒCƒ“ƒJƒƒ‰‚Ìæ“¾
+// ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ìæ“¾
 Camera& GetMainCamera();
 
-// •¡”ƒvƒŒƒCƒ„[‘Î‰‚ÌƒJƒƒ‰ŠÇ—
+// ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Î‰ï¿½ï¿½ÌƒJï¿½ï¿½ï¿½ï¿½ï¿½Ç—ï¿½
 class CameraManager {
 private:
     static CameraManager* instance;
@@ -43,6 +43,12 @@ public:
     void SetPitch(float p) { pitch = p; }
 };
 
-// ƒOƒ[ƒoƒ‹ŠÖ”
+// ã‚°ãƒ­ãƒ¼ãƒãƒ«é–¢æ•°
 void InitializeCameraSystem();
 void UpdateCameraSystem();
+
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¢ã‚¯ã‚»ã‚¹ç”¨ãƒ–ãƒªãƒƒã‚¸é–¢æ•°
+class GameObject;
+GameObject* GetLocalPlayerGameObject();
+void UpdatePlayer();
+void ForceUpdatePlayerPosition(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot);

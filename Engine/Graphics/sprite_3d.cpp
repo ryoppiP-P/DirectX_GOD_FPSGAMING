@@ -1,5 +1,5 @@
 #include "sprite_3d.h"
-#include "../Core/renderer.h"
+#include "Engine/Core/renderer.h"
 #include <cmath>
 
 namespace Engine {
@@ -38,7 +38,7 @@ namespace Engine {
         float hw = size.x * 0.5f;
         float hh = size.y * 0.5f;
 
-        // ƒ[ƒJƒ‹’¸“_iXY•½–Êj
+        // ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½iXYï¿½ï¿½ï¿½Êj
         D3D11_MAPPED_SUBRESOURCE msr;
         if (SUCCEEDED(pContext->Map(s_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr))) {
             Vertex3D* vertices = static_cast<Vertex3D*>(msr.pData);
@@ -51,7 +51,7 @@ namespace Engine {
             pContext->Unmap(s_pVertexBuffer, 0);
         }
 
-        // ƒ[ƒ‹ƒhs—ñÝ’è
+        // ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½sï¿½ï¿½Ý’ï¿½
         XMMATRIX rotMatrix = XMMatrixRotationRollPitchYaw(
             XMConvertToRadians(rotation.x),
             XMConvertToRadians(rotation.y),
@@ -62,19 +62,19 @@ namespace Engine {
 
         Renderer::GetInstance().SetWorldMatrix(worldMatrix);
 
-        // ƒ}ƒeƒŠƒAƒ‹Ý’è
+        // ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ý’ï¿½
         if (pMaterialBuffer) {
             MaterialData mat = {};
             mat.diffuse = { 1, 1, 1, 1 };
             pContext->UpdateSubresource(pMaterialBuffer, 0, nullptr, &mat, 0, 0);
         }
 
-        // ƒeƒNƒXƒ`ƒƒÝ’è
+        // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ý’ï¿½
         if (pTexture) {
             pContext->PSSetShaderResources(0, 1, &pTexture);
         }
 
-        // •`‰æ
+        // ï¿½`ï¿½ï¿½
         UINT stride = sizeof(Vertex3D);
         UINT offset = 0;
         pContext->IASetVertexBuffers(0, 1, &s_pVertexBuffer, &stride, &offset);
@@ -95,7 +95,7 @@ namespace Engine {
         float hw = size.x * 0.5f;
         float hh = size.y * 0.5f;
 
-        // ’¸“_ƒf[ƒ^
+        // ï¿½ï¿½ï¿½_ï¿½fï¿½[ï¿½^
         D3D11_MAPPED_SUBRESOURCE msr;
         if (SUCCEEDED(pContext->Map(s_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr))) {
             Vertex3D* vertices = static_cast<Vertex3D*>(msr.pData);
@@ -108,10 +108,10 @@ namespace Engine {
             pContext->Unmap(s_pVertexBuffer, 0);
         }
 
-        // ƒrƒ‹ƒ{[ƒhs—ñFƒrƒ…[s—ñ‚Ì‹t‰ñ“]‚ð“K—p
+        // ï¿½rï¿½ï¿½ï¿½{ï¿½[ï¿½hï¿½sï¿½ï¿½Fï¿½rï¿½ï¿½ï¿½[ï¿½sï¿½ï¿½Ì‹tï¿½ï¿½]ï¿½ï¿½Kï¿½p
         XMMATRIX invView = XMMatrixInverse(nullptr, viewMatrix);
 
-        // •½sˆÚ“®¬•ª‚ðœ‹Ž‚µ‚Ä‰ñ“]¬•ª‚¾‚¯Žæ“¾
+        // ï¿½ï¿½ï¿½sï¿½Ú“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‰ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ“¾
         invView.r[3] = XMVectorSet(0, 0, 0, 1);
 
         XMMATRIX transMatrix = XMMatrixTranslation(position.x, position.y, position.z);
@@ -119,19 +119,19 @@ namespace Engine {
 
         Renderer::GetInstance().SetWorldMatrix(worldMatrix);
 
-        // ƒ}ƒeƒŠƒAƒ‹Ý’è
+        // ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ý’ï¿½
         if (pMaterialBuffer) {
             MaterialData mat = {};
             mat.diffuse = { 1, 1, 1, 1 };
             pContext->UpdateSubresource(pMaterialBuffer, 0, nullptr, &mat, 0, 0);
         }
 
-        // ƒeƒNƒXƒ`ƒƒÝ’è
+        // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ý’ï¿½
         if (pTexture) {
             pContext->PSSetShaderResources(0, 1, &pTexture);
         }
 
-        // •`‰æ
+        // ï¿½`ï¿½ï¿½
         UINT stride = sizeof(Vertex3D);
         UINT offset = 0;
         pContext->IASetVertexBuffers(0, 1, &s_pVertexBuffer, &stride, &offset);
