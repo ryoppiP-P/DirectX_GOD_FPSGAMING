@@ -6,9 +6,9 @@
  *********************************************************************/
 #pragma once
 
-#include "System/Collision/collision_system.h"
-#include "System/Collision/map_collision.h"
-#include "System/Collision/collider.h"
+#include "collision_system.h"
+#include "map_collision.h"
+#include "collider.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;

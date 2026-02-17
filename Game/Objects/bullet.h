@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
-#include "game_object.h"
-#include "System/Collision/box_collider.h"
+#include "Game/Objects/game_object.h"
+#include "Engine/Collision/box_collider.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;

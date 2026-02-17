@@ -1,8 +1,8 @@
 #include "bullet.h"
-#include "System/Core/renderer.h"
-#include "System/Graphics/primitive.h"
-#include "System/Collision/collision_system.h"
-#include "System/Collision/map_collision.h"
+#include "Engine/Core/renderer.h"
+#include "Engine/Graphics/primitive.h"
+#include "Engine/Collision/collision_system.h"
+#include "Engine/Collision/map_collision.h"
 
 Bullet::Bullet()
     : position(0, 0, 0)
@@ -84,7 +84,7 @@ void Bullet::Update(float deltaTime) {
     visual.position = position;
     visual.markBufferForUpdate();
 
-    // ƒ}ƒbƒv‚Æ‚ÌÕ“Ë”»’è
+    // ï¿½}ï¿½bï¿½vï¿½Æ‚ÌÕ“Ë”ï¿½ï¿½ï¿½
     XMFLOAT3 pen;
     if (Engine::MapCollision::GetInstance().CheckCollision(&collider, pen)) {
         Deactivate();

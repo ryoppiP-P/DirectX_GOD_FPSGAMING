@@ -1,5 +1,5 @@
 /*********************************************************************
-  \file    3ŸŒ³ƒ}ƒbƒvƒf[ƒ^ŠÇ— [map.h]
+  \file    3ï¿½ï¿½ï¿½ï¿½ï¿½}ï¿½bï¿½vï¿½fï¿½[ï¿½^ï¿½Ç—ï¿½ [map.h]
   
   \Author  Ryoto Kikuchi
   \data    2025/10/21
@@ -9,17 +9,17 @@
 #include "main.h"
 #include <vector>
 #include <memory>
-#include "game_object.h"
+#include "Game/Objects/game_object.h"
 
 //*****************************************************************************
-// ƒ}ƒNƒ’è‹`
+// ï¿½}ï¿½Nï¿½ï¿½ï¿½ï¿½`
 //*****************************************************************************
-#define MAP_WIDTH  50    // ƒ}ƒbƒv‚Ì•
-#define MAP_HEIGHT 50    // ƒ}ƒbƒv‚Ì‚‚³
-#define MAP_DEPTH  50    // ƒ}ƒbƒv‚Ì‰œs‚«
+#define MAP_WIDTH  50    // ï¿½}ï¿½bï¿½vï¿½Ì•ï¿½
+#define MAP_HEIGHT 50    // ï¿½}ï¿½bï¿½vï¿½Ìï¿½ï¿½ï¿½
+#define MAP_DEPTH  50    // ï¿½}ï¿½bï¿½vï¿½Ì‰ï¿½ï¿½sï¿½ï¿½
 
 //*****************************************************************************
-// \‘¢‘Ì‚Ì’è‹`
+// ï¿½\ï¿½ï¿½ï¿½Ì‚Ì’ï¿½`
 //*****************************************************************************
 struct MapPosition
 {
@@ -27,46 +27,46 @@ struct MapPosition
 };
 
 //*****************************************************************************
-// ƒNƒ‰ƒX’è‹`
+// ï¿½Nï¿½ï¿½ï¿½Xï¿½ï¿½`
 //*****************************************************************************
 class Map
 {
 private:
-    // 3ŸŒ³ƒ}ƒbƒvƒf[ƒ^”z—ñ [‚‚³][‰œs‚«][•]
+    // 3ï¿½ï¿½ï¿½ï¿½ï¿½}ï¿½bï¿½vï¿½fï¿½[ï¿½^ï¿½zï¿½ï¿½ [ï¿½ï¿½ï¿½ï¿½][ï¿½ï¿½ï¿½sï¿½ï¿½][ï¿½ï¿½]
     int mapData[MAP_HEIGHT][MAP_DEPTH][MAP_WIDTH];
-    std::vector<std::unique_ptr<GameObject>> blockObjects; // ƒuƒƒbƒNGameObjectƒŠƒXƒg
+    std::vector<std::unique_ptr<GameObject>> blockObjects; // ï¿½uï¿½ï¿½ï¿½bï¿½NGameObjectï¿½ï¿½ï¿½Xï¿½g
 
 public:
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^EƒfƒXƒgƒ‰ƒNƒ^
+    // ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½Eï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
     Map();
     ~Map();
 
-    // ‰Šú‰»EI—¹ˆ—
-    HRESULT Initialize(ID3D11ShaderResourceView* texture); // ƒeƒNƒXƒ`ƒƒ‚ğó‚¯æ‚é‚æ‚¤•ÏX
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    HRESULT Initialize(ID3D11ShaderResourceView* texture); // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½ó‚¯ï¿½ï¿½æ‚¤ï¿½ÏX
     void Uninitialize();
 
-    // ƒ}ƒbƒvƒf[ƒ^ƒAƒNƒZƒX
+    // ï¿½}ï¿½bï¿½vï¿½fï¿½[ï¿½^ï¿½Aï¿½Nï¿½Zï¿½X
     int GetBlock(int x, int y, int z) const;
     void SetBlock(int x, int y, int z, int value);
 
-    // ”ÍˆÍƒ`ƒFƒbƒN
+    // ï¿½ÍˆÍƒ`ï¿½Fï¿½bï¿½N
     bool IsValidPosition(int x, int y, int z) const;
 
-    // ƒ}ƒbƒvƒTƒCƒYæ“¾
+    // ï¿½}ï¿½bï¿½vï¿½Tï¿½Cï¿½Yï¿½æ“¾
     int GetWidth() const { return MAP_WIDTH; }
     int GetHeight() const { return MAP_HEIGHT; }
     int GetDepth() const { return MAP_DEPTH; }
 
-    // ƒTƒ“ƒvƒ‹ƒ}ƒbƒvƒf[ƒ^‚Ìİ’è
+    // ï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½ï¿½}ï¿½bï¿½vï¿½fï¿½[ï¿½^ï¿½Ìİ’ï¿½
     void CreateSampleMap();
 
-    // ƒuƒƒbƒNGameObjectƒŠƒXƒgæ“¾
+    // ï¿½uï¿½ï¿½ï¿½bï¿½NGameObjectï¿½ï¿½ï¿½Xï¿½gï¿½æ“¾
     const std::vector<std::unique_ptr<GameObject>>& GetBlockObjects() const { return blockObjects; }
 
-    // *** ’Ç‰Á ***
+    // *** ï¿½Ç‰ï¿½ ***
     float GetGroundHeight(float x, float z) const;
-    // *** ’Ç‰Á I—¹ ***
+    // *** ï¿½Ç‰ï¿½ ï¿½Iï¿½ï¿½ ***
    
-    // ƒuƒƒbƒNGameObject¶¬
+    // ï¿½uï¿½ï¿½ï¿½bï¿½NGameObjectï¿½ï¿½ï¿½ï¿½
     void GenerateBlockObjects(ID3D11ShaderResourceView* texture);
 };

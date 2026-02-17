@@ -1,22 +1,22 @@
 // system/graphics/primitive.h
 #pragma once
 
-#include "../core/renderer.h"
+#include "Engine/Core/renderer.h"
 #include "vertex.h"
 
 namespace Engine {
-    // —§•û‘Ì‚Ì’¸“_ƒf[ƒ^i36’¸“_j
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ì’ï¿½ï¿½_ï¿½fï¿½[ï¿½^ï¿½i36ï¿½ï¿½ï¿½_ï¿½j
     extern Vertex3D BoxVertices[36];
 
-    // ƒvƒŠƒ~ƒeƒBƒu‰Šú‰»EI—¹
+    // ï¿½vï¿½ï¿½ï¿½~ï¿½eï¿½Bï¿½uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Iï¿½ï¿½
     void InitPrimitives(ID3D11Device* pDevice);
     void UninitPrimitives();
 
-    // ƒfƒtƒHƒ‹ƒgƒeƒNƒXƒ`ƒƒæ“¾
+    // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½æ“¾
     ID3D11ShaderResourceView* GetDefaultTexture();
 }
 
-// ƒOƒ[ƒoƒ‹ŒöŠJ
+// ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½ï¿½ï¿½J
 extern Engine::Vertex3D Box[36];
 inline void InitPolygon() { Engine::InitPrimitives(Engine::GetDevice()); }
 inline void UninitPolygon() { Engine::UninitPrimitives(); }

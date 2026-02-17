@@ -5,17 +5,17 @@
   \data    2025
  *********************************************************************/
 #include "game_manager.h"
-#include "System/Core/renderer.h"
-#include "System/Graphics/vertex.h"
-#include "System/Graphics/material.h"
-#include "System/Graphics/primitive.h"
-#include "System/Graphics/sprite_2d.h"
-#include "System/Graphics/sprite_3d.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "game_controller.h"
-#include "system_timer.h"
-#include "game_object.h"
+#include "Engine/Core/renderer.h"
+#include "Engine/Graphics/vertex.h"
+#include "Engine/Graphics/material.h"
+#include "Engine/Graphics/primitive.h"
+#include "Engine/Graphics/sprite_2d.h"
+#include "Engine/Graphics/sprite_3d.h"
+#include "Engine/Input/keyboard.h"
+#include "Engine/Input/mouse.h"
+#include "Engine/Input/game_controller.h"
+#include "Engine/Core/timer.h"
+#include "Game/Objects/game_object.h"
 #include <iostream>
 #include <Windows.h>
 

@@ -1,5 +1,5 @@
 #include "texture_loader.h"
-#include "../../external/DirectXTex.h"
+#include "external/DirectXTex.h"
 
 namespace Engine {
     ID3D11ShaderResourceView* TextureLoader::Load(
