@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "sprite_3d.h"
 #include "Engine/Core/renderer.h"
 #include <cmath>

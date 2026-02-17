@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "texture_loader.h"
 #include "external/DirectXTex.h"
 

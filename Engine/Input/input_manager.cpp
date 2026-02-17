@@ -4,6 +4,7 @@
   \Author  Ryoto Kikuchi
   \data    2025
  *********************************************************************/
+#include "pch.h"
 #include "input_manager.h"
 #include <cmath>
 

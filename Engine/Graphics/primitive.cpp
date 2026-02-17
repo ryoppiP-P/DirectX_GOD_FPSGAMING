@@ -1,4 +1,5 @@
 // system/graphics/primitive.cpp
+#include "pch.h"
 #include "primitive.h"
 #include "texture_loader.h"
 

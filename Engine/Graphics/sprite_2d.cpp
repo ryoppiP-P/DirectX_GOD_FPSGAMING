@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "sprite_2d.h"
 #include "material.h"
 #include <cmath>
