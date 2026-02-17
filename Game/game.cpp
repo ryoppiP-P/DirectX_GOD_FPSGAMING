@@ -15,6 +15,7 @@
 #include "Game/Map/map.h"
 #include "Game/Map/map_renderer.h"
 #include "Game/Objects/player.h"
+#include "Game/Managers/player_manager.h"
 #include "Game/Objects/camera.h"
 #include "NetWork/network_manager.h"
 #include "Game/Objects/bullet.h"

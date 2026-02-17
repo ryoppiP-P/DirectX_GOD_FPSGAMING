@@ -11,7 +11,7 @@
 #include "collider.h"
 #include <DirectXMath.h>
 
-using namespace DirectX;
+namespace Engine {
 
 // CollisionManagerはCollisionSystemとMapCollisionへの一元的なアクセスを提供する
 // シングルトンパターンで実装
@@ -23,57 +23,75 @@ public:
     }
 
     void Initialize(float mapCellSize = 2.0f) {
-        Engine::CollisionSystem::GetInstance().Initialize();
-        Engine::MapCollision::GetInstance().Initialize(mapCellSize);
+        CollisionSystem::GetInstance().Initialize();
+        MapCollision::GetInstance().Initialize(mapCellSize);
     }
 
     void Shutdown() {
-        Engine::CollisionSystem::GetInstance().Shutdown();
-        Engine::MapCollision::GetInstance().Shutdown();
+        CollisionSystem::GetInstance().Shutdown();
+        MapCollision::GetInstance().Shutdown();
     }
 
     void Update() {
-        Engine::CollisionSystem::GetInstance().Update();
+        CollisionSystem::GetInstance().Update();
     }
 
     // 動的オブジェクト登録
-    uint32_t Register(Engine::Collider* collider, Engine::CollisionLayer layer,
-                      Engine::CollisionLayer mask, void* userData) {
-        return Engine::CollisionSystem::GetInstance().Register(collider, layer, mask, userData);
+    uint32_t RegisterDynamic(Collider* collider, CollisionLayer layer,
+                      CollisionLayer mask, void* userData) {
+        return CollisionSystem::GetInstance().Register(collider, layer, mask, userData);
     }
 
-    void Unregister(uint32_t id) {
-        Engine::CollisionSystem::GetInstance().Unregister(id);
+    void UnregisterDynamic(uint32_t id) {
+        CollisionSystem::GetInstance().Unregister(id);
     }
 
     void SetEnabled(uint32_t id, bool enabled) {
-        Engine::CollisionSystem::GetInstance().SetEnabled(id, enabled);
+        CollisionSystem::GetInstance().SetEnabled(id, enabled);
     }
 
-    void SetCallback(Engine::CollisionCallback callback) {
-        Engine::CollisionSystem::GetInstance().SetCallback(std::move(callback));
+    void SetCallback(CollisionCallback callback) {
+        CollisionSystem::GetInstance().SetCallback(std::move(callback));
     }
 
     // マップコリジョン
-    void RegisterMapBlock(Engine::BoxCollider* block) {
-        Engine::MapCollision::GetInstance().RegisterBlock(block);
+    void RegisterMapBlock(BoxCollider* block) {
+        MapCollision::GetInstance().RegisterBlock(block);
     }
 
-    bool CheckMapCollision(Engine::BoxCollider* collider, XMFLOAT3& penetration) {
-        return Engine::MapCollision::GetInstance().CheckCollision(collider, penetration);
+    bool CheckMapCollision(BoxCollider* collider, DirectX::XMFLOAT3& penetration) {
+        return MapCollision::GetInstance().CheckCollision(collider, penetration);
     }
 
-    std::vector<XMFLOAT3> CheckMapCollisionAll(Engine::BoxCollider* collider, float radius) {
-        return Engine::MapCollision::GetInstance().CheckCollisionAll(collider, radius);
+    std::vector<DirectX::XMFLOAT3> CheckMapCollisionAll(BoxCollider* collider, float radius) {
+        return MapCollision::GetInstance().CheckCollisionAll(collider, radius);
+    }
+
+    bool ResolveMapCollision(BoxCollider* collider, DirectX::XMFLOAT3& outPosition,
+                             DirectX::XMFLOAT3& outVelocity, bool& outGrounded) {
+        auto penetrations = MapCollision::GetInstance().CheckCollisionAll(collider, 3.0f);
+        outGrounded = false;
+        for (const auto& pen : penetrations) {
+            outPosition.x += pen.x;
+            outPosition.y += pen.y;
+            outPosition.z += pen.z;
+            if (pen.x != 0.0f) outVelocity.x = 0.0f;
+            if (pen.y != 0.0f) {
+                outVelocity.y = 0.0f;
+                if (pen.y > 0.0f) outGrounded = true;
+            }
+            if (pen.z != 0.0f) outVelocity.z = 0.0f;
+        }
+        return !penetrations.empty();
     }
 
     // 内部システムへの直接アクセス（互換性のため）
-    Engine::CollisionSystem& GetCollisionSystem() {
-        return Engine::CollisionSystem::GetInstance();
+    CollisionSystem& GetCollisionSystem() {
+        return CollisionSystem::GetInstance();
     }
 
-    Engine::MapCollision& GetMapCollision() {
-        return Engine::MapCollision::GetInstance();
+    MapCollision& GetMapCollision() {
+        return MapCollision::GetInstance();
     }
 
 private:
@@ -82,3 +100,5 @@ private:
     CollisionManager(const CollisionManager&) = delete;
     CollisionManager& operator=(const CollisionManager&) = delete;
 };
+
+} // namespace Engine

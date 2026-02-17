@@ -4,6 +4,7 @@
 #include "Engine/Input/mouse.h"
 #include "Engine/Input/game_controller.h"
 #include "player.h"
+#include "Game/Managers/player_manager.h"
 #include "Game/Map/map.h"
 #include "NetWork/network_manager.h"
 #include <cmath>
