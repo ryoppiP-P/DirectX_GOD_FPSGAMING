@@ -16,11 +16,9 @@
 #include "Engine/Input/game_controller.h"
 #include "Engine/Core/timer.h"
 #include "Game/Objects/game_object.h"
+#include "Game/Objects/camera.h"
 #include <iostream>
 #include <Windows.h>
-
-// extern for player update wrapper
-extern GameObject* GetLocalPlayerGameObject();
 
 //===================================
 // マクロ定義

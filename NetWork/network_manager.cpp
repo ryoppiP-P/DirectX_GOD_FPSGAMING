@@ -1,6 +1,7 @@
 // network_manager.cpp
 #include "network_manager.h"
 #include "Game/Objects/game_object.h"
+#include "Game/Objects/camera.h"
 #include "main.h"
 #include "Engine/Graphics/primitive.h"
 #include <iostream>
@@ -12,10 +13,7 @@
 #include <algorithm>
 #include <condition_variable>
 
-// player.cpp �Œ�`���ꂽ�֐��̑O���錾
-extern void ForceUpdatePlayerPosition(const XMFLOAT3& pos, const XMFLOAT3& rot);
-
-NetworkManager g_network; // �O���[�o���C���X�^���X��`
+NetworkManager g_network; // グローバルインスタンス定義
 static auto lastQueueLog = std::chrono::steady_clock::now();
 auto now = std::chrono::steady_clock::now();
 
@@ -754,8 +752,6 @@ void NetworkManager::send_state_to_all(std::vector<GameObject*>& worldObjects) {
 
     // �z�X�g�v���C���[�iID=1�j��K�����[�J���v���C���[����擾
     GameObject* localPlayer = nullptr;
-    // main.cpp��GetLocalPlayerGameObject()���g�p
-    extern GameObject* GetLocalPlayerGameObject();
     localPlayer = GetLocalPlayerGameObject();
 
     if (localPlayer && localPlayer->getId() == 1) {

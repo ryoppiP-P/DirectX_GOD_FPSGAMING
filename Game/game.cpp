@@ -23,10 +23,6 @@
 #include "Engine/Core/timer.h"
 #include <iostream>
 
-// extern for player update wrapper
-extern void UpdatePlayer();
-extern GameObject* GetLocalPlayerGameObject();
-
 //===================================
 // マクロ定義
 //===================================

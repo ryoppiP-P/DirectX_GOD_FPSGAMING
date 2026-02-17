@@ -2,44 +2,46 @@
 
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <wrl/client.h>
 
 namespace Engine {
     using namespace DirectX;
+    using Microsoft::WRL::ComPtr;
 
-    // ƒVƒ“ƒOƒ‹ƒgƒ“•`‰æƒVƒXƒeƒ€
+    // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³æç”»ã‚·ã‚¹ãƒ†ãƒ 
     class Renderer {
     public:
         static Renderer& GetInstance();
 
-        // ‰Šú‰»/I—¹
+        // åˆæœŸåŒ–/çµ‚äº†
         bool Initialize(HINSTANCE hInstance, HWND hWnd, bool windowed);
         void Finalize();
 
-        // ƒtƒŒ[ƒ€‘€ì
+        // ãƒ•ãƒ¬ãƒ¼ãƒ æ“ä½œ
         void Clear(float r = 0.4f, float g = 0.2f, float b = 0.2f, float a = 1.0f);
         void Present();
 
-        // [“xİ’è
+        // æ·±åº¦è¨­å®š
         void SetDepthEnable(bool enable);
 
-        // s—ñİ’è
+        // è¡Œåˆ—è¨­å®š
         void SetWorldMatrix(const XMMATRIX& matrix);
         void SetViewMatrix(const XMMATRIX& matrix);
         void SetProjectionMatrix(const XMMATRIX& matrix);
 
-        // 2D/3DØ‚è‘Ö‚¦
+        // 2D/3Dåˆ‡ã‚Šæ›¿ãˆ
         void SetupFor2D();
         void SetupFor3D();
 
-        // ƒAƒNƒZƒT
-        ID3D11Device* GetDevice() const { return m_pDevice; }
-        ID3D11DeviceContext* GetContext() const { return m_pContext; }
-        ID3D11Buffer* GetMaterialBuffer() const { return m_pMaterialBuffer; }
+        // ã‚¢ã‚¯ã‚»ã‚µ
+        ID3D11Device* GetDevice() const { return m_pDevice.Get(); }
+        ID3D11DeviceContext* GetContext() const { return m_pContext.Get(); }
+        ID3D11Buffer* GetMaterialBuffer() const { return m_pMaterialBuffer.Get(); }
 
         uint32_t GetScreenWidth() const { return m_screenWidth; }
         uint32_t GetScreenHeight() const { return m_screenHeight; }
 
-        IDXGISwapChain* GetSwapChain() const { return m_pSwapChain; }
+        IDXGISwapChain* GetSwapChain() const { return m_pSwapChain.Get(); }
 
     private:
         Renderer() = default;
@@ -49,33 +51,33 @@ namespace Engine {
 
         void UpdateConstantBuffer();
 
-        // D3D11ƒIƒuƒWƒFƒNƒg
-        ID3D11Device* m_pDevice = nullptr;
-        ID3D11DeviceContext* m_pContext = nullptr;
-        IDXGISwapChain* m_pSwapChain = nullptr;
-        ID3D11RenderTargetView* m_pRenderTargetView = nullptr;
-        ID3D11DepthStencilView* m_pDepthStencilView = nullptr;
+        // D3D11ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ (ComPtrç®¡ç†)
+        ComPtr<ID3D11Device> m_pDevice;
+        ComPtr<ID3D11DeviceContext> m_pContext;
+        ComPtr<IDXGISwapChain> m_pSwapChain;
+        ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
+        ComPtr<ID3D11DepthStencilView> m_pDepthStencilView;
 
-        ID3D11VertexShader* m_pVertexShader = nullptr;
-        ID3D11PixelShader* m_pPixelShader = nullptr;
-        ID3D11InputLayout* m_pInputLayout = nullptr;
-        ID3D11Buffer* m_pConstantBuffer = nullptr;
-        ID3D11Buffer* m_pMaterialBuffer = nullptr;
+        ComPtr<ID3D11VertexShader> m_pVertexShader;
+        ComPtr<ID3D11PixelShader> m_pPixelShader;
+        ComPtr<ID3D11InputLayout> m_pInputLayout;
+        ComPtr<ID3D11Buffer> m_pConstantBuffer;
+        ComPtr<ID3D11Buffer> m_pMaterialBuffer;
 
-        ID3D11DepthStencilState* m_pDepthStateEnable = nullptr;
-        ID3D11DepthStencilState* m_pDepthStateDisable = nullptr;
+        ComPtr<ID3D11DepthStencilState> m_pDepthStateEnable;
+        ComPtr<ID3D11DepthStencilState> m_pDepthStateDisable;
 
-        // s—ñ
+        // è¡Œåˆ—
         XMMATRIX m_worldMatrix = XMMatrixIdentity();
         XMMATRIX m_viewMatrix = XMMatrixIdentity();
         XMMATRIX m_projectionMatrix = XMMatrixIdentity();
 
-        // ‰æ–ÊƒTƒCƒY
+        // ç”»é¢ã‚µã‚¤ã‚º
         uint32_t m_screenWidth = 1920;
         uint32_t m_screenHeight = 1080;
     };
 
-    // •Ö—˜‚ÈƒOƒ[ƒoƒ‹ƒAƒNƒZƒXŠÖ”
+    // ä¾¿åˆ©ãªã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚¢ã‚¯ã‚»ã‚¹é–¢æ•°
     inline ID3D11Device* GetDevice() { return Renderer::GetInstance().GetDevice(); }
     inline ID3D11DeviceContext* GetDeviceContext() { return Renderer::GetInstance().GetContext(); }
 }
