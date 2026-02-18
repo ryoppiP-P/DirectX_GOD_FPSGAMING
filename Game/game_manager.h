@@ -22,7 +22,7 @@ public:
     static GameManager& Instance();
 
     // ライフサイクル管理
-    HRESULT Initialize(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);
+    HRESULT Initialize();
     void Finalize();
     void Update();
     void Draw();

@@ -7,6 +7,7 @@
 #include "pch.h"
 #include "main.h"
 #include "Game/game_manager.h"
+#include "Engine/system.h"
 #include "Engine/Input/keyboard.h"
 #include "Engine/Input/mouse.h"
 #include "Engine/Core/timer.h"
@@ -71,11 +72,15 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         NULL
     );
 
-    if (FAILED(GameManager::Instance().Initialize(hInstance, hWnd, true))) {
+    // 1. エンジン初期化
+    if (!Engine::System::GetInstance().Initialize(hInstance, hWnd, true)) {
         return -1;
     }
 
-    SystemTimer_Initialize();
+    // 2. ゲーム初期化（エンジンは準備完了）
+    if (FAILED(GameManager::Instance().Initialize())) {
+        return -1;
+    }
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
@@ -122,6 +127,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     }
 
     GameManager::Instance().Finalize();
+    Engine::System::GetInstance().Finalize();
     return (int)msg.wParam;
 }
 

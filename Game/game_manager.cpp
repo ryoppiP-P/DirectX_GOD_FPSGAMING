@@ -7,14 +7,6 @@
 #include "pch.h"
 #include "game_manager.h"
 #include "Engine/Core/renderer.h"
-#include "Engine/Graphics/vertex.h"
-#include "Engine/Graphics/material.h"
-#include "Engine/Graphics/primitive.h"
-#include "Engine/Graphics/sprite_2d.h"
-#include "Engine/Graphics/sprite_3d.h"
-#include "Engine/Input/keyboard.h"
-#include "Engine/Input/mouse.h"
-#include "Engine/Input/game_controller.h"
 #include "Engine/Core/timer.h"
 #include "Game/Objects/game_object.h"
 #include "Game/Objects/camera.h"
@@ -71,23 +63,7 @@ MapRenderer* GameManager::GetMapRenderer() const {
 //==================================
 // 初期化処理
 //==================================
-HRESULT GameManager::Initialize(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
-    // DirectX関連の初期化
-    auto& renderer = Engine::Renderer::GetInstance();
-    if (!renderer.Initialize(hInstance, hWnd, bWindow != FALSE)) {
-        return E_FAIL;
-    }
-
-    // スプライトシステム初期化（新Engine）
-    Engine::Sprite2D::Initialize(renderer.GetDevice());
-    Engine::Sprite3D::Initialize(renderer.GetDevice());
-
-    Keyboard_Initialize();
-    Mouse_Initialize(hWnd);
-    GameController::Initialize();
-
-    // プリミティブ初期化（新Engine）
-    Engine::InitPrimitives(renderer.GetDevice());
+HRESULT GameManager::Initialize() {
 
 #ifdef _DEBUG
     {
@@ -111,19 +87,6 @@ HRESULT GameManager::Initialize(HINSTANCE hInstance, HWND hWnd, BOOL bWindow) {
 void GameManager::Finalize() {
     // シーン終了
     m_game.Finalize();
-
-    // スプライトシステム終了（新Engine）
-    Engine::Sprite2D::Finalize();
-    Engine::Sprite3D::Finalize();
-
-    // プリミティブ終了（新Engine）
-    Engine::UninitPrimitives();
-
-    GameController::Shutdown();
-    Mouse_Finalize();
-
-    // DirectX関連の終了処理
-    Engine::Renderer::GetInstance().Finalize();
 }
 
 //===================================
