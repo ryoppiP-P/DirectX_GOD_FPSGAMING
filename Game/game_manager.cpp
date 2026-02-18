@@ -21,7 +21,7 @@ namespace Game {
 #define		CLASS_NAME		"DX21 Window"
 
 // フォールバック用の空ワールドオブジェクトリスト
-std::vector<GameObject*> GameManager::s_emptyWorldObjects;
+std::vector<std::shared_ptr<GameObject>> GameManager::s_emptyWorldObjects;
 
 GameManager::GameManager() {
 }
@@ -39,13 +39,13 @@ GameObject* GameManager::GetLocalPlayerGameObject() const {
     return ::Game::GetLocalPlayerGameObject();
 }
 
-std::vector<GameObject*>& GameManager::GetWorldObjects() {
+std::vector<std::shared_ptr<GameObject>>& GameManager::GetWorldObjects() {
     SceneGame* sg = m_game.GetSceneGame();
     if (sg) return sg->GetWorldObjects();
     return s_emptyWorldObjects;
 }
 
-const std::vector<GameObject*>& GameManager::GetWorldObjects() const {
+const std::vector<std::shared_ptr<GameObject>>& GameManager::GetWorldObjects() const {
     const SceneGame* sg = m_game.GetSceneGame();
     if (sg) return sg->GetWorldObjects();
     return s_emptyWorldObjects;

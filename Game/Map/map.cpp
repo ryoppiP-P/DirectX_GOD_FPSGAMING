@@ -234,7 +234,7 @@ void Map::GenerateBlockObjects(ID3D11ShaderResourceView* texture)
         for (int z = 0; z < MAP_DEPTH; z++) {
             for (int x = 0; x < MAP_WIDTH; x++) {
                 if (mapData[y][z][x] == 1) {
-                    auto obj = std::make_unique<GameObject>();
+                    auto obj = std::make_shared<GameObject>();
                     obj->position = XMFLOAT3(x * BOX_SIZE + offsetX, y * BOX_SIZE + offsetY, z * BOX_SIZE + offsetZ);
                     obj->scale = XMFLOAT3(BOX_SIZE, BOX_SIZE, BOX_SIZE);
                     obj->rotation = XMFLOAT3(0, 0, 0);

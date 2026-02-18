@@ -132,7 +132,7 @@ bool NetworkManager::discover_and_join(std::string& out_host_ip) {
 }
 
 // update: ���[�J�[���󂯎��L���[�ɐς񂾃p�P�b�g���ő� m_maxPacketsPerFrame ����������i���Ɍy�ʁj
-void NetworkManager::update(float dt, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects) {
+void NetworkManager::update(float dt, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     // process up to N packets from the recv queue
     size_t processed = 0;
     while (processed < m_maxPacketsPerFrame) {
@@ -151,7 +151,7 @@ void NetworkManager::update(float dt, Game::GameObject* localPlayer, std::vector
 }
 
 // process_received remains mostly the same, called from main thread for game logic packets.
-void NetworkManager::process_received(const char* buf, int len, const std::string& from_ip, int from_port, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects) {
+void NetworkManager::process_received(const char* buf, int len, const std::string& from_ip, int from_port, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     if (len <= 0) return;
     uint8_t t = (uint8_t)buf[0];
     if (m_isHost) {
@@ -192,7 +192,7 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
                             os.id, os.posX, os.posY, os.posZ);
 
                         bool applied = false;
-                        for (auto* go : worldObjects) {
+                        for (const auto& go : worldObjects) {
                             if (go->getId() == os.id) {
                                 XMFLOAT3 oldPos = go->getPosition();
                                 go->setPosition({ os.posX, os.posY, os.posZ });
@@ -204,7 +204,7 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
                             }
                         }
                         if (!applied) {
-                            Game::GameObject* newObj = new Game::GameObject();
+                            auto newObj = std::make_shared<Game::GameObject>();
                             newObj->setId(os.id);
                             newObj->setPosition({ os.posX, os.posY, os.posZ });
                             newObj->setRotation({ os.rotX, os.rotY, os.rotZ });
@@ -248,7 +248,7 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
     }
 }
 
-void NetworkManager::host_handle_join(const std::string& from_ip, int from_port, std::vector<Game::GameObject*>& worldObjects) {
+void NetworkManager::host_handle_join(const std::string& from_ip, int from_port, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     //�����N���C�A���g�`�F�b�N
     {
         std::lock_guard<std::mutex> lk(m_mutex);
@@ -274,7 +274,7 @@ void NetworkManager::host_handle_join(const std::string& from_ip, int from_port,
                 if (c.playerId == cand) { conflict = true; break; }
             }
             if (conflict) { ++cand; continue; }
-            for (auto* go : worldObjects) {
+            for (const auto& go : worldObjects) {
                 if (go && go->getId() == cand) { conflict = true; break; }
             }
             if (conflict) ++cand;
@@ -295,7 +295,7 @@ void NetworkManager::host_handle_join(const std::string& from_ip, int from_port,
 
     // If a GameObject with this id already exists (pre-created players), reuse it. Otherwise create a new one.
     bool existed = false;
-    for (auto* go : worldObjects) {
+    for (const auto& go : worldObjects) {
         if (go && go->getId() == assignedId) {
             existed = true;
             break;
@@ -303,7 +303,7 @@ void NetworkManager::host_handle_join(const std::string& from_ip, int from_port,
     }
 
     if (!existed) {
-        Game::GameObject* newObj = new Game::GameObject();
+        auto newObj = std::make_shared<Game::GameObject>();
         newObj->setPosition({0.0f,3.0f,0.0f });
         newObj->setRotation({0.0f,0.0f,0.0f });
         newObj->setId(assignedId);
@@ -325,8 +325,8 @@ void NetworkManager::host_handle_join(const std::string& from_ip, int from_port,
     netlog_printf("HOST SEND JOIN_ACK -> %s:%d id=%u success=%d", from_ip.c_str(), from_port, assignedId, sendSuccess ?1 :0);
 }
 
-void NetworkManager::host_handle_input(const PacketInput& pi, std::vector<Game::GameObject*>& worldObjects) {
-    for (auto* go : worldObjects) {
+void NetworkManager::host_handle_input(const PacketInput& pi, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
+    for (const auto& go : worldObjects) {
         if (go->getId() == pi.playerId) {
             auto pos = go->getPosition();
             pos.x += pi.moveX;
@@ -338,7 +338,7 @@ void NetworkManager::host_handle_input(const PacketInput& pi, std::vector<Game::
     }
 }
 
-void NetworkManager::client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects) {
+void NetworkManager::client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     netlog_printf("CLIENT RECV STATE: objectCount=%u", hdr.objectCount);
 
     for (uint32_t i = 0; i < hdr.objectCount; ++i) {
@@ -353,7 +353,7 @@ void NetworkManager::client_handle_state(const PacketStateHeader& hdr, const Obj
         }
 
         bool applied = false;
-        for (auto* go : worldObjects) {
+        for (const auto& go : worldObjects) {
             if (go->getId() == os.id) {
                 XMFLOAT3 oldPos = go->getPosition();
                 go->setPosition({ os.posX, os.posY, os.posZ });
@@ -365,7 +365,7 @@ void NetworkManager::client_handle_state(const PacketStateHeader& hdr, const Obj
             }
         }
         if (!applied) {
-            Game::GameObject* newObj = new Game::GameObject();
+            auto newObj = std::make_shared<Game::GameObject>();
             newObj->setId(os.id);
             newObj->setPosition({ os.posX, os.posY, os.posZ });
             newObj->setRotation({ os.rotX, os.rotY, os.rotZ });
@@ -389,7 +389,7 @@ void NetworkManager::send_input(const PacketInput& input) {
 }
 
 // send_state_to_clients_round_robin: 1�N���C�A���g�������𑗂��ĕ��ׂ𕪎U�i���[�J�[����Ăԁj
-void NetworkManager::send_state_to_clients_round_robin(std::vector<Game::GameObject*>* worldObjectsPtr) {
+void NetworkManager::send_state_to_clients_round_robin(std::vector<std::shared_ptr<Game::GameObject>>* worldObjectsPtr) {
     std::lock_guard<std::mutex> lk(m_mutex);
     if (m_clients.empty() || worldObjectsPtr == nullptr) return;
 
@@ -409,7 +409,7 @@ void NetworkManager::send_state_to_clients_round_robin(std::vector<Game::GameObj
     ObjectState os = {};
     os.id = c.playerId;
     bool found = false;
-    for (auto* go : *worldObjectsPtr) {
+    for (const auto& go : *worldObjectsPtr) {
         if (go && go->getId() == os.id) {
             auto p = go->getPosition();
             os.posX = p.x; os.posY = p.y; os.posZ = p.z;
@@ -433,7 +433,7 @@ void NetworkManager::send_state_to_clients_round_robin(std::vector<Game::GameObj
 }
 
 // FrameSync: called from main every N frames (we'll call every10 frames at60FPS =>6Hz)
-void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects) {
+void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     if (!localPlayer) {
         netlog_printf("FRAMESYNC: localPlayer is NULL");
         return;
@@ -457,7 +457,7 @@ void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<Game::
                 os.rotX = r.x; os.rotY = r.y; os.rotZ = r.z;
                 found = true;
             } else {
-                for (auto* go : worldObjects) {
+                for (const auto& go : worldObjects) {
                     if (!go) continue;
                     if (go->getId() == (uint32_t)id) {
                         auto p = go->getPosition();
@@ -626,7 +626,7 @@ void NetworkManager::handle_channel_info(const ChannelInfo& info) {
 void NetworkManager::start_worker() {
     if (m_workerRunning.exchange(true)) return; // already running
     m_worker = std::thread([this]() {
-        std::vector<Game::GameObject*> worldObjectsSnapshot; // worker needs a pointer to world objects when sending state
+        std::vector<std::shared_ptr<Game::GameObject>> worldObjectsSnapshot; // worker needs a pointer to world objects when sending state
         auto lastStateSend = std::chrono::steady_clock::now();
         while (m_workerRunning.load()) {
             // Poll main net socket
@@ -741,7 +741,7 @@ bool NetworkManager::initialize_with_fallback() {
     return false;
 }
 
-void NetworkManager::send_state_to_all(std::vector<Game::GameObject*>& worldObjects) {
+void NetworkManager::send_state_to_all(std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     std::lock_guard<std::mutex> lk(m_mutex);
     if (m_clients.empty()) {
         netlog_printf("HOST SEND_STATE: No clients connected");
@@ -771,7 +771,7 @@ void NetworkManager::send_state_to_all(std::vector<Game::GameObject*>& worldObje
         ObjectState os = {};
         os.id = c.playerId;
         bool found = false;
-        for (auto* go : worldObjects) {
+        for (const auto& go : worldObjects) {
             if (go && go->getId() == os.id) {
                 auto p = go->getPosition(); auto r = go->getRotation();
                 os.posX = p.x; os.posY = p.y; os.posZ = p.z;
