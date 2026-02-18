@@ -35,6 +35,7 @@ GameManager& GameManager::Instance() {
 }
 
 GameObject* GameManager::GetLocalPlayerGameObject() const {
+    // ::Game:: で名前空間のフリー関数を明示的に呼び出し（メンバ関数との再帰を防止）
     return ::Game::GetLocalPlayerGameObject();
 }
 
