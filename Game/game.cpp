@@ -24,6 +24,8 @@
 #include "Engine/Core/timer.h"
 #include <iostream>
 
+namespace Game {
+
 //===================================
 // マクロ定義
 //===================================
@@ -111,7 +113,7 @@ HRESULT SceneGame::Initialize() {
         }
     );
 
-    GameObject* localGo = ::GetLocalPlayerGameObject();
+    GameObject* localGo = GetLocalPlayerGameObject();
     if (localGo) {
         localGo->setId(0);
         std::cout << "[SceneGame] Players initialized\n";
@@ -129,7 +131,7 @@ void SceneGame::Finalize() {
         m_pMapRenderer = nullptr;
     }
 
-    GameObject* localGo = ::GetLocalPlayerGameObject();
+    GameObject* localGo = GetLocalPlayerGameObject();
     for (auto go : m_worldObjects) {
         if (go && go->getId() != 0) {
             if (go != localGo) delete go;
@@ -179,7 +181,7 @@ void SceneGame::Update() {
         }
     }
 
-    GameObject* localGo = ::GetLocalPlayerGameObject();
+    GameObject* localGo = GetLocalPlayerGameObject();
     constexpr float fixedDt = 1.0f / 60.0f;
     g_network.update(fixedDt, localGo, m_worldObjects);
 
@@ -191,7 +193,7 @@ void SceneGame::Update() {
     }
 
     if (!g_network.is_host() && g_network.getMyPlayerId() != 0) {
-        GameObject* lg = ::GetLocalPlayerGameObject();
+        GameObject* lg = GetLocalPlayerGameObject();
         if (lg && lg->getId() == 0) {
             lg->setId(g_network.getMyPlayerId());
             m_worldObjects.push_back(lg);
@@ -248,7 +250,7 @@ void SceneGame::Draw() {
 
     DrawPlayers();
 
-    GameObject* local = ::GetLocalPlayerGameObject();
+    GameObject* local = GetLocalPlayerGameObject();
     for (auto go : m_worldObjects) {
         if (!go) continue;
         if (go->getId() != 0 && go != local) {
@@ -411,3 +413,5 @@ std::unique_ptr<Scene> Game::CreateScene(SceneType type) {
         return nullptr;
     }
 }
+
+} // namespace Game

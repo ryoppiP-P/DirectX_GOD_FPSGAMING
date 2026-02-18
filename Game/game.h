@@ -10,6 +10,8 @@
 #include <vector>
 #include <memory>
 
+namespace Game {
+
 // 前方宣言
 class GameObject;
 class Map;
@@ -137,3 +139,5 @@ private:
     SceneType m_nextSceneType = SceneType::NONE;
     bool m_sceneChangeRequested = false;
 };
+
+} // namespace Game

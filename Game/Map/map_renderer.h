@@ -12,6 +12,8 @@
 #include "Engine/Graphics/material.h"
 #include "map.h"
 
+namespace Game {
+
 //*****************************************************************************
 // �}�N����`
 //*****************************************************************************
@@ -56,3 +58,5 @@ public:
     // ���[���h���W�̌v�Z
     XMFLOAT3 GetWorldPosition(int mapX, int mapY, int mapZ) const;
 };
+
+} // namespace Game

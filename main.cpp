@@ -34,8 +34,8 @@
 LRESULT	CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // worldObjectsへのアクセス関数（既存互換）
-std::vector<GameObject*>& GetWorldObjects() {
-    return GameManager::Instance().GetWorldObjects();
+std::vector<Game::GameObject*>& GetWorldObjects() {
+    return Game::GameManager::Instance().GetWorldObjects();
 }
 
 //=====================================
@@ -78,7 +78,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     }
 
     // 2. ゲーム初期化（エンジンは準備完了）
-    if (FAILED(GameManager::Instance().Initialize())) {
+    if (FAILED(Game::GameManager::Instance().Initialize())) {
         return -1;
     }
 
@@ -118,15 +118,15 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
             if (elapsed_time >= (1.0 / 60.0)) {
                 exec_last_time = current_time;
-                GameManager::Instance().Update();
-                GameManager::Instance().Draw();
+                Game::GameManager::Instance().Update();
+                Game::GameManager::Instance().Draw();
                 keycopy();
                 frame_count++;
             }
         }
     }
 
-    GameManager::Instance().Finalize();
+    Game::GameManager::Instance().Finalize();
     Engine::System::GetInstance().Finalize();
     return (int)msg.wParam;
 }

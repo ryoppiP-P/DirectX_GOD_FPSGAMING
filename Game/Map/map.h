@@ -11,6 +11,8 @@
 #include <memory>
 #include "Game/Objects/game_object.h"
 
+namespace Game {
+
 //*****************************************************************************
 // �}�N����`
 //*****************************************************************************
@@ -70,3 +72,5 @@ public:
     // �u���b�NGameObject����
     void GenerateBlockObjects(ID3D11ShaderResourceView* texture);
 };
+
+} // namespace Game

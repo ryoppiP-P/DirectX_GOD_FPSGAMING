@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "game_object.h"
 
+namespace Game {
+
 GameObject::GameObject()
     : position(0.0f, 0.0f, 0.0f)
     , velocity(0.0f, 0.0f, 0.0f)
@@ -179,3 +181,5 @@ void GameObject::Move(const XMFLOAT3& direction, float speed, float deltaTime) {
     bufferNeedsUpdate = true;
     updateColliderTransform();
 }
+
+} // namespace Game

@@ -13,7 +13,7 @@
 #include <deque>
 #include <atomic>
 
-class GameObject; // 前方宣言（game_object.h をインクルードしてもOK）
+namespace Game { class GameObject; } // 前方宣言（game_object.h をインクルードしてもOK）
 
 class NetworkManager {
 public:
@@ -28,7 +28,7 @@ public:
     bool discover_and_join(std::string& out_host_ip);
 
     // 毎フレーム呼出（受信処理はワーカースレッドが受け取り、ここではキューを処理する）
-    void update(float dt, GameObject* localPlayer, std::vector<GameObject*>& worldObjects);
+    void update(float dt, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
 
     // クライアント入力送信
     void send_input(const PacketInput& input);
@@ -39,7 +39,7 @@ public:
     uint32_t getMyPlayerId() const;
 
     // Frame-based sync called from main (e.g. every10 frames at60FPS) *** publicに移動 ***
-    void FrameSync(GameObject* localPlayer, std::vector<GameObject*>& worldObjects);
+    void FrameSync(Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
 
     // チャンネル管理（既存機能）
     bool try_alternative_channels();
@@ -103,11 +103,11 @@ private:
     size_t m_stateSendIndex = 0;                // ローテーション送信インデックス
 
     // 内部ヘルパー（既存）
-    void process_received(const char* buf, int len, const std::string& from_ip, int from_port, GameObject* localPlayer, std::vector<GameObject*>& worldObjects);
-    void host_handle_join(const std::string& from_ip, int from_port, std::vector<GameObject*>& worldObjects);
-    void host_handle_input(const PacketInput& pi, std::vector<GameObject*>& worldObjects);
-    void client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, GameObject* localPlayer, std::vector<GameObject*>& worldObjects);
-    void send_state_to_all(std::vector<GameObject*>& worldObjects);
+    void process_received(const char* buf, int len, const std::string& from_ip, int from_port, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
+    void host_handle_join(const std::string& from_ip, int from_port, std::vector<Game::GameObject*>& worldObjects);
+    void host_handle_input(const PacketInput& pi, std::vector<Game::GameObject*>& worldObjects);
+    void client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
+    void send_state_to_all(std::vector<Game::GameObject*>& worldObjects);
 
     // チャンネル機能
     void handle_channel_scan(const std::string& from_ip, int from_port);
@@ -115,7 +115,7 @@ private:
     bool initialize_with_fallback();
 
     // ホストフリーズ防止用（ワーカー/メインで使う）
-    void send_state_to_clients_round_robin(std::vector<GameObject*>* worldObjectsPtr);
+    void send_state_to_clients_round_robin(std::vector<Game::GameObject*>* worldObjectsPtr);
 
     // ワーカー起動/停止
     void start_worker();

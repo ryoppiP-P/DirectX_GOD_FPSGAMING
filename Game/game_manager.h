@@ -10,6 +10,8 @@
 #include "Game/game.h"
 #include <vector>
 
+namespace Game {
+
 // 前方宣言
 class GameObject;
 class Map;
@@ -59,3 +61,5 @@ private:
     // ワールドオブジェクト（ゲームシーンが無い場合のフォールバック用）
     static std::vector<GameObject*> s_emptyWorldObjects;
 };
+
+} // namespace Game

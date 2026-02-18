@@ -1,6 +1,8 @@
 #pragma once
 #include "main.h"
 
+namespace Game {
+
 enum class CameraMode {
     THIRD_PERSON,  // TPS
     FIRST_PERSON   // FPS
@@ -52,3 +54,5 @@ class GameObject;
 GameObject* GetLocalPlayerGameObject();
 void UpdatePlayer();
 void ForceUpdatePlayerPosition(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot);
+
+} // namespace Game

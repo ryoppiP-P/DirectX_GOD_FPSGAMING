@@ -6,6 +6,8 @@
 
 using namespace DirectX;
 
+namespace Game {
+
 class Bullet {
 public:
     XMFLOAT3 position;
@@ -29,3 +31,5 @@ public:
     void Draw();
     void Deactivate();
 };
+
+} // namespace Game

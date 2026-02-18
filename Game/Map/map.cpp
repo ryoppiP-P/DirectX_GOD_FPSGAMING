@@ -10,6 +10,8 @@
 #include "map_renderer.h"
 #include "Engine/Graphics/primitive.h"
 
+namespace Game {
+
  // �ǉ�: Clamp�֐�
 template<typename T>
 T Clamp(T value, T minValue, T maxValue)
@@ -244,3 +246,5 @@ void Map::GenerateBlockObjects(ID3D11ShaderResourceView* texture)
         }
     }
 }
+
+} // namespace Game

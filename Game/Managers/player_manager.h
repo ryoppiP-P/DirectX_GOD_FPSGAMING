@@ -11,6 +11,8 @@
 #include <memory>
 #include <vector>
 
+namespace Game {
+
 class Map;
 class Bullet;
 
@@ -48,3 +50,5 @@ void UpdatePlayers();
 void DrawPlayers();
 GameObject* GetActivePlayerGameObject();
 Player* GetActivePlayer();
+
+} // namespace Game
