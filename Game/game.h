@@ -64,13 +64,13 @@ public:
     // ゲーム固有のアクセサ
     Map* GetMap() const { return m_pMap; }
     MapRenderer* GetMapRenderer() const { return m_pMapRenderer; }
-    std::vector<GameObject*>& GetWorldObjects() { return m_worldObjects; }
-    const std::vector<GameObject*>& GetWorldObjects() const { return m_worldObjects; }
+    std::vector<std::shared_ptr<GameObject>>& GetWorldObjects() { return m_worldObjects; }
+    const std::vector<std::shared_ptr<GameObject>>& GetWorldObjects() const { return m_worldObjects; }
 
 private:
     Map* m_pMap = nullptr;
     MapRenderer* m_pMapRenderer = nullptr;
-    std::vector<GameObject*> m_worldObjects;
+    std::vector<std::shared_ptr<GameObject>> m_worldObjects;
 };
 
 //*****************************************************************************

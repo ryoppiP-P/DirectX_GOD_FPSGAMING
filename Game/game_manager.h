@@ -34,8 +34,8 @@ public:
     const Game& GetGame() const { return m_game; }
 
     // ワールドオブジェクト管理（現在のゲームシーン経由）
-    std::vector<GameObject*>& GetWorldObjects();
-    const std::vector<GameObject*>& GetWorldObjects() const;
+    std::vector<std::shared_ptr<GameObject>>& GetWorldObjects();
+    const std::vector<std::shared_ptr<GameObject>>& GetWorldObjects() const;
 
     // 主要オブジェクト参照（現在のゲームシーン経由）
     Map* GetMap() const;
@@ -59,7 +59,7 @@ private:
     uint32_t m_inputSeq = 0;
 
     // ワールドオブジェクト（ゲームシーンが無い場合のフォールバック用）
-    static std::vector<GameObject*> s_emptyWorldObjects;
+    static std::vector<std::shared_ptr<GameObject>> s_emptyWorldObjects;
 };
 
 } // namespace Game

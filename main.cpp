@@ -34,7 +34,7 @@
 LRESULT	CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // worldObjectsへのアクセス関数（既存互換）
-std::vector<Game::GameObject*>& GetWorldObjects() {
+std::vector<std::shared_ptr<Game::GameObject>>& GetWorldObjects() {
     return Game::GameManager::Instance().GetWorldObjects();
 }
 

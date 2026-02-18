@@ -36,7 +36,7 @@ class Map
 private:
     // 3�����}�b�v�f�[�^�z�� [����][���s��][��]
     int mapData[MAP_HEIGHT][MAP_DEPTH][MAP_WIDTH];
-    std::vector<std::unique_ptr<GameObject>> blockObjects; // �u���b�NGameObject���X�g
+    std::vector<std::shared_ptr<GameObject>> blockObjects; // �u���b�NGameObject���X�g
 
 public:
     // �R���X�g���N�^�E�f�X�g���N�^
@@ -63,7 +63,7 @@ public:
     void CreateSampleMap();
 
     // �u���b�NGameObject���X�g�擾
-    const std::vector<std::unique_ptr<GameObject>>& GetBlockObjects() const { return blockObjects; }
+    const std::vector<std::shared_ptr<GameObject>>& GetBlockObjects() const { return blockObjects; }
 
     // *** �ǉ� ***
     float GetGroundHeight(float x, float z) const;

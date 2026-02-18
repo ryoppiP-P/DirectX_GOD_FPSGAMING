@@ -74,8 +74,8 @@ HRESULT SceneGame::Initialize() {
     m_worldObjects.clear();
     if (m_pMap) {
         const auto& blocks = m_pMap->GetBlockObjects();
-        for (const auto& up : blocks) {
-            m_worldObjects.push_back(up.get());
+        for (const auto& sp : blocks) {
+            m_worldObjects.push_back(sp);
         }
     }
 
@@ -131,12 +131,6 @@ void SceneGame::Finalize() {
         m_pMapRenderer = nullptr;
     }
 
-    GameObject* localGo = GetLocalPlayerGameObject();
-    for (auto go : m_worldObjects) {
-        if (go && go->getId() != 0) {
-            if (go != localGo) delete go;
-        }
-    }
     m_worldObjects.clear();
 
     if (m_pMap) {
@@ -188,7 +182,7 @@ void SceneGame::Update() {
     if (g_network.is_host() && localGo && localGo->getId() == 0) {
         localGo->setId(1);
         std::cout << "[SceneGame] Host player assigned id=1\n";
-        m_worldObjects.push_back(localGo);
+        m_worldObjects.push_back(std::shared_ptr<GameObject>(localGo, [](GameObject*){}));
         std::cout << "[SceneGame] Host player added to worldObjects with id=1\n";
     }
 
@@ -196,7 +190,7 @@ void SceneGame::Update() {
         GameObject* lg = GetLocalPlayerGameObject();
         if (lg && lg->getId() == 0) {
             lg->setId(g_network.getMyPlayerId());
-            m_worldObjects.push_back(lg);
+            m_worldObjects.push_back(std::shared_ptr<GameObject>(lg, [](GameObject*){}));
             std::cout << "[SceneGame] Client player assigned id=" << lg->getId() << "\n";
         }
     }
@@ -251,9 +245,9 @@ void SceneGame::Draw() {
     DrawPlayers();
 
     GameObject* local = GetLocalPlayerGameObject();
-    for (auto go : m_worldObjects) {
+    for (const auto& go : m_worldObjects) {
         if (!go) continue;
-        if (go->getId() != 0 && go != local) {
+        if (go->getId() != 0 && go.get() != local) {
             if (local && go->getId() == local->getId()) {
                 continue;
             }

@@ -1,5 +1,5 @@
 #pragma once
-// network_manager.h - ƒzƒXƒg/ƒNƒ‰ƒCƒAƒ“ƒg‚ÌŒy—Ê‰»‚³‚ê‚½ƒlƒbƒgƒ[ƒNŠÇ—
+// network_manager.h - ï¿½zï¿½Xï¿½g/ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ÌŒyï¿½Ê‰ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½lï¿½bï¿½gï¿½ï¿½ï¿½[ï¿½Nï¿½Ç—ï¿½
 
 #include "udp_network.h"
 #include "network_common.h"
@@ -13,24 +13,24 @@
 #include <deque>
 #include <atomic>
 
-namespace Game { class GameObject; } // ‘O•ûéŒ¾igame_object.h ‚ğƒCƒ“ƒNƒ‹[ƒh‚µ‚Ä‚àOKj
+namespace Game { class GameObject; } // ï¿½Oï¿½ï¿½ï¿½éŒ¾ï¿½igame_object.h ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½Ä‚ï¿½OKï¿½j
 
 class NetworkManager {
 public:
     NetworkManager();
     ~NetworkManager();
 
-    // ‹N“®
+    // ï¿½Nï¿½ï¿½
     bool start_as_host();
     bool start_as_client();
 
-    // client —p: ƒuƒ[ƒhƒLƒƒƒXƒg‚ÅƒzƒXƒg’Tõ• JOIN ‚Ü‚Ås‚¤iƒuƒƒbƒNj
+    // client ï¿½p: ï¿½uï¿½ï¿½ï¿½[ï¿½hï¿½Lï¿½ï¿½ï¿½Xï¿½gï¿½Åƒzï¿½Xï¿½gï¿½Tï¿½ï¿½ï¿½ï¿½ JOIN ï¿½Ü‚Åsï¿½ï¿½ï¿½iï¿½uï¿½ï¿½ï¿½bï¿½Nï¿½j
     bool discover_and_join(std::string& out_host_ip);
 
-    // –ˆƒtƒŒ[ƒ€ŒÄoióMˆ—‚Íƒ[ƒJ[ƒXƒŒƒbƒh‚ªó‚¯æ‚èA‚±‚±‚Å‚ÍƒLƒ…[‚ğˆ—‚·‚éj
-    void update(float dt, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
+    // ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Äoï¿½iï¿½ï¿½Mï¿½ï¿½ï¿½ï¿½ï¿½Íƒï¿½ï¿½[ï¿½Jï¿½[ï¿½Xï¿½ï¿½ï¿½bï¿½hï¿½ï¿½ï¿½ó‚¯ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Å‚ÍƒLï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½j
+    void update(float dt, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
 
-    // ƒNƒ‰ƒCƒAƒ“ƒg“ü—Í‘—M
+    // ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Í‘ï¿½ï¿½M
     void send_input(const PacketInput& input);
 
     bool is_host() const { return m_isHost; }
@@ -38,29 +38,29 @@ public:
     // accessor for client id
     uint32_t getMyPlayerId() const;
 
-    // Frame-based sync called from main (e.g. every10 frames at60FPS) *** public‚ÉˆÚ“® ***
-    void FrameSync(Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
+    // Frame-based sync called from main (e.g. every10 frames at60FPS) *** publicï¿½ÉˆÚ“ï¿½ ***
+    void FrameSync(Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
 
-    // ƒ`ƒƒƒ“ƒlƒ‹ŠÇ—iŠù‘¶‹@”\j
+    // ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç—ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½@ï¿½\ï¿½j
     bool try_alternative_channels();
     void scan_channel_usage();
     int find_least_crowded_channel();
     bool switch_to_channel(int channelId);
 
-    // “®“Iƒ|[ƒgŠÇ—iŠù‘¶j
+    // ï¿½ï¿½ï¿½Iï¿½|ï¿½[ï¿½gï¿½Ç—ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½j
     bool try_dynamic_ports();
 
-    // ƒtƒ@ƒCƒAƒEƒH[ƒ‹—áŠOiŠù‘¶‚¾‚ª”ñ‹­§j
+    // ï¿½tï¿½@ï¿½Cï¿½Aï¿½Eï¿½Hï¿½[ï¿½ï¿½ï¿½ï¿½Oï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ñ‹­ï¿½ï¿½j
     bool add_firewall_exception();
 
 private:
-    UdpNetwork m_net;        // ’Êíƒ|[ƒg (NET_PORT)
-    UdpNetwork m_discovery;  // discovery —pƒ\ƒPƒbƒg
+    UdpNetwork m_net;        // ï¿½Êï¿½|ï¿½[ï¿½g (NET_PORT)
+    UdpNetwork m_discovery;  // discovery ï¿½pï¿½\ï¿½Pï¿½bï¿½g
     bool m_isHost = false;
 
     std::mutex m_mutex;
 
-    // ƒzƒXƒg‘¤‚Ì‚İ
+    // ï¿½zï¿½Xï¿½gï¿½ï¿½ï¿½Ì‚ï¿½
     struct ClientInfo {
         std::string ip;
         int port;
@@ -71,17 +71,17 @@ private:
     uint32_t m_nextPlayerId = 1;
     uint32_t m_seq = 0;
 
-    // ƒNƒ‰ƒCƒAƒ“ƒg‘¤
+    // ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½
     std::string m_hostIp;
     int m_hostPort = NET_PORT;
     uint32_t m_myPlayerId = 0;
 
-    // ƒ`ƒƒƒ“ƒlƒ‹ŠÇ—
+    // ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½Ç—ï¿½
     int m_currentChannel = 0;
     std::vector<ChannelInfo> m_channelInfo;
     std::chrono::steady_clock::time_point m_lastChannelScan;
 
-    // óMƒpƒPƒbƒgƒLƒ…[iƒ[ƒJ‚ªó‚¯æ‚èAupdate() ‚Åˆ—j
+    // ï¿½ï¿½Mï¿½pï¿½Pï¿½bï¿½gï¿½Lï¿½ï¿½ï¿½[ï¿½iï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½ó‚¯ï¿½ï¿½Aupdate() ï¿½Åï¿½ï¿½ï¿½ï¿½j
     struct RecvPacket {
         std::vector<char> data;
         int len;
@@ -93,43 +93,43 @@ private:
     std::mutex m_recvMutex;
     std::condition_variable m_recvCv;
 
-    // ƒ[ƒJ[ƒXƒŒƒbƒh
+    // ï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½Xï¿½ï¿½ï¿½bï¿½h
     std::thread m_worker;
     std::atomic<bool> m_workerRunning{false};
 
-    // ƒpƒtƒH[ƒ}ƒ“ƒX/§ŒÀƒpƒ‰ƒ[ƒ^
-    size_t m_maxPacketsPerFrame = 8;            // 1ƒtƒŒ[ƒ€‚Åˆ—‚·‚éÅ‘åóMƒpƒPƒbƒg”
-    std::chrono::milliseconds m_stateInterval{200}; // ƒzƒXƒg‚ªSTATE‘—M‚·‚éŠÔŠuiƒ[ƒJ[‘¤‚Å•ªU‘—Mj
-    size_t m_stateSendIndex = 0;                // ƒ[ƒe[ƒVƒ‡ƒ“‘—MƒCƒ“ƒfƒbƒNƒX
+    // ï¿½pï¿½tï¿½Hï¿½[ï¿½}ï¿½ï¿½ï¿½X/ï¿½ï¿½ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^
+    size_t m_maxPacketsPerFrame = 8;            // 1ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Åï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‘ï¿½ï¿½Mï¿½pï¿½Pï¿½bï¿½gï¿½ï¿½
+    std::chrono::milliseconds m_stateInterval{200}; // ï¿½zï¿½Xï¿½gï¿½ï¿½STATEï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½ï¿½ÔŠuï¿½iï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½ï¿½ï¿½Å•ï¿½ï¿½Uï¿½ï¿½ï¿½Mï¿½j
+    size_t m_stateSendIndex = 0;                // ï¿½ï¿½ï¿½[ï¿½eï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Mï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½X
 
-    // “à•”ƒwƒ‹ƒp[iŠù‘¶j
-    void process_received(const char* buf, int len, const std::string& from_ip, int from_port, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
-    void host_handle_join(const std::string& from_ip, int from_port, std::vector<Game::GameObject*>& worldObjects);
-    void host_handle_input(const PacketInput& pi, std::vector<Game::GameObject*>& worldObjects);
-    void client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, Game::GameObject* localPlayer, std::vector<Game::GameObject*>& worldObjects);
-    void send_state_to_all(std::vector<Game::GameObject*>& worldObjects);
+    // ï¿½ï¿½ï¿½ï¿½ï¿½wï¿½ï¿½ï¿½pï¿½[ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½j
+    void process_received(const char* buf, int len, const std::string& from_ip, int from_port, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
+    void host_handle_join(const std::string& from_ip, int from_port, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
+    void host_handle_input(const PacketInput& pi, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
+    void client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
+    void send_state_to_all(std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
 
-    // ƒ`ƒƒƒ“ƒlƒ‹‹@”\
+    // ï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½ï¿½@ï¿½\
     void handle_channel_scan(const std::string& from_ip, int from_port);
     void handle_channel_info(const ChannelInfo& info);
     bool initialize_with_fallback();
 
-    // ƒzƒXƒgƒtƒŠ[ƒY–h~—piƒ[ƒJ[/ƒƒCƒ“‚Åg‚¤j
-    void send_state_to_clients_round_robin(std::vector<Game::GameObject*>* worldObjectsPtr);
+    // ï¿½zï¿½Xï¿½gï¿½tï¿½ï¿½ï¿½[ï¿½Yï¿½hï¿½~ï¿½pï¿½iï¿½ï¿½ï¿½[ï¿½Jï¿½[/ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Ågï¿½ï¿½ï¿½j
+    void send_state_to_clients_round_robin(std::vector<std::shared_ptr<Game::GameObject>>* worldObjectsPtr);
 
-    // ƒ[ƒJ[‹N“®/’â~
+    // ï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½Nï¿½ï¿½/ï¿½ï¿½~
     void start_worker();
     void stop_worker();
 
-    // óMƒLƒ…[‚Ö’Ç‰Áiƒ[ƒJ[‚©‚çŒÄ‚Ôj
+    // ï¿½ï¿½Mï¿½Lï¿½ï¿½ï¿½[ï¿½Ö’Ç‰ï¿½ï¿½iï¿½ï¿½ï¿½[ï¿½Jï¿½[ï¿½ï¿½ï¿½ï¿½Ä‚Ôj
     void push_recv_packet(RecvPacket&& pkt);
 
-    // ƒtƒ@ƒCƒAƒEƒH[ƒ‹•â•
+    // ï¿½tï¿½@ï¿½Cï¿½Aï¿½Eï¿½Hï¿½[ï¿½ï¿½ï¿½â•
     bool check_existing_firewall_rule();
 
-    // ƒƒO—}§ƒtƒ‰ƒOi‚•p“xƒƒO‚Í–³Œøj
+    // ï¿½ï¿½ï¿½Oï¿½}ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½Oï¿½iï¿½ï¿½ï¿½pï¿½xï¿½ï¿½ï¿½Oï¿½Í–ï¿½ï¿½ï¿½ï¿½j
     bool m_verboseLogs = false;
 };
 
-// ƒOƒ[ƒoƒ‹ƒCƒ“ƒXƒ^ƒ“ƒXéŒ¾
+// ï¿½Oï¿½ï¿½ï¿½[ï¿½oï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½éŒ¾
 extern NetworkManager g_network;
