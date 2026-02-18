@@ -7,6 +7,8 @@
 #include <cmath>
 #include <algorithm>
 
+namespace Game {
+
 Player::Player()
     : position(0.0f, 3.0f, 0.0f)
     , velocity(0.0f, 0.0f, 0.0f)
@@ -184,3 +186,5 @@ void Player::Respawn(const XMFLOAT3& spawnPoint) {
     isGrounded = false;
     UpdateCollider();
 }
+
+} // namespace Game

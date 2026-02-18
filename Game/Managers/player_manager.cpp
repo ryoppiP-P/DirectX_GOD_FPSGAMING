@@ -18,6 +18,8 @@
 #include <algorithm>
 #include <memory>
 
+namespace Game {
+
 // ========== PlayerManager ==========
 
 PlayerManager* PlayerManager::instance = nullptr;
@@ -217,3 +219,5 @@ GameObject* GetActivePlayerGameObject() {
 Player* GetActivePlayer() {
     return PlayerManager::GetInstance().GetActivePlayer();
 }
+
+} // namespace Game

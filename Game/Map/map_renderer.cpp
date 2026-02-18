@@ -16,6 +16,8 @@
 #pragma comment(lib, "DirectXTex_Release.lib")
 #endif
 
+namespace Game {
+
  //*****************************************************************************
  // �}�N����`
  //*****************************************************************************
@@ -259,3 +261,5 @@ XMFLOAT3 MapRenderer::GetWorldPosition(int mapX, int mapY, int mapZ) const
         mapZ * BOX_SIZE + offsetZ
     );
 }
+
+} // namespace Game

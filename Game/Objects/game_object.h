@@ -9,6 +9,8 @@
 
 using namespace DirectX;
 
+namespace Game {
+
 // オブジェクト種別を識別する列挙型
 enum class ObjectTag {
     NONE,
@@ -94,3 +96,5 @@ private:
     void createVertexBuffer();
     void updateColliderTransform();
 };
+
+} // namespace Game

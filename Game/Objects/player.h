@@ -6,6 +6,8 @@
 
 using namespace DirectX;
 
+namespace Game {
+
 class Map;
 
 enum class ViewMode {
@@ -87,3 +89,5 @@ public:
     void TakeDamage(int dmg);
     void Respawn(const XMFLOAT3& spawnPoint);
 };
+
+} // namespace Game

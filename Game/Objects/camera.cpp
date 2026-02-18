@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <iostream>
 
+namespace Game {
+
 // ���C���J�����̃V���O���g��
 static Camera s_mainCamera = {
  XMFLOAT3(0.0f,0.0f, -4.0f),
@@ -240,3 +242,5 @@ void InitializeCameraSystem() {
 void UpdateCameraSystem() {
 	CameraManager::GetInstance().Update(1.0f / 60.0f);
 }
+
+} // namespace Game

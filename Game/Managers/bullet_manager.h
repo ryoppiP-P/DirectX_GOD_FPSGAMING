@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 
+namespace Game {
+
 class BulletManager {
 private:
     std::vector<std::unique_ptr<Bullet>> m_bullets;
@@ -51,3 +53,5 @@ public:
     BulletManager(const BulletManager&) = delete;
     BulletManager& operator=(const BulletManager&) = delete;
 };
+
+} // namespace Game

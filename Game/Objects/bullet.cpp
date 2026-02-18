@@ -5,6 +5,8 @@
 #include "Engine/Collision/collision_system.h"
 #include "Engine/Collision/map_collision.h"
 
+namespace Game {
+
 Bullet::Bullet()
     : position(0, 0, 0)
     , velocity(0, 0, 0)
@@ -111,3 +113,5 @@ void Bullet::Deactivate() {
         m_collisionId = 0;
     }
 }
+
+} // namespace Game
