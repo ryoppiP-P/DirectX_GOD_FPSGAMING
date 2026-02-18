@@ -55,6 +55,9 @@
     <ClInclude Include="Game\Managers\player_manager.h" />
     <ClInclude Include="Game\Managers\bullet_manager.h" />
     <ClInclude Include="NetWork\network_common.h" />
+    <ClInclude Include="NetWork\network_protocol.h" />
+    <ClInclude Include="NetWork\network_host.h" />
+    <ClInclude Include="NetWork\network_client.h" />
     <ClInclude Include="NetWork\network_manager.h" />
     <ClInclude Include="NetWork\udp_network.h" />
   </ItemGroup>
@@ -94,6 +97,9 @@
     <ClCompile Include="Game\Map\map_renderer.cpp" />
     <ClCompile Include="Game\Managers\player_manager.cpp" />
     <ClCompile Include="Game\Managers\bullet_manager.cpp" />
+    <ClCompile Include="NetWork\network_protocol.cpp" />
+    <ClCompile Include="NetWork\network_host.cpp" />
+    <ClCompile Include="NetWork\network_client.cpp" />
     <ClCompile Include="NetWork\network_manager.cpp" />
     <ClCompile Include="NetWork\udp_network.cpp" />
   </ItemGroup>
