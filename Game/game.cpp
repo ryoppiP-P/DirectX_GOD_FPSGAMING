@@ -26,6 +26,12 @@
 
 namespace Game {
 
+// 非所有shared_ptrを生成するヘルパー（外部で寿命管理されるオブジェクト用）
+template<typename T>
+std::shared_ptr<T> MakeNonOwning(T* ptr) {
+    return std::shared_ptr<T>(ptr, [](T*) {});
+}
+
 //===================================
 // マクロ定義
 //===================================
@@ -182,7 +188,7 @@ void SceneGame::Update() {
     if (g_network.is_host() && localGo && localGo->getId() == 0) {
         localGo->setId(1);
         std::cout << "[SceneGame] Host player assigned id=1\n";
-        m_worldObjects.push_back(std::shared_ptr<GameObject>(localGo, [](GameObject*){}));
+        m_worldObjects.push_back(MakeNonOwning(localGo));
         std::cout << "[SceneGame] Host player added to worldObjects with id=1\n";
     }
 
@@ -190,7 +196,7 @@ void SceneGame::Update() {
         GameObject* lg = GetLocalPlayerGameObject();
         if (lg && lg->getId() == 0) {
             lg->setId(g_network.getMyPlayerId());
-            m_worldObjects.push_back(std::shared_ptr<GameObject>(lg, [](GameObject*){}));
+            m_worldObjects.push_back(MakeNonOwning(lg));
             std::cout << "[SceneGame] Client player assigned id=" << lg->getId() << "\n";
         }
     }
