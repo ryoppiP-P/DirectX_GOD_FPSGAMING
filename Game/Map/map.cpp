@@ -4,6 +4,7 @@
   \Author  Ryoto Kikuchi
   \data    2025/9/27
  *********************************************************************/
+#include "pch.h"
 #include "map.h"
 #include "Game/Objects/game_object.h"
 #include "map_renderer.h"

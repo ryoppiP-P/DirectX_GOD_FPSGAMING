@@ -4,6 +4,7 @@
   \Author  Ryoto Kikuchi
   \data    2025
  *********************************************************************/
+#include "pch.h"
 #include "player_manager.h"
 #include "bullet_manager.h"
 #include "Game/Objects/bullet.h"

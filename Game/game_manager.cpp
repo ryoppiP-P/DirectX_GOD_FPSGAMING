@@ -4,6 +4,7 @@
   \Author  Ryoto Kikuchi
   \data    2025
  *********************************************************************/
+#include "pch.h"
 #include "game_manager.h"
 #include "Engine/Core/renderer.h"
 #include "Engine/Graphics/vertex.h"

@@ -4,4 +4,5 @@
   \Author  Ryoto Kikuchi
   \data    2025
  *********************************************************************/
+#include "pch.h"
 #include "system.h"

@@ -4,6 +4,7 @@
   \Author  Ryoto Kikuchi
   \data    2025/9/26
  *********************************************************************/
+#include "pch.h"
 #include "main.h"
 #include "Game/game_manager.h"
 #include "Engine/Input/keyboard.h"
