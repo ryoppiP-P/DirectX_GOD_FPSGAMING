@@ -186,6 +186,15 @@
     <ClInclude Include="NetWork\network_common.h">
       <Filter>ヘッダー ファイル\NetWork</Filter>
     </ClInclude>
+    <ClInclude Include="NetWork\network_protocol.h">
+      <Filter>ヘッダー ファイル\NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="NetWork\network_host.h">
+      <Filter>ヘッダー ファイル\NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="NetWork\network_client.h">
+      <Filter>ヘッダー ファイル\NetWork</Filter>
+    </ClInclude>
     <ClInclude Include="NetWork\network_manager.h">
       <Filter>ヘッダー ファイル\NetWork</Filter>
     </ClInclude>
@@ -283,6 +292,15 @@
     </ClCompile>
     <ClCompile Include="Game\Managers\bullet_manager.cpp">
       <Filter>ソース ファイル\Game\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWork\network_protocol.cpp">
+      <Filter>ソース ファイル\NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWork\network_host.cpp">
+      <Filter>ソース ファイル\NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWork\network_client.cpp">
+      <Filter>ソース ファイル\NetWork</Filter>
     </ClCompile>
     <ClCompile Include="NetWork\network_manager.cpp">
       <Filter>ソース ファイル\NetWork</Filter>

@@ -1,10 +1,13 @@
 #pragma once
-// network_manager.h - �z�X�g/�N���C�A���g�̌y�ʉ����ꂽ�l�b�g���[�N�Ǘ�
+// network_manager.h - ホスト/クライアントの統括ネットワークマネージャー
+// 実際の処理はNetworkHost/NetworkClientに委譲する
 
 #include "udp_network.h"
 #include "network_common.h"
+#include "network_protocol.h"
+#include "network_host.h"
+#include "network_client.h"
 #include <vector>
-#include <unordered_map>
 #include <memory>
 #include <mutex>
 #include <chrono>
@@ -13,75 +16,63 @@
 #include <deque>
 #include <atomic>
 
-namespace Game { class GameObject; } // �O���錾�igame_object.h ���C���N���[�h���Ă�OK�j
+namespace Game { class GameObject; }
 
 class NetworkManager {
 public:
     NetworkManager();
     ~NetworkManager();
 
-    // �N��
+    // 起動
     bool start_as_host();
     bool start_as_client();
 
-    // client �p: �u���[�h�L���X�g�Ńz�X�g�T���� JOIN �܂ōs���i�u���b�N�j
+    // client用: ブロードキャストでホスト探索→JOIN（ブロック）
     bool discover_and_join(std::string& out_host_ip);
 
-    // ���t���[���ďo�i��M�����̓��[�J�[�X���b�h���󂯎��A�����ł̓L���[����������j
+    // 毎フレーム呼出（受信データはワーカースレッドが受け取り、ここではキューから処理する）
     void update(float dt, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
 
-    // �N���C�A���g���͑��M
+    // クライアント入力送信
     void send_input(const PacketInput& input);
 
     bool is_host() const { return m_isHost; }
 
-    // accessor for client id
+    // プレイヤーID取得
     uint32_t getMyPlayerId() const;
 
-    // Frame-based sync called from main (e.g. every10 frames at60FPS) *** public�Ɉړ� ***
+    // フレーム同期（メインから呼出、例: 60FPSで10フレーム毎 => 6Hz）
     void FrameSync(Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
 
-    // �`�����l���Ǘ��i�����@�\�j
+    // チャンネル管理（補助機能）
     bool try_alternative_channels();
     void scan_channel_usage();
     int find_least_crowded_channel();
     bool switch_to_channel(int channelId);
 
-    // ���I�|�[�g�Ǘ��i�����j
+    // 動的ポート管理
     bool try_dynamic_ports();
 
-    // �t�@�C�A�E�H�[����O�i���������񋭐��j
+    // ファイアウォール例外（管理者権限非強制）
     bool add_firewall_exception();
 
 private:
-    UdpNetwork m_net;        // �ʏ�|�[�g (NET_PORT)
-    UdpNetwork m_discovery;  // discovery �p�\�P�b�g
+    UdpNetwork m_net;        // 通常ポート (NET_PORT)
+    UdpNetwork m_discovery;  // discovery用ソケット
     bool m_isHost = false;
 
     std::mutex m_mutex;
 
-    // �z�X�g���̂�
-    struct ClientInfo {
-        std::string ip;
-        int port;
-        uint32_t playerId;
-        std::chrono::steady_clock::time_point lastSeen;
-    };
-    std::vector<ClientInfo> m_clients;
-    uint32_t m_nextPlayerId = 1;
-    uint32_t m_seq = 0;
+    // ホスト/クライアント処理の委譲先
+    std::unique_ptr<NetworkHost> m_host;
+    std::unique_ptr<NetworkClient> m_client;
 
-    // �N���C�A���g��
-    std::string m_hostIp;
-    int m_hostPort = NET_PORT;
-    uint32_t m_myPlayerId = 0;
-
-    // �`�����l���Ǘ�
+    // チャンネル管理
     int m_currentChannel = 0;
     std::vector<ChannelInfo> m_channelInfo;
     std::chrono::steady_clock::time_point m_lastChannelScan;
 
-    // ��M�p�P�b�g�L���[�i���[�J���󂯎��Aupdate() �ŏ����j
+    // 受信パケットキュー（ワーカーが受け取り、update()で処理）
     struct RecvPacket {
         std::vector<char> data;
         int len;
@@ -93,43 +84,36 @@ private:
     std::mutex m_recvMutex;
     std::condition_variable m_recvCv;
 
-    // ���[�J�[�X���b�h
+    // ワーカースレッド
     std::thread m_worker;
     std::atomic<bool> m_workerRunning{false};
 
-    // �p�t�H�[�}���X/�����p�����[�^
-    size_t m_maxPacketsPerFrame = 8;            // 1�t���[���ŏ�������ő��M�p�P�b�g��
-    std::chrono::milliseconds m_stateInterval{200}; // �z�X�g��STATE���M����Ԋu�i���[�J�[���ŕ��U���M�j
-    size_t m_stateSendIndex = 0;                // ���[�e�[�V�������M�C���f�b�N�X
+    // パフォーマンス/制御パラメータ
+    size_t m_maxPacketsPerFrame = 8;
+    std::chrono::milliseconds m_stateInterval{200};
 
-    // �����w���p�[�i�����j
-    void process_received(const char* buf, int len, const std::string& from_ip, int from_port, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
-    void host_handle_join(const std::string& from_ip, int from_port, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
-    void host_handle_input(const PacketInput& pi, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
-    void client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
-    void send_state_to_all(std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
+    // パケット振り分け処理
+    void process_received(const char* buf, int len, const std::string& from_ip, int from_port,
+                          Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects);
 
-    // �`�����l���@�\
+    // チャンネル機能
     void handle_channel_scan(const std::string& from_ip, int from_port);
     void handle_channel_info(const ChannelInfo& info);
     bool initialize_with_fallback();
 
-    // �z�X�g�t���[�Y�h�~�p�i���[�J�[/���C���Ŏg���j
-    void send_state_to_clients_round_robin(std::vector<std::shared_ptr<Game::GameObject>>* worldObjectsPtr);
-
-    // ���[�J�[�N��/��~
+    // ワーカー起動/停止
     void start_worker();
     void stop_worker();
 
-    // ��M�L���[�֒ǉ��i���[�J�[����Ăԁj
+    // 受信キューへ追加（ワーカーから呼ぶ）
     void push_recv_packet(RecvPacket&& pkt);
 
-    // �t�@�C�A�E�H�[���⏕
+    // ファイアウォール補助
     bool check_existing_firewall_rule();
 
-    // ���O�}���t���O�i���p�x���O�͖����j
+    // ログ冗長フラグ（低頻度ログは無効）
     bool m_verboseLogs = false;
 };
 
-// �O���[�o���C���X�^���X�錾
+// グローバルインスタンス宣言
 extern NetworkManager g_network;
