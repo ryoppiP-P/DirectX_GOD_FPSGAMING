@@ -19,12 +19,12 @@ cbuffer ConstantBuffer : register(b0)
 // b1: マテリアル情報
 cbuffer MaterialBuffer : register(b1)
 {
-    float4 Ambient;
     float4 Diffuse;
+    float4 Ambient;
     float4 Specular;
     float4 Emission;
     float  Shininess;
-    float3 Padding; // 16byte境界用
+    float3 Padding;
 }
 
 //=============================================================================

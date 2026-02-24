@@ -7,111 +7,120 @@
 
 namespace Game {
 
-Bullet::Bullet()
-    : position(0, 0, 0)
-    , velocity(0, 0, 0)
-    , lifeTime(0)
-    , active(false)
-    , collider({ 0, 0, 0 }, { 0.2f, 0.2f, 0.2f })
-    , m_collisionId(0) {
-}
-
-Bullet::~Bullet() {
-    if (m_collisionId != 0) {
-        Engine::CollisionSystem::GetInstance().Unregister(m_collisionId);
-        m_collisionId = 0;
+    Bullet::Bullet()
+        : position(0, 0, 0)
+        , velocity(0, 0, 0)
+        , lifeTime(0)
+        , active(false)
+        , collider({ 0, 0, 0 }, { 0.2f, 0.2f, 0.2f })
+        , m_collisionId(0)
+        , ownerPlayerId(0) {
     }
-}
 
-Bullet::Bullet(Bullet&& other) noexcept
-    : position(other.position)
-    , velocity(other.velocity)
-    , lifeTime(other.lifeTime)
-    , active(other.active)
-    , collider(std::move(other.collider))
-    , visual(std::move(other.visual))
-    , m_collisionId(other.m_collisionId) {
-    other.m_collisionId = 0;
-}
-
-Bullet& Bullet::operator=(Bullet&& other) noexcept {
-    if (this != &other) {
+    Bullet::~Bullet() {
         if (m_collisionId != 0) {
             Engine::CollisionSystem::GetInstance().Unregister(m_collisionId);
+            m_collisionId = 0;
         }
+    }
 
-        position = other.position;
-        velocity = other.velocity;
-        lifeTime = other.lifeTime;
-        active = other.active;
-        collider = std::move(other.collider);
-        visual = std::move(other.visual);
-        m_collisionId = other.m_collisionId;
-
+    Bullet::Bullet(Bullet&& other) noexcept
+        : position(other.position)
+        , velocity(other.velocity)
+        , lifeTime(other.lifeTime)
+        , active(other.active)
+        , collider(std::move(other.collider))
+        , visual(std::move(other.visual))
+        , m_collisionId(other.m_collisionId)
+        , ownerPlayerId(other.ownerPlayerId) {
         other.m_collisionId = 0;
     }
-    return *this;
-}
 
-void Bullet::Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, const XMFLOAT3& dir) {
-    position = pos;
-    velocity = { dir.x * 15.0f, dir.y * 15.0f, dir.z * 15.0f };
-    lifeTime = 3.0f;
-    active = true;
+    Bullet& Bullet::operator=(Bullet&& other) noexcept {
+        if (this != &other) {
+            if (m_collisionId != 0) {
+                Engine::CollisionSystem::GetInstance().Unregister(m_collisionId);
+            }
 
-    visual.position = position;
-    visual.scale = XMFLOAT3(0.2f, 0.2f, 0.2f);
-    visual.setMesh(Box, 36, texture);
-    visual.setBoxCollider(visual.scale);
-    visual.markBufferForUpdate();
+            position = other.position;
+            velocity = other.velocity;
+            lifeTime = other.lifeTime;
+            active = other.active;
+            collider = std::move(other.collider);
+            visual = std::move(other.visual);
+            m_collisionId = other.m_collisionId;
+            ownerPlayerId = other.ownerPlayerId;
 
-    collider.SetCenter(position);
-    collider.SetSize({ 0.2f, 0.2f, 0.2f });
-
-    m_collisionId = Engine::CollisionSystem::GetInstance().Register(
-        &collider,
-        Engine::CollisionLayer::PROJECTILE,
-        Engine::CollisionLayer::PLAYER | Engine::CollisionLayer::ENEMY,
-        this
-    );
-}
-
-void Bullet::Update(float deltaTime) {
-    if (!active) return;
-
-    position.x += velocity.x * deltaTime;
-    position.y += velocity.y * deltaTime;
-    position.z += velocity.z * deltaTime;
-
-    collider.SetCenter(position);
-    visual.position = position;
-    visual.markBufferForUpdate();
-
-    // �}�b�v�Ƃ̏Փ˔���
-    XMFLOAT3 pen;
-    if (Engine::MapCollision::GetInstance().CheckCollision(&collider, pen)) {
-        Deactivate();
-        return;
+            other.m_collisionId = 0;
+        }
+        return *this;
     }
 
-    lifeTime -= deltaTime;
-    if (lifeTime <= 0) {
-        Deactivate();
+    void Bullet::Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, const XMFLOAT3& dir, int ownerId) {
+        position = pos;
+        velocity = { dir.x * 15.0f, dir.y * 15.0f, dir.z * 15.0f };
+        lifeTime = 3.0f;
+        active = true;
+        ownerPlayerId = ownerId;   // 弾を撃ったプレイヤーのIDを記録
+
+        // 見た目の初期化
+        visual.position = position;
+        visual.scale = XMFLOAT3(0.2f, 0.2f, 0.2f);
+        visual.setMesh(Box, 36, texture);
+        visual.setBoxCollider(visual.scale);
+        visual.markBufferForUpdate();
+
+        // 衝突判定の初期化
+        collider.SetCenter(position);
+        collider.SetSize({ 0.2f, 0.2f, 0.2f });
+
+        m_collisionId = Engine::CollisionSystem::GetInstance().Register(
+            &collider,
+            Engine::CollisionLayer::PROJECTILE,
+            Engine::CollisionLayer::PLAYER | Engine::CollisionLayer::ENEMY,
+            this
+        );
     }
-}
 
-void Bullet::Draw() {
-    if (active) visual.draw();
-}
+    void Bullet::Update(float deltaTime) {
+        if (!active) return;
 
-void Bullet::Deactivate() {
-    if (!active) return;
-    active = false;
+        // 弾の移動
+        position.x += velocity.x * deltaTime;
+        position.y += velocity.y * deltaTime;
+        position.z += velocity.z * deltaTime;
 
-    if (m_collisionId != 0) {
-        Engine::CollisionSystem::GetInstance().Unregister(m_collisionId);
-        m_collisionId = 0;
+        collider.SetCenter(position);
+        visual.position = position;
+        visual.markBufferForUpdate();
+
+        // マップとの衝突で弾を消す
+        XMFLOAT3 pen;
+        if (Engine::MapCollision::GetInstance().CheckCollision(&collider, pen)) {
+            Deactivate();
+            return;
+        }
+
+        // 寿命切れで弾を消す
+        lifeTime -= deltaTime;
+        if (lifeTime <= 0) {
+            Deactivate();
+        }
     }
-}
+
+    void Bullet::Draw() {
+        if (active) visual.draw();
+    }
+
+    void Bullet::Deactivate() {
+        if (!active) return;
+        active = false;
+
+        // 衝突システムから登録解除
+        if (m_collisionId != 0) {
+            Engine::CollisionSystem::GetInstance().Unregister(m_collisionId);
+            m_collisionId = 0;
+        }
+    }
 
 } // namespace Game

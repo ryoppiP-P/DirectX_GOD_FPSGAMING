@@ -199,6 +199,11 @@ void MapRenderer::Draw()
 
     if (m_Texture) {
         Engine::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
+    } else {
+        ID3D11ShaderResourceView* whiteTex = Engine::Renderer::GetInstance().GetWhiteTexture();
+        if (whiteTex) {
+            Engine::GetDeviceContext()->PSSetShaderResources(0, 1, &whiteTex);
+        }
     }
 
     // ���_�E�C���f�b�N�X�o�b�t�@���Z�b�g
@@ -210,7 +215,10 @@ void MapRenderer::Draw()
 
     Engine::MaterialData material;
     ZeroMemory(&material, sizeof(material));
+    material.ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     material.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+    material.emission = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
     {
         ID3D11DeviceContext* ctx = Engine::Renderer::GetInstance().GetContext();
         ID3D11Buffer* buf = Engine::Renderer::GetInstance().GetMaterialBuffer();

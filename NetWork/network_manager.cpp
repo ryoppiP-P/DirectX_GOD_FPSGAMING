@@ -1,125 +1,133 @@
-// network_manager.cpp
+/*********************************************************************
+ * \file   network_manager.cpp
+ * \brief  NetworkManagerクラスの実装
+ *         ホスト/クライアントの起動、パケット処理、
+ *         フレーム同期、ワーカースレッド管理を行う
+ *
+ * \author Ryoto Kikuchi
+ * \date   2026/2/24
+ *********************************************************************/
 #include "pch.h"
 #include "network_manager.h"
-#include "Game/Objects/game_object.h"
-#include "Game/Objects/camera.h"
+#include "Game/Objects/game_object.h"  // Game::GameObject
+#include "Game/Objects/camera.h"       // Game::GetLocalPlayerGameObject
+#include "Game/Objects/bullet.h"       // Game::Bullet
+#include "Game/Managers/bullet_manager.h" // Game::BulletManager
 #include "main.h"
-#include "Engine/Graphics/primitive.h"
-#include <iostream>
+#include "Engine/Graphics/primitive.h" // Box頂点データ, GetPolygonTexture
 #include <cstring>
 #include <chrono>
-#include <fstream>
 #include <mutex>
-#include <cstdarg>
 #include <algorithm>
 #include <condition_variable>
 
-NetworkManager g_network; // グローバルインスタンス定義
-static auto lastQueueLog = std::chrono::steady_clock::now();
-auto now = std::chrono::steady_clock::now();
+ // ============================================================
+ // グローバル変数
+ // ============================================================
 
-// Simple thread-safe network logger (��p�x�̂݃��O�o��)
-static std::mutex g_netlog_mutex;
-static void netlog_printf(const char* fmt, ...) {
-    std::lock_guard<std::mutex> lk(g_netlog_mutex);
-    char buf[1024];
-    va_list ap;
-    va_start(ap, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, ap);
-    va_end(ap);
+ // NetworkManagerのグローバルインスタンス（extern宣言はnetwork_manager.hにある）
+NetworkManager g_network;
 
-    // timestamp (�Z��)
-    auto now = std::chrono::system_clock::now();
-    std::time_t t = std::chrono::system_clock::to_time_t(now);
-    char timebuf[32];
-    tm local_tm;
-#ifdef _WIN32
-    localtime_s(&local_tm, &t);
-    strftime(timebuf, sizeof(timebuf), "%H:%M:%S", &local_tm);
-#else
-    localtime_r(&t, &local_tm);
-    strftime(timebuf, sizeof(timebuf), "%H:%M:%S", &local_tm);
-#endif
-
-    std::ofstream ofs("dx_netlog.txt", std::ios::app);
-    if (ofs) {
-        ofs << "[" << timebuf << "] " << buf << std::endl;
-    }
-}
+// ============================================================
+// コンストラクタ / デストラクタ
+// ============================================================
 
 NetworkManager::NetworkManager() {
+    // チャンネルスキャンの初期タイムスタンプを設定
     m_lastChannelScan = std::chrono::steady_clock::now();
 }
 
 NetworkManager::~NetworkManager() {
+    // ワーカースレッドを停止してからソケットを閉じる
     stop_worker();
     m_net.close_socket();
     m_discovery.close_socket();
 }
 
+// 自分のプレイヤーIDを返す（クライアント側で使用）
 uint32_t NetworkManager::getMyPlayerId() const {
     return m_myPlayerId;
 }
 
-// start_as_host/start_as_client �̓\�P�b�g��������Ƀ��[�J�[���N������
+// ============================================================
+// start_as_host - ホストとして起動する
+// 1. ファイアウォール例外を登録（試みる）
+// 2. ソケットをフォールバック付きで初期化
+// 3. ホストのプレイヤーIDは1（クライアントには2以降を割り当て）
+// 4. ワーカースレッドを開始
+// ============================================================
 bool NetworkManager::start_as_host() {
     add_firewall_exception();
     if (!initialize_with_fallback()) {
-        netlog_printf("HOST INITIALIZATION FAILED");
         return false;
     }
     m_isHost = true;
-    // Reserve player ID1 for the host's local player; start assigning clients at2
-    m_nextPlayerId =2;
-    // ���[�J�[�J�n
+    // ホスト自身はID=1。クライアントにはID=2から割り当てる
+    m_nextPlayerId = 2;
+    // 受信用ワーカースレッドを開始
     start_worker();
-    netlog_printf("STARTED AS HOST, net port=%d discovery port=%d", m_net.get_current_port(), m_discovery.get_current_port());
     return true;
 }
 
+// ============================================================
+// start_as_client - クライアントとして起動する
+// 1. 動的ポートでソケットを初期化（固定ポートが使えない環境対応）
+// 2. 探索用ソケットはDISCOVERY_PORT+1で初期化
+// 3. ワーカースレッドを開始
+// ============================================================
 bool NetworkManager::start_as_client() {
     add_firewall_exception();
+    // まず動的ポートを試し、ダメならポート0（OS任せ）で初期化
     if (!m_net.initialize_dynamic_port()) {
         if (!m_net.initialize(0)) {
-            netlog_printf("CLIENT INITIALIZATION FAILED");
             return false;
         }
     }
+    // 探索用ソケット（ホストの探索応答を受信する）
     if (!m_discovery.initialize_broadcast(DISCOVERY_PORT + 1)) {
-        netlog_printf("CLIENT DISCOVERY INITIALIZATION FAILED");
         return false;
     }
     m_isHost = false;
     start_worker();
-    netlog_printf("STARTED AS CLIENT, auto-assigned port=%d, discovery port=%d", m_net.get_current_port(), DISCOVERY_PORT + 1);
     return true;
 }
 
-// discover_and_join �̓���͕ς����i�u���b�N�^�T���j�����A�T���p�̑҂����Ԃ�Z�k
+// ============================================================
+// discover_and_join - ホストを探して参加する（ブロッキング処理）
+// 全チャンネルに順番にDISCOVERをブロードキャストし、
+// 応答があったらJOINパケットを送信する
+// ============================================================
 bool NetworkManager::discover_and_join(std::string& out_host_ip) {
+    // まずチャンネル使用状況をスキャン（30秒間隔制限あり）
     scan_channel_usage();
+
+    // 各チャンネルのポートに対してDISCOVERを送信
     for (int channelIdx = 0; channelIdx < NUM_CHANNELS; channelIdx++) {
-        int discoveryPort = PORT_RANGES[channelIdx][1];
+        int discoveryPort = PORT_RANGES[channelIdx][1];  // そのチャンネルの探索ポート
+
+        // DISCOVERパケットをブロードキャスト送信
         uint8_t discover_pkt = PKT_DISCOVER;
         m_discovery.send_broadcast(discoveryPort, &discover_pkt, 1);
-        if (m_verboseLogs) netlog_printf("CLIENT SENT DISCOVER broadcast port=%d (channel %d)", discoveryPort, channelIdx);
 
         char buf[MAX_UDP_PACKET];
         std::string from_ip;
         int from_port;
 
+        // 1秒間、200msごとに応答を待つ
         auto start = std::chrono::steady_clock::now();
-        // 1 �b�ɒZ�k
-        while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count() < 1000) {
+        while (std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - start).count() < 1000) {
             int r = m_discovery.poll_recv(buf, sizeof(buf), from_ip, from_port, 200);
             if (r > 0) {
                 uint8_t t = (uint8_t)buf[0];
                 if (t == PKT_DISCOVER_REPLY) {
+                    // ホストが見つかった
                     out_host_ip = from_ip;
                     m_hostIp = out_host_ip;
-                    m_hostPort = PORT_RANGES[channelIdx][0];
+                    m_hostPort = PORT_RANGES[channelIdx][0];  // ゲーム通信ポート
                     m_currentChannel = channelIdx;
-                    netlog_printf("CLIENT DISCOVERY: discovered host %s, set hostPort=%d channel=%d", m_hostIp.c_str(), m_hostPort, channelIdx);
+
+                    // JOINパケットをホストのゲーム通信ポートに送信
                     uint8_t join_pkt = PKT_JOIN;
                     m_net.send_to(out_host_ip, m_hostPort, &join_pkt, 1);
                     return true;
@@ -127,44 +135,62 @@ bool NetworkManager::discover_and_join(std::string& out_host_ip) {
             }
         }
     }
-    netlog_printf("CLIENT DISCOVERY: timeout, no host reply");
+    // 全チャンネルで見つからなかった
     return false;
 }
 
-// update: ���[�J�[���󂯎��L���[�ɐς񂾃p�P�b�g���ő� m_maxPacketsPerFrame ����������i���Ɍy�ʁj
-void NetworkManager::update(float dt, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
-    // process up to N packets from the recv queue
+// ============================================================
+// update - メインスレッドから毎フレーム呼ばれる
+// ワーカースレッドがキューに積んだパケットを最大N個取り出して処理する
+// 1フレームに処理しすぎるとゲームが止まるので上限を設ける
+// ============================================================
+void NetworkManager::update(float dt, Game::GameObject* localPlayer,
+    std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     size_t processed = 0;
     while (processed < m_maxPacketsPerFrame) {
         RecvPacket pkt;
         {
+            // キューからパケットを1つ取り出す（ロック範囲を最小にする）
             std::lock_guard<std::mutex> lk(m_recvMutex);
             if (m_recvQueue.empty()) break;
             pkt = std::move(m_recvQueue.front());
             m_recvQueue.pop_front();
         }
-        // discovery packets handled by worker when host (reply sent immediately).
-        // Only process game-level packets here.
-        process_received(pkt.data.data(), pkt.len, pkt.from_ip, pkt.from_port, localPlayer, worldObjects);
+        // パケットの種別に応じて処理する
+        process_received(pkt.data.data(), pkt.len, pkt.from_ip, pkt.from_port,
+            localPlayer, worldObjects);
         ++processed;
     }
 }
 
-// process_received remains mostly the same, called from main thread for game logic packets.
-void NetworkManager::process_received(const char* buf, int len, const std::string& from_ip, int from_port, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
+// ============================================================
+// process_received - 受信パケットを種別ごとに処理する
+// ホストとクライアントで処理が異なる
+// ============================================================
+void NetworkManager::process_received(const char* buf, int len,
+    const std::string& from_ip, int from_port,
+    Game::GameObject* localPlayer,
+    std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     if (len <= 0) return;
+
+    // パケットの先頭1バイトで種別を判定
     uint8_t t = (uint8_t)buf[0];
+
     if (m_isHost) {
+        // ============ ホスト側の処理 ============
+
         if (t == PKT_JOIN) {
-            netlog_printf("HOST RECV JOIN from=%s:%d bytes=%d", from_ip.c_str(), from_port, len);
+            // クライアントからの参加リクエスト
             host_handle_join(from_ip, from_port, worldObjects);
+
         } else if (t == PKT_INPUT) {
+            // クライアントからの入力データ
             if (len >= (int)sizeof(PacketInput)) {
                 PacketInput pi;
                 memcpy(&pi, buf, sizeof(PacketInput));
                 host_handle_input(pi, worldObjects);
 
-                // �ŏI�ڐG�����X�V
+                // そのクライアントの最終通信時刻を更新
                 std::lock_guard<std::mutex> lk(m_mutex);
                 for (auto& client : m_clients) {
                     if (client.playerId == pi.playerId) {
@@ -173,48 +199,48 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
                     }
                 }
             }
+
         } else if (t == PKT_PING) {
-            // optional lightweight handling
+            // 生存確認パケット（現状は何もしない）
+
         } else if (t == PKT_STATE) {
-            // Client sent its state to host (host should apply/update worldObjects)
+            // クライアントが自分の状態を送ってきた（FrameSync経由）
             if (len >= (int)sizeof(PacketStateHeader)) {
                 PacketStateHeader hdr;
                 memcpy(&hdr, buf, sizeof(hdr));
                 const char* p = buf + sizeof(hdr);
                 size_t expected = sizeof(hdr) + (size_t)hdr.objectCount * sizeof(ObjectState);
+
                 if (len >= (int)expected) {
                     const ObjectState* entries = (const ObjectState*)p;
-                    netlog_printf("HOST RECV STATE from %s:%d objectCount=%u", from_ip.c_str(), from_port, hdr.objectCount);
 
+                    // 各オブジェクトの状態を適用する
                     for (uint32_t i = 0; i < hdr.objectCount; ++i) {
                         const ObjectState& os = entries[i];
-                        netlog_printf("HOST RECV STATE: Processing client id=%u pos=(%.2f,%.2f,%.2f)",
-                            os.id, os.posX, os.posY, os.posZ);
 
+                        // 既存のGameObjectを探して補間ターゲットを設定
                         bool applied = false;
                         for (const auto& go : worldObjects) {
                             if (go->getId() == os.id) {
-                                XMFLOAT3 oldPos = go->getPosition();
-                                go->setPosition({ os.posX, os.posY, os.posZ });
-                                go->setRotation({ os.rotX, os.rotY, os.rotZ });
+                                go->setNetworkTarget({ os.posX, os.posY, os.posZ },
+                                    { os.rotX, os.rotY, os.rotZ });
                                 applied = true;
-                                netlog_printf("HOST RECV STATE: Updated client id=%u from (%.2f,%.2f,%.2f) to (%.2f,%.2f,%.2f)",
-                                    os.id, oldPos.x, oldPos.y, oldPos.z, os.posX, os.posY, os.posZ);
                                 break;
                             }
                         }
+
+                        // 見つからなければ新しいGameObjectを生成して追加
                         if (!applied) {
                             auto newObj = std::make_shared<Game::GameObject>();
                             newObj->setId(os.id);
                             newObj->setPosition({ os.posX, os.posY, os.posZ });
                             newObj->setRotation({ os.rotX, os.rotY, os.rotZ });
-                            newObj->setMesh(Box, 36, GetPolygonTexture());
-                            newObj->setBoxCollider({ 0.8f, 1.8f, 0.8f });
+                            newObj->setMesh(Box, 36, GetPolygonTexture());         // 四角形メッシュ
+                            newObj->setBoxCollider({ 0.8f, 1.8f, 0.8f });          // 当たり判定
                             worldObjects.push_back(newObj);
-                            netlog_printf("HOST RECV STATE: Created new client object id=%u pos=(%.2f,%.2f,%.2f)",
-                                os.id, os.posX, os.posY, os.posZ);
                         }
-                        // update client's last seen timestamp
+
+                        // そのクライアントの最終通信時刻を更新
                         std::lock_guard<std::mutex> lk(m_mutex);
                         for (auto& client : m_clients) {
                             if (client.playerId == os.id) {
@@ -225,16 +251,43 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
                     }
                 }
             }
+
+        } else if (t == PKT_BULLET) {
+            // クライアントからの弾発射通知 → ローカルで弾を生成 + 他クライアントに転送
+            if (len >= (int)sizeof(PacketBullet)) {
+                PacketBullet pb;
+                memcpy(&pb, buf, sizeof(PacketBullet));
+
+                // ホスト側で弾を生成
+                auto b = std::make_unique<Game::Bullet>();
+                b->Initialize(GetPolygonTexture(),
+                    { pb.posX, pb.posY, pb.posZ },
+                    { pb.dirX, pb.dirY, pb.dirZ },
+                    (int)pb.ownerPlayerId);
+                Game::BulletManager::GetInstance().Add(std::move(b));
+
+                // 他の全クライアントに転送（送信元以外）
+                std::lock_guard<std::mutex> lk(m_mutex);
+                for (const auto& c : m_clients) {
+                    if (c.ip == from_ip && c.port == from_port) continue;
+                    m_net.send_to(c.ip, c.port, &pb, (int)sizeof(PacketBullet));
+                }
+            }
         }
+
     } else {
+        // ============ クライアント側の処理 ============
+
         if (t == PKT_JOIN_ACK) {
+            // ホストから参加承認を受信（自分のプレイヤーIDが入っている）
             if (len >= 1 + 4) {
                 uint32_t pid_net;
                 memcpy(&pid_net, buf + 1, 4);
-                m_myPlayerId = ntohl(pid_net);
-                netlog_printf("CLIENT RECV JOIN_ACK id=%u from=%s:%d", m_myPlayerId, from_ip.c_str(), from_port);
+                m_myPlayerId = ntohl(pid_net);  // ネットワークバイト順→ホストバイト順に変換
             }
+
         } else if (t == PKT_STATE) {
+            // ホストからゲーム状態を受信
             if (len >= (int)sizeof(PacketStateHeader)) {
                 PacketStateHeader hdr;
                 memcpy(&hdr, buf, sizeof(hdr));
@@ -244,88 +297,119 @@ void NetworkManager::process_received(const char* buf, int len, const std::strin
                     client_handle_state(hdr, (const ObjectState*)p, localPlayer, worldObjects);
                 }
             }
+
+        } else if (t == PKT_BULLET) {
+            // ホストから弾の発射通知を受信 → ローカルで弾を生成
+            if (len >= (int)sizeof(PacketBullet)) {
+                PacketBullet pb;
+                memcpy(&pb, buf, sizeof(PacketBullet));
+
+                // 自分が撃った弾は既にローカルで生成済みなのでスキップ
+                if (pb.ownerPlayerId != m_myPlayerId) {
+                    auto b = std::make_unique<Game::Bullet>();
+                    b->Initialize(GetPolygonTexture(),
+                        { pb.posX, pb.posY, pb.posZ },
+                        { pb.dirX, pb.dirY, pb.dirZ },
+                        (int)pb.ownerPlayerId);
+                    Game::BulletManager::GetInstance().Add(std::move(b));
+                }
+            }
         }
     }
 }
 
-void NetworkManager::host_handle_join(const std::string& from_ip, int from_port, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
-    //�����N���C�A���g�`�F�b�N
-    {
-        std::lock_guard<std::mutex> lk(m_mutex);
-        for (auto& c : m_clients) {
-            if (c.ip == from_ip && c.port == from_port) {
-                netlog_printf("HOST JOIN: Client %s:%d already exists - ignoring", from_ip.c_str(), from_port);
-                return;
+// ============================================================
+// host_handle_join - ホスト: 新しいクライアントの参加処理
+// 1. 重複チェック（同じIP:Portなら無視）
+// 2. 空いているプレイヤーIDを割り当て
+// 3. クライアント情報をリストに追加
+// 4. GameObjectを作成（既存なら再利用）
+// 5. JOIN_ACKを返送
+// ============================================================
+void NetworkManager::host_handle_join(const std::string& from_ip, int from_port,
+    std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
+    // --- 重複クライアントチェック ---
+        {
+            std::lock_guard<std::mutex> lk(m_mutex);
+            for (auto& c : m_clients) {
+                if (c.ip == from_ip && c.port == from_port) {
+                    return;  // 既に参加済みなので何もしない
+                }
             }
         }
-    }
 
-    // Determine a non-conflicting player ID (never assign1 to remote clients)
-    uint32_t assignedId =0;
-    {
-        std::lock_guard<std::mutex> lk(m_mutex);
-        uint32_t cand = m_nextPlayerId;
-        if (cand <=1) cand =2;
-        // find next unused id (check existing clients and worldObjects)
-        bool conflict = true;
-        while (conflict) {
-            conflict = false;
-            for (const auto& c : m_clients) {
-                if (c.playerId == cand) { conflict = true; break; }
+        // --- プレイヤーIDの割り当て ---
+        // ID=1はホスト予約。リモートクライアントにはID=2以降を割り当てる
+        uint32_t assignedId = 0;
+        {
+            std::lock_guard<std::mutex> lk(m_mutex);
+            uint32_t cand = m_nextPlayerId;
+            if (cand <= 1) cand = 2;  // ID=1はホスト予約
+
+            // 既存クライアント・worldObjectsと衝突しないIDを探す
+            bool conflict = true;
+            while (conflict) {
+                conflict = false;
+                // 既存クライアントとの衝突チェック
+                for (const auto& c : m_clients) {
+                    if (c.playerId == cand) { conflict = true; break; }
+                }
+                if (conflict) { ++cand; continue; }
+                // worldObjectsとの衝突チェック
+                for (const auto& go : worldObjects) {
+                    if (go && go->getId() == cand) { conflict = true; break; }
+                }
+                if (conflict) ++cand;
             }
-            if (conflict) { ++cand; continue; }
-            for (const auto& go : worldObjects) {
-                if (go && go->getId() == cand) { conflict = true; break; }
+            assignedId = cand;
+
+            // クライアント情報をリストに登録
+            ClientInfo ci;
+            ci.ip = from_ip;
+            ci.port = from_port;
+            ci.playerId = assignedId;
+            ci.lastSeen = std::chrono::steady_clock::now();
+            m_clients.push_back(ci);
+
+            // 次回の割り当て候補を更新
+            m_nextPlayerId = assignedId + 1;
+        }
+
+        // --- GameObjectの作成（または再利用）---
+        bool existed = false;
+        for (const auto& go : worldObjects) {
+            if (go && go->getId() == assignedId) {
+                existed = true;
+                break;
             }
-            if (conflict) ++cand;
         }
-        assignedId = cand;
-        // register client
-        ClientInfo ci;
-        ci.ip = from_ip;
-        ci.port = from_port;
-        ci.playerId = assignedId;
-        ci.lastSeen = std::chrono::steady_clock::now();
-        m_clients.push_back(ci);
-        // advance next id
-        m_nextPlayerId = assignedId +1;
-    }
 
-    netlog_printf("HOST NEW CLIENT: %s:%d assigned id=%u (total clients: %zu)", from_ip.c_str(), from_port, assignedId, m_clients.size());
-
-    // If a GameObject with this id already exists (pre-created players), reuse it. Otherwise create a new one.
-    bool existed = false;
-    for (const auto& go : worldObjects) {
-        if (go && go->getId() == assignedId) {
-            existed = true;
-            break;
+        if (!existed) {
+            // 新しいGameObjectを作成してワールドに追加
+            auto newObj = std::make_shared<Game::GameObject>();
+            newObj->setPosition({ 0.0f, 3.0f, 0.0f });           // 初期位置（少し高い場所）
+            newObj->setRotation({ 0.0f, 0.0f, 0.0f });
+            newObj->setId(assignedId);
+            newObj->setMesh(Box, 36, GetPolygonTexture());         // 四角形メッシュで表示
+            newObj->setBoxCollider({ 0.8f, 1.8f, 0.8f });         // プレイヤーサイズの当たり判定
+            worldObjects.push_back(newObj);
         }
-    }
 
-    if (!existed) {
-        auto newObj = std::make_shared<Game::GameObject>();
-        newObj->setPosition({0.0f,3.0f,0.0f });
-        newObj->setRotation({0.0f,0.0f,0.0f });
-        newObj->setId(assignedId);
-        newObj->setMesh(Box,36, GetPolygonTexture());
-        newObj->setBoxCollider({0.8f,1.8f,0.8f });
-
-        worldObjects.push_back(newObj);
-        netlog_printf("HOST: Created worldObject for client id=%u", assignedId);
-    } else {
-        netlog_printf("HOST: Reusing existing worldObject for client id=%u", assignedId);
-    }
-
-    // send JOIN_ACK once
-    uint8_t reply[1 +4];
-    reply[0] = PKT_JOIN_ACK;
-    uint32_t pid_net = htonl(assignedId);
-    memcpy(reply +1, &pid_net,4);
-    bool sendSuccess = m_net.send_to(from_ip, from_port, reply, (int)(1 +4));
-    netlog_printf("HOST SEND JOIN_ACK -> %s:%d id=%u success=%d", from_ip.c_str(), from_port, assignedId, sendSuccess ?1 :0);
+        // --- JOIN_ACKを返送 ---
+        // パケット構造: [PKT_JOIN_ACK(1byte)] [playerId(4bytes, ネットワークバイト順)]
+        uint8_t reply[1 + 4];
+        reply[0] = PKT_JOIN_ACK;
+        uint32_t pid_net = htonl(assignedId);  // ホストバイト順→ネットワークバイト順
+        memcpy(reply + 1, &pid_net, 4);
+        m_net.send_to(from_ip, from_port, reply, (int)(1 + 4));
 }
 
-void NetworkManager::host_handle_input(const PacketInput& pi, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
+// ============================================================
+// host_handle_input - ホスト: クライアントの入力を適用する
+// 対応するGameObjectの位置に移動量を加算する
+// ============================================================
+void NetworkManager::host_handle_input(const PacketInput& pi,
+    std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     for (const auto& go : worldObjects) {
         if (go->getId() == pi.playerId) {
             auto pos = go->getPosition();
@@ -338,32 +422,36 @@ void NetworkManager::host_handle_input(const PacketInput& pi, std::vector<std::s
     }
 }
 
-void NetworkManager::client_handle_state(const PacketStateHeader& hdr, const ObjectState* entries, Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
-    netlog_printf("CLIENT RECV STATE: objectCount=%u", hdr.objectCount);
+// ============================================================
+// client_handle_state - クライアント: ホストから受信した状態を適用
+// 自分自身のIDはスキップ（ローカルの操作を優先するため）
+// 既存オブジェクトがあれば補間ターゲットを設定、なければ新規作成
+// ============================================================
+void NetworkManager::client_handle_state(const PacketStateHeader& hdr,
+    const ObjectState* entries,
+    Game::GameObject* localPlayer,
+    std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
 
     for (uint32_t i = 0; i < hdr.objectCount; ++i) {
         const ObjectState& os = entries[i];
-        netlog_printf("CLIENT RECV STATE: Processing id=%u pos=(%.2f,%.2f,%.2f) rot=(%.2f,%.2f,%.2f)",
-            os.id, os.posX, os.posY, os.posZ, os.rotX, os.rotY, os.rotZ);
 
-        // �����̃v���C���[ID�̏ꍇ�̓X�L�b�v�i���[�J������D��j
+        // 自分自身のプレイヤーIDならスキップ（ローカル入力を優先する）
         if (os.id == m_myPlayerId) {
-            netlog_printf("CLIENT RECV STATE: Skipped self position sync for id=%u", os.id);
             continue;
         }
 
+        // 既存のGameObjectを探して補間ターゲットを設定
         bool applied = false;
         for (const auto& go : worldObjects) {
             if (go->getId() == os.id) {
-                XMFLOAT3 oldPos = go->getPosition();
-                go->setPosition({ os.posX, os.posY, os.posZ });
-                go->setRotation({ os.rotX, os.rotY, os.rotZ });
+                go->setNetworkTarget({ os.posX, os.posY, os.posZ },
+                    { os.rotX, os.rotY, os.rotZ });
                 applied = true;
-                netlog_printf("CLIENT RECV STATE: Updated existing worldObject id=%u from (%.2f,%.2f,%.2f) to (%.2f,%.2f,%.2f)",
-                    os.id, oldPos.x, oldPos.y, oldPos.z, os.posX, os.posY, os.posZ);
                 break;
             }
         }
+
+        // 見つからなければ新しいGameObjectを生成
         if (!applied) {
             auto newObj = std::make_shared<Game::GameObject>();
             newObj->setId(os.id);
@@ -372,40 +460,68 @@ void NetworkManager::client_handle_state(const PacketStateHeader& hdr, const Obj
             newObj->setMesh(Box, 36, GetPolygonTexture());
             newObj->setBoxCollider({ 0.8f, 1.8f, 0.8f });
             worldObjects.push_back(newObj);
-            netlog_printf("CLIENT RECV STATE: Created new worldObject id=%u pos=(%.2f,%.2f,%.2f)",
-                os.id, os.posX, os.posY, os.posZ);
         }
     }
 }
 
+// ============================================================
+// send_input - クライアント: ホストに入力データを送信する
+// ============================================================
 void NetworkManager::send_input(const PacketInput& input) {
-    netlog_printf("CLIENT_SEND_ATTEMPT seq=%u player=%u -> %s:%d time=%lld",
-        input.seq, input.playerId, m_hostIp.c_str(), m_hostPort,
-        (long long)std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count());
+    // ホスト自身は送信不要
     if (m_isHost) return;
+    // ホストIPが設定されていなければ送信しない
     if (m_hostIp.empty()) return;
     m_net.send_to(m_hostIp, m_hostPort, &input, (int)sizeof(PacketInput));
 }
 
-// send_state_to_clients_round_robin: 1�N���C�A���g�������𑗂��ĕ��ׂ𕪎U�i���[�J�[����Ăԁj
-void NetworkManager::send_state_to_clients_round_robin(std::vector<std::shared_ptr<Game::GameObject>>* worldObjectsPtr) {
+// ============================================================
+// send_bullet - 弾の発射情報を送信する
+// ホスト: 全クライアントへ送信
+// クライアント: ホストへ送信
+// ============================================================
+void NetworkManager::send_bullet(const PacketBullet& pb) {
+    if (m_isHost) {
+        // ホスト: 全クライアントに弾情報を送信
+        std::lock_guard<std::mutex> lk(m_mutex);
+        for (const auto& c : m_clients) {
+            m_net.send_to(c.ip, c.port, &pb, (int)sizeof(PacketBullet));
+        }
+    } else {
+        // クライアント: ホストに弾情報を送信
+        if (!m_hostIp.empty()) {
+            m_net.send_to(m_hostIp, m_hostPort, &pb, (int)sizeof(PacketBullet));
+        }
+    }
+}
+
+// ============================================================
+// send_state_to_clients_round_robin
+// ホスト: 1回の呼び出しにつき1クライアントだけに状態を送信する
+// 全クライアントに毎回送ると負荷が高いため、順番に1人ずつ送る
+// ============================================================
+void NetworkManager::send_state_to_clients_round_robin(
+    std::vector<std::shared_ptr<Game::GameObject>>* worldObjectsPtr) {
+
     std::lock_guard<std::mutex> lk(m_mutex);
     if (m_clients.empty() || worldObjectsPtr == nullptr) return;
 
-    // ���M�Ώۂ͈�l���i���[�e�[�V�����j
+    // 今回送信するクライアントをインデックスで選ぶ（ラウンドロビン）
     size_t idx = m_stateSendIndex % m_clients.size();
     ClientInfo& c = m_clients[idx];
 
+    // パケットヘッダーを作成（オブジェクト1個分）
     PacketStateHeader header;
     header.type = PKT_STATE;
     header.seq = m_seq++;
     header.objectCount = 1;
 
+    // 送信バッファを確保
     std::vector<char> sendbuf;
     sendbuf.resize(sizeof(header) + sizeof(ObjectState));
     memcpy(sendbuf.data(), &header, sizeof(header));
 
+    // 該当クライアントのGameObjectから位置・回転を取得
     ObjectState os = {};
     os.id = c.playerId;
     bool found = false;
@@ -419,37 +535,43 @@ void NetworkManager::send_state_to_clients_round_robin(std::vector<std::shared_p
             break;
         }
     }
+    // 見つからなければゼロ位置を送信
     if (!found) {
         os.posX = os.posY = os.posZ = 0.0f;
         os.rotX = os.rotY = os.rotZ = 0.0f;
     }
     memcpy(sendbuf.data() + sizeof(header), &os, sizeof(ObjectState));
 
-    if (!m_net.send_to(c.ip, c.port, sendbuf.data(), static_cast<int>(sendbuf.size()))) {
-        netlog_printf("HOST SEND FAILED: to %s:%d", c.ip.c_str(), c.port);
-    }
+    // 送信
+    m_net.send_to(c.ip, c.port, sendbuf.data(), static_cast<int>(sendbuf.size()));
 
+    // 次回は次のクライアントに送信する
     m_stateSendIndex = (m_stateSendIndex + 1) % (m_clients.empty() ? 1 : m_clients.size());
 }
 
-// FrameSync: called from main every N frames (we'll call every10 frames at60FPS =>6Hz)
-void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
+// ============================================================
+// FrameSync - フレーム同期
+// メインループからNフレームごとに呼ばれる（例: 10フレームごと=6Hz）
+// プレイヤーID 1と2の位置・回転を送受信する
+// ============================================================
+void NetworkManager::FrameSync(Game::GameObject* localPlayer,
+    std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
     if (!localPlayer) {
-        netlog_printf("FRAMESYNC: localPlayer is NULL");
         return;
     }
 
-    netlog_printf("FRAMESYNC: Starting - isHost=%d myPlayerId=%u localPlayerID=%u",
-        m_isHost ? 1 : 0, m_myPlayerId, localPlayer->getId());
-
-    // We always send/receive positions for player IDs 1 and 2
+    // ============================================================
+    // ラムダ: 指定IDリストのObjectStateを構築する
+    // localPlayerのIDと一致すればそこから、なければworldObjectsから取得
+    // ============================================================
     auto build_states_for_ids = [&](const std::vector<int>& ids) {
         std::vector<ObjectState> states;
         for (int id : ids) {
             ObjectState os = {};
             os.id = static_cast<uint32_t>(id);
             bool found = false;
-            // check localPlayer first
+
+            // まずlocalPlayerをチェック（自分自身の最新位置）
             if (localPlayer && localPlayer->getId() == (uint32_t)id) {
                 auto p = localPlayer->getPosition();
                 auto r = localPlayer->getRotation();
@@ -457,6 +579,7 @@ void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<std::s
                 os.rotX = r.x; os.rotY = r.y; os.rotZ = r.z;
                 found = true;
             } else {
+                // worldObjectsから探す
                 for (const auto& go : worldObjects) {
                     if (!go) continue;
                     if (go->getId() == (uint32_t)id) {
@@ -469,6 +592,7 @@ void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<std::s
                     }
                 }
             }
+            // 見つからなければゼロで埋める
             if (!found) {
                 os.posX = os.posY = os.posZ = 0.0f;
                 os.rotX = os.rotY = os.rotZ = 0.0f;
@@ -478,17 +602,20 @@ void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<std::s
         return states;
         };
 
+    // 同期対象のプレイヤーID（現在は1と2の固定）
     std::vector<int> targetIds = { 1, 2 };
 
     if (m_isHost) {
-        // Host: send its local players (ids 1 and 2) to all clients
+        // ============ ホスト: 全クライアントに状態を送信 ============
         std::lock_guard<std::mutex> lk(m_mutex);
         if (m_clients.empty()) {
-            netlog_printf("HOST FRAMESYNC: No clients to send to - SKIPPING");
             return;
         }
 
+        // ID 1と2の状態を構築
         auto states = build_states_for_ids(targetIds);
+
+        // パケットを組み立てる
         PacketStateHeader header;
         header.type = PKT_STATE;
         header.seq = m_seq++;
@@ -498,25 +625,25 @@ void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<std::s
         memcpy(buf.data(), &header, sizeof(header));
         memcpy(buf.data() + sizeof(header), states.data(), states.size() * sizeof(ObjectState));
 
-        netlog_printf("HOST FRAMESYNC: Broadcasting %zu states to %zu clients", states.size(), m_clients.size());
+        // 全クライアントに送信
         for (const auto& c : m_clients) {
-            bool sendSuccess = m_net.send_to(c.ip, c.port, buf.data(), (int)buf.size());
-            netlog_printf("HOST FRAMESYNC: Sent to client %s:%d (id=%u) success=%d",
-                c.ip.c_str(), c.port, c.playerId, sendSuccess ? 1 : 0);
+            m_net.send_to(c.ip, c.port, buf.data(), (int)buf.size());
         }
 
     } else {
-        // Client: send its local players (ids 1 and 2) to the host
+        // ============ クライアント: ホストに自分の状態を送信 ============
         if (m_hostIp.empty()) {
-            netlog_printf("CLIENT FRAMESYNC: hostIP is empty - SKIPPING");
             return;
         }
-        //�d�v: JOIN/ACK ���󂯂ăv���C���[ID�����蓖�Ă���܂�STATE���M���s��Ȃ�
-        if (m_myPlayerId ==0) {
-            netlog_printf("CLIENT FRAMESYNC: myPlayerId is0 (not joined) - SKIPPING");
+        // JOIN_ACKを受け取ってIDが割り当てられるまでSTATEは送信しない
+        if (m_myPlayerId == 0) {
             return;
         }
+
+        // ID 1と2の状態を構築
         auto states = build_states_for_ids(targetIds);
+
+        // パケットを組み立てる
         PacketStateHeader header;
         header.type = PKT_STATE;
         header.seq = m_seq++;
@@ -526,23 +653,29 @@ void NetworkManager::FrameSync(Game::GameObject* localPlayer, std::vector<std::s
         memcpy(buf.data(), &header, sizeof(header));
         memcpy(buf.data() + sizeof(header), states.data(), states.size() * sizeof(ObjectState));
 
-        bool sendSuccess = m_net.send_to(m_hostIp, m_hostPort, buf.data(), (int)buf.size());
-        netlog_printf("CLIENT FRAMESYNC SEND: Sent %zu states to host %s:%d success=%d",
-            states.size(), m_hostIp.c_str(), m_hostPort, sendSuccess ? 1 : 0);
+        // ホストに送信
+        m_net.send_to(m_hostIp, m_hostPort, buf.data(), (int)buf.size());
     }
 }
 
+// ============================================================
+// scan_channel_usage - チャンネル使用状況をスキャンする
+// 負荷軽減のため30秒間隔でしか実行しない
+// ============================================================
 void NetworkManager::scan_channel_usage() {
     auto now = std::chrono::steady_clock::now();
+    // 前回スキャンから30秒経っていなければスキップ
     if (std::chrono::duration_cast<std::chrono::seconds>(now - m_lastChannelScan).count() < 30) {
         return;
     }
     m_lastChannelScan = now;
-    netlog_printf("CHANNEL SCAN: skipped for performance");
 }
 
+// ============================================================
+// find_least_crowded_channel - 最もユーザーが少ないチャンネルを返す
+// ============================================================
 int NetworkManager::find_least_crowded_channel() {
-    if (m_channelInfo.empty()) return 0;
+    if (m_channelInfo.empty()) return 0;  // 情報がなければチャンネル0
     int bestChannel = 0;
     uint32_t minUsers = UINT32_MAX;
     for (const auto& info : m_channelInfo) {
@@ -554,51 +687,69 @@ int NetworkManager::find_least_crowded_channel() {
     return bestChannel;
 }
 
+// ============================================================
+// switch_to_channel - 指定チャンネルに切り替える
+// 現在のソケットを閉じて新しいポートで再初期化する
+// ============================================================
 bool NetworkManager::switch_to_channel(int channelId) {
     if (channelId < 0 || channelId >= NUM_CHANNELS) return false;
+
+    // 現在のソケットを閉じる
     m_net.close_socket();
     m_discovery.close_socket();
+
+    // 新しいチャンネルのポートで初期化
     int newNetPort = PORT_RANGES[channelId][0];
     int newDiscoveryPort = PORT_RANGES[channelId][1];
     if (!m_net.initialize(newNetPort) || !m_discovery.initialize_broadcast(newDiscoveryPort)) {
-        netlog_printf("CHANNEL SWITCH FAILED: channel %d", channelId);
         return false;
     }
     m_currentChannel = channelId;
-    netlog_printf("CHANNEL SWITCHED: to channel %d (net=%d, discovery=%d)", channelId, newNetPort, newDiscoveryPort);
     return true;
 }
 
+// ============================================================
+// try_dynamic_ports - 両ソケットをランダムポートで初期化する
+// ============================================================
 bool NetworkManager::try_dynamic_ports() {
     return m_net.initialize_dynamic_port() && m_discovery.initialize_dynamic_port();
 }
 
-// check_existing_firewall_rule: �ŏ����ɂ��Ă���
+// ============================================================
+// check_existing_firewall_rule - ファイアウォールルールの存在確認
+// COM列挙はコストが高いため、常にfalseを返して簡略化している
+// ============================================================
 bool NetworkManager::check_existing_firewall_rule() {
-    // �R�X�g�̍���COM�񋓂͔����� false ��Ԃ��Ă����iadd_firewall_exception �ł͊Ǘ��Ҕ��肾���ŏI���j
     return false;
 }
 
-// add_firewall_exception: �Ǘ��җL�������`�F�b�N���ďd������͂��Ȃ�
+// ============================================================
+// add_firewall_exception - ファイアウォール例外の登録
+// 管理者権限があるか確認するが、実際のルール追加は行わない
+// （学校環境などでは権限がないことが多いため）
+// ============================================================
 bool NetworkManager::add_firewall_exception() {
-    // �Ǘ��҃`�F�b�N���s�����A���ۂ�COM�Œǉ����鏈���͍s��Ȃ��i�w�Z���ł͑����̏ꍇ�s�j
+    // 管理者権限チェック
     BOOL isAdmin = FALSE;
     PSID administratorsGroup = NULL;
     SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
-    if (AllocateAndInitializeSid(&ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
+    if (AllocateAndInitializeSid(&ntAuthority, 2,
+        SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
         0, 0, 0, 0, 0, 0, &administratorsGroup)) {
         CheckTokenMembership(NULL, administratorsGroup, &isAdmin);
         FreeSid(administratorsGroup);
     }
     if (!isAdmin) {
-        netlog_printf("FIREWALL: not admin, will use dynamic ports if needed");
         return true;
     }
-    netlog_printf("FIREWALL: admin present, but skipping explicit rule add for performance");
+    // 管理者であっても実際のルール追加はスキップ（パフォーマンス優先）
     return true;
 }
 
-// handle_channel_scan / handle_channel_info: �y�ʂɕێ�
+// ============================================================
+// handle_channel_scan - チャンネルスキャン要求への応答
+// 自分のチャンネル情報を要求元に返す
+// ============================================================
 void NetworkManager::handle_channel_scan(const std::string& from_ip, int from_port) {
     ChannelInfo info;
     info.type = PKT_CHANNEL_INFO;
@@ -609,35 +760,51 @@ void NetworkManager::handle_channel_scan(const std::string& from_ip, int from_po
     m_discovery.send_to(from_ip, from_port, &info, sizeof(info));
 }
 
+// ============================================================
+// handle_channel_info - 受信したチャンネル情報をリストに保存する
+// 同じチャンネルIDが既にあれば上書き、なければ追加
+// ============================================================
 void NetworkManager::handle_channel_info(const ChannelInfo& info) {
     bool found = false;
     for (auto& existing : m_channelInfo) {
         if (existing.channelId == info.channelId) {
-            existing = info;
+            existing = info;  // 既存エントリを更新
             found = true;
             break;
         }
     }
-    if (!found) m_channelInfo.push_back(info);
+    if (!found) m_channelInfo.push_back(info);  // 新規追加
 }
 
-// Worker: polls sockets and pushes received packets to the queue.
-// It also performs lightweight discovery replies immediately and does round-robin state sends.
+// ============================================================
+// start_worker - 受信ポーリング用のワーカースレッドを開始する
+//
+// このスレッドは以下を繰り返す:
+// 1. ゲーム通信ソケットをポーリング → パケットをキューに追加
+// 2. 探索ソケットをポーリング → DISCOVERには即座に応答、それ以外はキューへ
+// 3. ホストの場合、定期的にラウンドロビンで最小限の状態を送信
+// 4. 5ms待機してCPU負荷を抑える
+// ============================================================
 void NetworkManager::start_worker() {
-    if (m_workerRunning.exchange(true)) return; // already running
+    // 既に動作中なら何もしない（exchange=trueを返す場合は既にtrue）
+    if (m_workerRunning.exchange(true)) return;
+
     m_worker = std::thread([this]() {
-        std::vector<std::shared_ptr<Game::GameObject>> worldObjectsSnapshot; // worker needs a pointer to world objects when sending state
+        // ワーカー内のローカル変数
+        std::vector<std::shared_ptr<Game::GameObject>> worldObjectsSnapshot;
         auto lastStateSend = std::chrono::steady_clock::now();
+
         while (m_workerRunning.load()) {
-            // Poll main net socket
+
+            // --- 1. ゲーム通信ソケットのポーリング ---
             char buf[MAX_UDP_PACKET];
             std::string from_ip;
             int from_port = 0;
 
-            // Poll frequently but non-blocking with short timeout
+            // 50msタイムアウトで受信を試みる
             int r = m_net.poll_recv(buf, sizeof(buf), from_ip, from_port, 50);
             if (r > 0) {
-                // Push packet to queue for main thread to process (game logic)
+                // 受信データをキューに積む（メインスレッドで処理する）
                 RecvPacket pkt;
                 pkt.data.assign(buf, buf + r);
                 pkt.len = r;
@@ -647,16 +814,16 @@ void NetworkManager::start_worker() {
                 push_recv_packet(std::move(pkt));
             }
 
-            // Poll discovery socket
+            // --- 2. 探索ソケットのポーリング ---
             int dr = m_discovery.poll_recv(buf, sizeof(buf), from_ip, from_port, 10);
             if (dr > 0) {
                 uint8_t dt = (uint8_t)buf[0];
                 if (m_isHost && dt == PKT_DISCOVER) {
-                    // reply immediately (very lightweight)
+                    // ホストの場合、DISCOVER要求には即座に応答する（軽量処理）
                     uint8_t reply = PKT_DISCOVER_REPLY;
                     m_discovery.send_to(from_ip, from_port, &reply, 1);
                 } else {
-                    // non-discovery packets (channel info etc.) push to queue
+                    // それ以外のパケット（チャンネル情報など）はキューへ
                     RecvPacket pkt;
                     pkt.data.assign(buf, buf + dr);
                     pkt.len = dr;
@@ -667,20 +834,22 @@ void NetworkManager::start_worker() {
                 }
             }
 
-            // Periodic state send (round-robin). Worker will attempt to send one client state every m_stateInterval.
+            // --- 3. ホスト: 定期的な最小限状態送信 ---
+            // m_stateInterval（200ms）ごとに1クライアントに最小パケットを送る
+            // ネットワーク接続を維持するためのキープアライブ的な役割
             auto now = std::chrono::steady_clock::now();
             if (!m_isHost) {
-                // nothing
-            } else if (std::chrono::duration_cast<std::chrono::milliseconds>(now - lastStateSend) >= m_stateInterval) {
-                // We need worldObjects reference to extract positions; to avoid data race, we keep a pointer to a small snapshot
-                // Instead of reading worldObjects here (unsafe), we ask main thread to keep positions minimal; to keep this self-contained,
-                // we will send empty/default state for the chosen client (keeps network alive). For correctness, main-thread send is better.
-                // To keep light, send small ping-style state for one client.
+                // クライアントは何もしない
+            } else if (std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - lastStateSend) >= m_stateInterval) {
+                // ワーカースレッドからworldObjectsに安全にアクセスできないため、
+                // 位置はゼロで埋めた最小パケットを送る（正確な位置はFrameSyncで送る）
                 std::lock_guard<std::mutex> lk(m_mutex);
                 if (!m_clients.empty()) {
                     size_t idx = m_stateSendIndex % m_clients.size();
                     ClientInfo& c = m_clients[idx];
-                    // Build minimal state (only id + zeros)
+
+                    // 最小限の状態パケットを組み立て
                     PacketStateHeader header;
                     header.type = PKT_STATE;
                     header.seq = m_seq++;
@@ -695,40 +864,59 @@ void NetworkManager::start_worker() {
                     memcpy(sendbuf.data(), &header, sizeof(header));
                     memcpy(sendbuf.data() + sizeof(header), &os, sizeof(os));
                     m_net.send_to(c.ip, c.port, sendbuf.data(), static_cast<int>(sendbuf.size()));
-                    m_stateSendIndex = (m_stateSendIndex + 1) % (m_clients.empty() ? 1 : m_clients.size());
+
+                    // 次のクライアントに進む
+                    m_stateSendIndex = (m_stateSendIndex + 1) %
+                        (m_clients.empty() ? 1 : m_clients.size());
                 }
                 lastStateSend = now;
             }
-            // Sleep briefly to avoid busy loop
+
+            // --- 4. CPU負荷軽減のためスリープ ---
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
-        // worker exit
+        // ワーカースレッド終了
         });
 }
 
+// ============================================================
+// stop_worker - ワーカースレッドを停止してjoinする
+// ============================================================
 void NetworkManager::stop_worker() {
+    // フラグをfalseに設定（既にfalseなら何もしない）
     if (!m_workerRunning.exchange(false)) return;
+    // スレッドの終了を待つ
     if (m_worker.joinable()) {
         m_worker.join();
     }
 }
 
-// push_recv_packet: push into deque with capacity limit to avoid memory blowup
+// ============================================================
+// push_recv_packet - ワーカースレッドからキューにパケットを追加する
+// キューが最大サイズ（1024）を超えたら古いパケットを捨てる
+// ============================================================
 void NetworkManager::push_recv_packet(RecvPacket&& pkt) {
     std::lock_guard<std::mutex> lk(m_recvMutex);
     const size_t MAX_QUEUE = 1024;
     if (m_recvQueue.size() >= MAX_QUEUE) {
-        // drop oldest
+        // キューが満杯 → 最も古いパケットを削除
         m_recvQueue.pop_front();
     }
     m_recvQueue.push_back(std::move(pkt));
 }
 
-// initialize_with_fallback unchanged except kept lightweight
+// ============================================================
+// initialize_with_fallback - フォールバック付きソケット初期化
+// 1. デフォルトポート（チャンネル0）を試す
+// 2. ダメなら他のチャンネルを順に試す
+// 3. 全部ダメならランダム動的ポートを試す
+// ============================================================
 bool NetworkManager::initialize_with_fallback() {
+    // まずデフォルトポートで試す
     if (m_net.initialize(NET_PORT) && m_discovery.initialize_broadcast(DISCOVERY_PORT)) {
         return true;
     }
+    // 代替チャンネルを順に試す
     for (int i = 1; i < NUM_CHANNELS; i++) {
         int netPort = PORT_RANGES[i][0];
         int discoveryPort = PORT_RANGES[i][1];
@@ -737,21 +925,27 @@ bool NetworkManager::initialize_with_fallback() {
             return true;
         }
     }
+    // 最後の手段: ランダムポート
     if (try_dynamic_ports()) return true;
     return false;
 }
 
-void NetworkManager::send_state_to_all(std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
+// ============================================================
+// send_state_to_all - ホスト: 全クライアントに全オブジェクトの状態を送信
+// ホスト自身のプレイヤー（ID=1）も含めて送信する
+// ============================================================
+void NetworkManager::send_state_to_all(
+    std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
+
     std::lock_guard<std::mutex> lk(m_mutex);
     if (m_clients.empty()) {
-        netlog_printf("HOST SEND_STATE: No clients connected");
         return;
     }
 
-    // Build state list: include host player (id==1) if present, plus all connected clients
+    // 送信する状態リストを構築
     std::vector<ObjectState> states;
 
-    // �z�X�g�v���C���[�iID=1�j��K�����[�J���v���C���[����擾
+    // --- ホストのローカルプレイヤー（ID=1）を追加 ---
     Game::GameObject* localPlayer = nullptr;
     localPlayer = Game::GetLocalPlayerGameObject();
 
@@ -763,37 +957,36 @@ void NetworkManager::send_state_to_all(std::vector<std::shared_ptr<Game::GameObj
         os.posX = p.x; os.posY = p.y; os.posZ = p.z;
         os.rotX = r.x; os.rotY = r.y; os.rotZ = r.z;
         states.push_back(os);
-        netlog_printf("HOST SEND_STATE: Added host LOCAL player id=1 pos=(%.2f,%.2f,%.2f)", p.x, p.y, p.z);
     }
 
-    // Add each connected client from worldObjects
+    // --- 各クライアントのGameObjectを追加 ---
     for (const auto& c : m_clients) {
         ObjectState os = {};
         os.id = c.playerId;
         bool found = false;
         for (const auto& go : worldObjects) {
             if (go && go->getId() == os.id) {
-                auto p = go->getPosition(); auto r = go->getRotation();
+                auto p = go->getPosition();
+                auto r = go->getRotation();
                 os.posX = p.x; os.posY = p.y; os.posZ = p.z;
                 os.rotX = r.x; os.rotY = r.y; os.rotZ = r.z;
                 found = true;
-                netlog_printf("HOST SEND_STATE: Added client id=%u pos=(%.2f,%.2f,%.2f)", os.id, p.x, p.y, p.z);
                 break;
             }
         }
+        // worldObjectsに見つからなければゼロ位置で送信
         if (!found) {
             os.posX = os.posY = os.posZ = 0.0f;
             os.rotX = os.rotY = os.rotZ = 0.0f;
-            netlog_printf("HOST SEND_STATE: Client id=%u not found in worldObjects, using default pos", os.id);
         }
         states.push_back(os);
     }
 
     if (states.empty()) {
-        netlog_printf("HOST SEND_STATE: No states to send");
         return;
     }
 
+    // --- パケットを組み立てて全クライアントに送信 ---
     PacketStateHeader header;
     header.type = PKT_STATE;
     header.seq = m_seq++;
@@ -803,10 +996,7 @@ void NetworkManager::send_state_to_all(std::vector<std::shared_ptr<Game::GameObj
     memcpy(buf.data(), &header, sizeof(header));
     memcpy(buf.data() + sizeof(header), states.data(), states.size() * sizeof(ObjectState));
 
-    netlog_printf("HOST SEND_STATE: Broadcasting %zu states to %zu clients", states.size(), m_clients.size());
     for (const auto& c : m_clients) {
-        bool sendSuccess = m_net.send_to(c.ip, c.port, buf.data(), (int)buf.size());
-        netlog_printf("HOST SEND_STATE: Sent to client %s:%d (id=%u) success=%d",
-            c.ip.c_str(), c.port, c.playerId, sendSuccess ? 1 : 0);
+        m_net.send_to(c.ip, c.port, buf.data(), (int)buf.size());
     }
 }

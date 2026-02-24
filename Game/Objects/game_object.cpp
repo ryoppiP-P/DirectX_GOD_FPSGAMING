@@ -182,4 +182,35 @@ void GameObject::Move(const XMFLOAT3& direction, float speed, float deltaTime) {
     updateColliderTransform();
 }
 
+void GameObject::setNetworkTarget(const XMFLOAT3& targetPos, const XMFLOAT3& targetRot) {
+    m_netTargetPos = targetPos;
+    m_netTargetRot = targetRot;
+    m_hasNetTarget = true;
+}
+
+void GameObject::updateNetworkInterpolation(float lerpFactor) {
+    if (!m_hasNetTarget) return;
+
+    // 線形補間で現在位置をターゲットに近づける
+    position.x += (m_netTargetPos.x - position.x) * lerpFactor;
+    position.y += (m_netTargetPos.y - position.y) * lerpFactor;
+    position.z += (m_netTargetPos.z - position.z) * lerpFactor;
+
+    rotation.x += (m_netTargetRot.x - rotation.x) * lerpFactor;
+    rotation.y += (m_netTargetRot.y - rotation.y) * lerpFactor;
+    rotation.z += (m_netTargetRot.z - rotation.z) * lerpFactor;
+
+    m_worldMatrixDirty = true;
+    bufferNeedsUpdate = true;
+    updateColliderTransform();
+
+    // 十分近づいたら補間終了
+    float dx = m_netTargetPos.x - position.x;
+    float dy = m_netTargetPos.y - position.y;
+    float dz = m_netTargetPos.z - position.z;
+    if ((dx * dx + dy * dy + dz * dz) < 0.0001f) {
+        m_hasNetTarget = false;
+    }
+}
+
 } // namespace Game

@@ -95,6 +95,21 @@ private:
 
     void createVertexBuffer();
     void updateColliderTransform();
+
+    // ネットワーク補間用
+    XMFLOAT3 m_netTargetPos = { 0.0f, 0.0f, 0.0f };
+    XMFLOAT3 m_netTargetRot = { 0.0f, 0.0f, 0.0f };
+    bool m_hasNetTarget = false;
+
+public:
+    // ネットワーク受信時の補間ターゲットを設定する
+    void setNetworkTarget(const XMFLOAT3& targetPos, const XMFLOAT3& targetRot);
+
+    // 毎フレーム呼んで補間ターゲットに向かって滑らかに移動する
+    void updateNetworkInterpolation(float lerpFactor = 0.2f);
+
+    // 補間ターゲットがあるか
+    bool hasNetworkTarget() const { return m_hasNetTarget; }
 };
 
 } // namespace Game

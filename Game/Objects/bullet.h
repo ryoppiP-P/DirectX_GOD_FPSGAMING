@@ -8,28 +8,31 @@ using namespace DirectX;
 
 namespace Game {
 
-class Bullet {
-public:
-    XMFLOAT3 position;
-    XMFLOAT3 velocity;
-    float lifeTime;
-    bool active;
-    Engine::BoxCollider collider;
-    GameObject visual;
-    uint32_t m_collisionId = 0;
+    class Bullet {
+    public:
+        XMFLOAT3 position;
+        XMFLOAT3 velocity;
+        float lifeTime;
+        bool active;
+        Engine::BoxCollider collider;
+        GameObject visual;
+        uint32_t m_collisionId = 0;
 
-    Bullet();
-    ~Bullet();
+        int ownerPlayerId = 0;   // この弾を撃ったプレイヤーのID（自分には当たらないようにする）
 
-    Bullet(const Bullet&) = delete;
-    Bullet& operator=(const Bullet&) = delete;
-    Bullet(Bullet&&) noexcept;
-    Bullet& operator=(Bullet&&) noexcept;
+        Bullet();
+        ~Bullet();
 
-    void Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, const XMFLOAT3& dir);
-    void Update(float deltaTime);
-    void Draw();
-    void Deactivate();
-};
+        Bullet(const Bullet&) = delete;
+        Bullet& operator=(const Bullet&) = delete;
+        Bullet(Bullet&&) noexcept;
+        Bullet& operator=(Bullet&&) noexcept;
+
+        // ownerIdを受け取るように変更
+        void Initialize(ID3D11ShaderResourceView* texture, const XMFLOAT3& pos, const XMFLOAT3& dir, int ownerId = 0);
+        void Update(float deltaTime);
+        void Draw();
+        void Deactivate();
+    };
 
 } // namespace Game
