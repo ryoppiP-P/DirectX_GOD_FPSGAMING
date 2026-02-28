@@ -54,24 +54,22 @@ namespace Game {
         if (m_pMap) {
             m_pMap->Initialize(Engine::GetDefaultTexture());
         }
-
         m_pMapRenderer = new MapRenderer();
         if (m_pMapRenderer) {
             m_pMapRenderer->Initialize(m_pMap);
         }
 
-        // === プレイヤー選択ダイアログ ===
+        // === ホスト/クライアント選択ダイアログ（1つに統合） ===
         HWND hWnd = FindWindowA(CLASS_NAME, nullptr);
-        int msgRes = MessageBox(hWnd, "Choose starting player:\nYes = Player1 (TPS)\nNo = Player2 (FPS)",
-            "Select Player", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1);
-        if (msgRes == IDYES) {
-            PlayerManager::GetInstance().SetInitialActivePlayer(1);
-            std::cout << "[SceneGame] Selected initial player:1\n";
-        } else {
-            PlayerManager::GetInstance().SetInitialActivePlayer(2);
-            std::cout << "[SceneGame] Selected initial player:2\n";
-        }
+        int msgRes = MessageBox(hWnd,
+            "Yes = HOST (Player1, TPS)\nNo = CLIENT (Player2, FPS)",
+            "Select Role", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1);
+        bool isHost = (msgRes == IDYES);
 
+        // ホスト→Player1操作, クライアント→Player2操作
+        PlayerManager::GetInstance().SetInitialActivePlayer(isHost ? 1 : 2);
+
+        // === 両方のプレイヤーを初期化（衝突システム登録のため必須） ===
         InitializePlayers(m_pMap, Engine::GetDefaultTexture());
 
         // === カメラ初期化 ===
@@ -89,8 +87,6 @@ namespace Game {
         // === 衝突システム初期化 ===
         Engine::CollisionSystem::GetInstance().Initialize();
         Engine::MapCollision::GetInstance().Initialize(2.0f);
-
-        // マップブロックをMapCollisionに登録
         if (m_pMap) {
             const auto& blocks = m_pMap->GetBlockObjects();
             for (const auto& block : blocks) {
@@ -98,17 +94,12 @@ namespace Game {
             }
         }
 
-        // =====================================================
-        // 衝突コールバック: 弾がプレイヤーに当たった時の処理
-        // - 自分が撃った弾は自分に当たらない (ownerPlayerId判定)
-        // - 相手プレイヤーに1ダメージを与える
-        // =====================================================
+        // === 衝突コールバック（変更なし） ===
         Engine::CollisionSystem::GetInstance().SetCallback(
             [](const Engine::CollisionHit& hit) {
+                /* ... 既存のコールバックコードそのまま ... */
                 Bullet* bullet = nullptr;
                 Player* player = nullptr;
-
-                // 衝突した2つのオブジェクトから弾とプレイヤーを特定
                 if (Engine::HasFlag(hit.dataA->layer, Engine::CollisionLayer::PROJECTILE))
                     bullet = static_cast<Bullet*>(hit.dataA->userData);
                 if (Engine::HasFlag(hit.dataB->layer, Engine::CollisionLayer::PROJECTILE))
@@ -117,41 +108,56 @@ namespace Game {
                     player = static_cast<Player*>(hit.dataA->userData);
                 if (Engine::HasFlag(hit.dataB->layer, Engine::CollisionLayer::PLAYER))
                     player = static_cast<Player*>(hit.dataB->userData);
-
-                // 弾とプレイヤーの両方が有効な場合のみ処理
                 if (bullet && player && bullet->active && player->IsAlive()) {
-
-                    // 自分が撃った弾は自分に当たらない
-                    if (bullet->ownerPlayerId == player->GetPlayerId()) {
-                        return;  // 自弾なのでスキップ
-                    }
-
-                    // 弾を消してプレイヤーに1ダメージ
+                    if (bullet->ownerPlayerId == player->GetPlayerId()) return;
                     bullet->Deactivate();
                     player->TakeDamage(1);
-
                     std::cout << "[Hit!] Player " << player->GetPlayerId()
-                        << " took 1 damage, HP=" << player->GetHP()
-                        << "/" << player->GetMaxHP() << "\n";
-
-                    // HPが0になったら死亡ログ
+                        << " HP=" << player->GetHP() << "/" << player->GetMaxHP() << "\n";
                     if (!player->IsAlive()) {
-                        std::cout << "[Kill!] Player " << player->GetPlayerId() << " has been eliminated!\n";
+                        std::cout << "[Kill!] Player " << player->GetPlayerId() << " eliminated!\n";
                     }
                 }
             }
         );
 
-        // ローカルプレイヤーのID初期設定
+        // === ネットワーク起動 ===
+        if (isHost) {
+            if (g_network.start_as_host()) {
+                std::cout << "[SceneGame] HOST started - waiting for client...\n";
+            }
+        } else {
+            if (g_network.start_as_client()) {
+                std::string hostIp;
+                if (g_network.discover_and_join(hostIp)) {
+                    std::cout << "[SceneGame] CLIENT connected to " << hostIp << "\n";
+                } else {
+                    std::cout << "[SceneGame] CLIENT: host not found\n";
+                }
+            }
+        }
+
+        // === ローカルプレイヤーのID設定 ===
         GameObject* localGo = GetLocalPlayerGameObject();
         if (localGo) {
-            localGo->setId(0);
-            std::cout << "[SceneGame] Players initialized\n";
-            std::cout << "[SceneGame] 1キー: Player1 (TPS視点), 2キー: Player2 (FPS視点)\n";
+            localGo->setId(isHost ? 1 : 2);
+            m_worldObjects.push_back(MakeNonOwning(localGo));
+        }
+
+        // === 相手プレイヤーのGameObjectもworldObjectsに登録 ===
+        Player* otherPlayer = PlayerManager::GetInstance().GetPlayer(isHost ? 2 : 1);
+        if (otherPlayer) {
+            GameObject* otherGo = otherPlayer->GetGameObject();
+            if (otherGo) {
+                otherGo->setId(isHost ? 2 : 1);
+                m_worldObjects.push_back(MakeNonOwning(otherGo));
+            }
         }
 
         return S_OK;
     }
+
+
 
     void SceneGame::Finalize() {
         if (m_pMapRenderer) {
@@ -176,111 +182,40 @@ namespace Game {
         static int frameCounter = 0;
         frameCounter++;
 
-        // === F1: ホストとして起動 ===
-        if (Keyboard_IsKeyDownTrigger(KK_F1)) {
-            if (!g_network.is_host()) {
-                if (g_network.start_as_host()) {
-                    std::cout << "[SceneGame] Started as HOST - Waiting for clients...\n";
-                } else {
-                    std::cout << "[SceneGame] FAILED to start as HOST\n";
-                }
-            } else {
-                std::cout << "[SceneGame] Already running as HOST\n";
-            }
-        }
-
-        // === F2: クライアントとして起動 ===
-        if (Keyboard_IsKeyDownTrigger(KK_F2)) {
-            if (!g_network.is_host()) {
-                if (g_network.start_as_client()) {
-                    std::string hostIp;
-                    if (g_network.discover_and_join(hostIp)) {
-                        std::cout << "[SceneGame] Discovered host: " << hostIp << " - CLIENT CONNECTED!\n";
-                    } else {
-                        std::cout << "[SceneGame] CLIENT: Host discovery FAILED\n";
-                    }
-                } else {
-                    std::cout << "[SceneGame] FAILED to start as CLIENT\n";
-                }
-            } else {
-                std::cout << "[SceneGame] Cannot start client - already running as HOST\n";
-            }
-        }
-
         // === ネットワーク更新 ===
         GameObject* localGo = GetLocalPlayerGameObject();
         constexpr float fixedDt = 1.0f / 60.0f;
         g_network.update(fixedDt, localGo, m_worldObjects);
 
-        // ネットワークオブジェクトの位置を毎フレーム補間で滑らかに更新
+        // ネットワーク補間（ローカル以外）
         for (const auto& go : m_worldObjects) {
             if (!go) continue;
-            // ローカルプレイヤー自身は補間しない（自分の入力で直接動くため）
             if (localGo && go->getId() == localGo->getId()) continue;
             go->updateNetworkInterpolation(0.2f);
-        }
 
-        // ホスト起動時にローカルプレイヤーにID=1を割り当て
-        if (g_network.is_host() && localGo && localGo->getId() == 0) {
-            localGo->setId(1);
-            std::cout << "[SceneGame] Host player assigned id=1\n";
-            m_worldObjects.push_back(MakeNonOwning(localGo));
-            std::cout << "[SceneGame] Host player added to worldObjects with id=1\n";
-        }
-
-        // クライアント側: サーバーから割り当てられたIDを設定
-        if (!g_network.is_host() && g_network.getMyPlayerId() != 0) {
-            GameObject* lg = GetLocalPlayerGameObject();
-            if (lg && lg->getId() == 0) {
-                lg->setId(g_network.getMyPlayerId());
-                m_worldObjects.push_back(MakeNonOwning(lg));
-                std::cout << "[SceneGame] Client player assigned id=" << lg->getId() << "\n";
+            int goId = (int)go->getId();
+            if (goId == 1 || goId == 2) {
+                PlayerManager::GetInstance().ForceUpdatePlayer(
+                    goId, go->getPosition(), go->getRotation());
             }
         }
 
         // === フレーム同期（3フレームごと） ===
         if (frameCounter % 3 == 0) {
             bool isNetworkActive = g_network.is_host() || g_network.getMyPlayerId() != 0;
-            std::cout << "[Network] Frame " << frameCounter << " - NetworkActive: " << (isNetworkActive ? "YES" : "NO");
-
             if (isNetworkActive) {
                 g_network.FrameSync(localGo, m_worldObjects);
-                std::cout << " - FrameSync EXECUTED";
-                if (localGo) {
-                    auto pos = localGo->getPosition();
-                    auto rot = localGo->getRotation();
-                    std::cout << " LOCAL pos=(" << pos.x << "," << pos.y << "," << pos.z << ")"
-                        << " rot=(" << rot.x << "," << rot.y << "," << rot.z << ")"
-                        << " id=" << localGo->getId();
-
-                    if (g_network.is_host()) {
-                        std::cout << " [HOST] clients=" << m_worldObjects.size() - 1;
-                    } else {
-                        std::cout << " [CLIENT] myId=" << g_network.getMyPlayerId();
-                    }
-                } else {
-                    std::cout << " (localGo=null)";
-                }
-            } else {
-                std::cout << " - FrameSync SKIPPED (not connected)";
             }
-            std::cout << "\n";
         }
 
         // === ゲームロジック更新 ===
-        Engine::CollisionSystem::GetInstance().Update();
+        // ★★★ 順序変更: まずプレイヤーと弾を動かしてから衝突チェック ★★★
         UpdateCameraSystem();
-        UpdatePlayer();
-
-        // === 定期ステータス表示（3秒ごと） ===
-        static int statusCounter = 0;
-        statusCounter++;
-        if (statusCounter % 180 == 0) {
-            std::cout << "[NetworkStatus] Host: " << (g_network.is_host() ? "YES" : "NO")
-                << " MyId: " << g_network.getMyPlayerId()
-                << " WorldObjects: " << m_worldObjects.size() << "\n";
-        }
+        UpdatePlayer();  // ← この中で BulletManager::Update() が弾を移動させる
+        Engine::CollisionSystem::GetInstance().Update();  // ← 移動後の位置で衝突判定
     }
+
+
 
     void SceneGame::Draw() {
         // ===== 3D描画 =====
@@ -289,18 +224,6 @@ namespace Game {
         }
 
         DrawPlayers();
-
-        // ネットワーク経由の他プレイヤーオブジェクトを描画
-        GameObject* local = GetLocalPlayerGameObject();
-        for (const auto& go : m_worldObjects) {
-            if (!go) continue;
-            if (go->getId() != 0 && go.get() != local) {
-                if (local && go->getId() == local->getId()) {
-                    continue;
-                }
-                go->draw();
-            }
-        }
 
         // ===== 2D UI描画: HP表示（画面左上） =====
         DrawHPDisplay();

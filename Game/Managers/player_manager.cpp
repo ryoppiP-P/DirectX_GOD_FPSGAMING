@@ -49,39 +49,20 @@ namespace Game {
     }
 
     void PlayerManager::Initialize(Map* map, ID3D11ShaderResourceView* texture) {
-        if (initialPlayerLocked) {
-            if (activePlayerId == 1) {
-                if (!player1Initialized) {
-                    player1.Initialize(map, texture, 1, ViewMode::THIRD_PERSON);
-                    player1.SetPosition(XMFLOAT3(0.0f, 3.0f, 0.0f));
-                    player1Initialized = true;
-                }
-                player2Initialized = false;
-            } else {
-                if (!player2Initialized) {
-                    player2.Initialize(map, texture, 2, ViewMode::FIRST_PERSON);
-                    player2.SetPosition(XMFLOAT3(3.0f, 3.0f, 0.0f));
-                    player2Initialized = true;
-                }
-                player1Initialized = false;
-            }
-            return;
-        }
-
+        // 常に両方のプレイヤーを初期化する
         if (!player1Initialized) {
             player1.Initialize(map, texture, 1, ViewMode::THIRD_PERSON);
             player1.SetPosition(XMFLOAT3(0.0f, 3.0f, 0.0f));
             player1Initialized = true;
         }
-
         if (!player2Initialized) {
             player2.Initialize(map, texture, 2, ViewMode::FIRST_PERSON);
             player2.SetPosition(XMFLOAT3(3.0f, 3.0f, 0.0f));
             player2Initialized = true;
         }
-
-        activePlayerId = 1;
+        // activePlayerId は SetInitialActivePlayer() で設定済み
     }
+
 
     Player* PlayerManager::GetActivePlayer() {
         if (activePlayerId == 1 && player1Initialized) return &player1;
@@ -97,27 +78,14 @@ namespace Game {
 
     void PlayerManager::Update(float deltaTime) {
         HandleInput(deltaTime);
-
-        if (initialPlayerLocked) {
-            Player* p = GetActivePlayer();
-            if (p) p->Update(deltaTime);
-        } else {
-            if (player1Initialized) player1.Update(deltaTime);
-            if (player2Initialized) player2.Update(deltaTime);
-        }
-
+        if (player1Initialized) player1.Update(deltaTime);
+        if (player2Initialized) player2.Update(deltaTime);
         BulletManager::GetInstance().Update(deltaTime);
     }
 
     void PlayerManager::Draw() {
-        if (initialPlayerLocked) {
-            Player* p = GetActivePlayer();
-            if (p) p->Draw();
-        } else {
-            if (player1Initialized) player1.Draw();
-            if (player2Initialized) player2.Draw();
-        }
-
+        if (player1Initialized) player1.Draw();
+        if (player2Initialized) player2.Draw();
         BulletManager::GetInstance().Draw();
     }
 
@@ -241,24 +209,6 @@ namespace Game {
                 pb.dirX = dir.x; pb.dirY = dir.y; pb.dirZ = dir.z;
                 g_network.send_bullet(pb);
             }
-            // ネットワーク接続中なら弾の発射情報を送信
-            if (g_network.is_host() || g_network.getMyPlayerId() != 0) {
-                PacketBullet pb = {};
-                pb.type = PKT_BULLET;
-                pb.seq = 0;
-                pb.ownerPlayerId = (uint32_t)activePlayer->GetPlayerId();
-                pb.posX = pos.x; pb.posY = pos.y; pb.posZ = pos.z;
-                pb.dirX = dir.x; pb.dirY = dir.y; pb.dirZ = dir.z;
-
-                if (g_network.is_host()) {
-                    // ホスト: 全クライアントに弾情報を送信（send_state_to_allと同じ要領）
-                    // ※ NetworkManagerのpublicにsend_bullet_to_allが必要、
-                    //   または直接m_netを使えないのでpublic関数を追加
-                } else {
-                    // クライアント: ホストに弾情報を送信
-                    g_network.send_input(reinterpret_cast<const PacketInput&>(pb));
-                }
-            }
         }
     }
 
@@ -285,5 +235,13 @@ namespace Game {
     Player* GetActivePlayer() {
         return PlayerManager::GetInstance().GetActivePlayer();
     }
+
+    void PlayerManager::ForceUpdatePlayer(int playerId, const XMFLOAT3& pos, const XMFLOAT3& rot) {
+        Player* p = GetPlayer(playerId);
+        if (!p) return;
+        p->ForceSetPosition(pos);
+        p->ForceSetRotation(rot);
+    }
+
 
 } // namespace Game

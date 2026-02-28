@@ -231,13 +231,6 @@ void NetworkManager::process_received(const char* buf, int len,
 
                         // 見つからなければ新しいGameObjectを生成して追加
                         if (!applied) {
-                            auto newObj = std::make_shared<Game::GameObject>();
-                            newObj->setId(os.id);
-                            newObj->setPosition({ os.posX, os.posY, os.posZ });
-                            newObj->setRotation({ os.rotX, os.rotY, os.rotZ });
-                            newObj->setMesh(Box, 36, GetPolygonTexture());         // 四角形メッシュ
-                            newObj->setBoxCollider({ 0.8f, 1.8f, 0.8f });          // 当たり判定
-                            worldObjects.push_back(newObj);
                         }
 
                         // そのクライアントの最終通信時刻を更新
@@ -328,78 +321,31 @@ void NetworkManager::process_received(const char* buf, int len,
 // ============================================================
 void NetworkManager::host_handle_join(const std::string& from_ip, int from_port,
     std::vector<std::shared_ptr<Game::GameObject>>& worldObjects) {
-    // --- 重複クライアントチェック ---
         {
             std::lock_guard<std::mutex> lk(m_mutex);
             for (auto& c : m_clients) {
-                if (c.ip == from_ip && c.port == from_port) {
-                    return;  // 既に参加済みなので何もしない
-                }
+                if (c.ip == from_ip && c.port == from_port) return;
             }
         }
 
-        // --- プレイヤーIDの割り当て ---
-        // ID=1はホスト予約。リモートクライアントにはID=2以降を割り当てる
-        uint32_t assignedId = 0;
+        // クライアントにはID=2を割り当て（Player2に憑依）
+        uint32_t assignedId = 2;
         {
             std::lock_guard<std::mutex> lk(m_mutex);
-            uint32_t cand = m_nextPlayerId;
-            if (cand <= 1) cand = 2;  // ID=1はホスト予約
-
-            // 既存クライアント・worldObjectsと衝突しないIDを探す
-            bool conflict = true;
-            while (conflict) {
-                conflict = false;
-                // 既存クライアントとの衝突チェック
-                for (const auto& c : m_clients) {
-                    if (c.playerId == cand) { conflict = true; break; }
-                }
-                if (conflict) { ++cand; continue; }
-                // worldObjectsとの衝突チェック
-                for (const auto& go : worldObjects) {
-                    if (go && go->getId() == cand) { conflict = true; break; }
-                }
-                if (conflict) ++cand;
-            }
-            assignedId = cand;
-
-            // クライアント情報をリストに登録
             ClientInfo ci;
             ci.ip = from_ip;
             ci.port = from_port;
             ci.playerId = assignedId;
             ci.lastSeen = std::chrono::steady_clock::now();
             m_clients.push_back(ci);
-
-            // 次回の割り当て候補を更新
-            m_nextPlayerId = assignedId + 1;
         }
 
-        // --- GameObjectの作成（または再利用）---
-        bool existed = false;
-        for (const auto& go : worldObjects) {
-            if (go && go->getId() == assignedId) {
-                existed = true;
-                break;
-            }
-        }
+        // ★ GameObjectの新規生成を削除（Player2は既にPlayerManagerが持っている）
 
-        if (!existed) {
-            // 新しいGameObjectを作成してワールドに追加
-            auto newObj = std::make_shared<Game::GameObject>();
-            newObj->setPosition({ 0.0f, 3.0f, 0.0f });           // 初期位置（少し高い場所）
-            newObj->setRotation({ 0.0f, 0.0f, 0.0f });
-            newObj->setId(assignedId);
-            newObj->setMesh(Box, 36, GetPolygonTexture());         // 四角形メッシュで表示
-            newObj->setBoxCollider({ 0.8f, 1.8f, 0.8f });         // プレイヤーサイズの当たり判定
-            worldObjects.push_back(newObj);
-        }
-
-        // --- JOIN_ACKを返送 ---
-        // パケット構造: [PKT_JOIN_ACK(1byte)] [playerId(4bytes, ネットワークバイト順)]
+        // JOIN_ACK返送
         uint8_t reply[1 + 4];
         reply[0] = PKT_JOIN_ACK;
-        uint32_t pid_net = htonl(assignedId);  // ホストバイト順→ネットワークバイト順
+        uint32_t pid_net = htonl(assignedId);
         memcpy(reply + 1, &pid_net, 4);
         m_net.send_to(from_ip, from_port, reply, (int)(1 + 4));
 }
@@ -453,13 +399,6 @@ void NetworkManager::client_handle_state(const PacketStateHeader& hdr,
 
         // 見つからなければ新しいGameObjectを生成
         if (!applied) {
-            auto newObj = std::make_shared<Game::GameObject>();
-            newObj->setId(os.id);
-            newObj->setPosition({ os.posX, os.posY, os.posZ });
-            newObj->setRotation({ os.rotX, os.rotY, os.rotZ });
-            newObj->setMesh(Box, 36, GetPolygonTexture());
-            newObj->setBoxCollider({ 0.8f, 1.8f, 0.8f });
-            worldObjects.push_back(newObj);
         }
     }
 }

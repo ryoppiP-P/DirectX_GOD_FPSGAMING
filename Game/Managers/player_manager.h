@@ -43,6 +43,9 @@ public:
     Player* GetPlayer(int playerId);
 
     void HandleInput(float deltaTime);
+
+    // 相手の位置を外部から更新する
+    void ForceUpdatePlayer(int playerId, const XMFLOAT3& pos, const XMFLOAT3& rot);
 };
 
 void InitializePlayers(Map* map, ID3D11ShaderResourceView* texture);

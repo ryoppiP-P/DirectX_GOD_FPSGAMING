@@ -19,10 +19,10 @@ cbuffer ConstantBuffer : register(b0)
 // b1: ƒ}ƒeƒŠƒAƒ‹î•ñ
 cbuffer MaterialBuffer : register(b1)
 {
-    float4 Diffuse;
-    float4 Ambient;
-    float4 Specular;
-    float4 Emission;
+    float4 Diffuse;    // offset 0
+    float4 Ambient;    // offset 16
+    float4 Specular;   // offset 32
+    float4 Emission;   // offset 48
     float  Shininess;
     float3 Padding;
 }
